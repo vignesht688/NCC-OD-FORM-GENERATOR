@@ -1,0 +1,2 @@
+- `[x]` Update `app.js` with server sync, download/upload logic, and offline fallbacks
+- `[x]` Verify server functionality and file updates

@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCC OD Form Generator</title>
+    <meta name="description" content="NCC On Duty Form Generator — Sri Ramakrishna College of Arts & Science">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d2e;
+            --surface2: #22263a;
+            --border: #2e3250;
+            --accent: #4f7cff;
+            --accent-hover: #6b92ff;
+            --green: #22c55e;
+            --green-bg: rgba(34,197,94,0.12);
+            --red: #ef4444;
+            --red-bg: rgba(239,68,68,0.1);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59,130,246,0.12);
+            --text: #e2e8f0;
+            --text2: #94a3b8;
+            --text3: #64748b;
+            --gold: #f59e0b;
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, #1e2340 0%, #151829 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-shrink: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        .header-brand { display: flex; align-items: center; gap: 1rem; }
+        .ncc-badge {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1rem; color: white;
+            box-shadow: 0 4px 12px rgba(79,124,255,0.4);
+        }
+        header h1 { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+        header p { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+
+        .header-status {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.78rem; color: var(--text2);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.35rem 0.9rem;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+        .status-dot.offline { background: var(--red); }
+
+        /* MAIN LAYOUT */
+        main {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* EVENT BAR */
+        .event-bar {
+            display: flex;
+            gap: 1.25rem;
+            background: linear-gradient(135deg, #151829 0%, #1a1d2e 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 0.5rem 2rem;
+            align-items: flex-end;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            z-index: 99;
+        }
+        .event-bar .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        /* LEFT PANEL */
+        .left-panel {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-section {
+            padding: 0.85rem 1.1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .panel-section:last-child { border-bottom: none; }
+
+        .section-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        label { font-size: 0.75rem; color: var(--text2); display: block; margin-bottom: 0.25rem; }
+
+        input[type="date"], input[type="text"], textarea, select {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 0.45rem 0.65rem;
+            font-size: 0.82rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        input[type="date"]:focus, input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(79,124,255,0.15);
+        }
+        textarea { resize: vertical; min-height: 48px; line-height: 1.3; }
+
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+        /* CADET LIST */
+        .cadet-list-wrap {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .cadet-list-header {
+            padding: 0.75rem 1.1rem 0.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: var(--surface);
+        }
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+        .search-box i {
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            color: var(--text3); font-size: 0.8rem; pointer-events: none;
+        }
+        .search-box input {
+            padding-left: 2rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .bulk-btns { display: flex; gap: 0.3rem; }
+        .btn-bulk {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.3rem 0.5rem;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text2);
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .btn-bulk:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .btn-bulk.select-all:hover { background: var(--blue); border-color: var(--blue); color: white; }
+        .btn-bulk.deselect:hover { background: var(--surface2); border-color: var(--red); color: var(--red); }
+
+        .cadet-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.4rem 0;
+        }
+        .cadet-list::-webkit-scrollbar { width: 5px; }
+        .cadet-list::-webkit-scrollbar-track { background: transparent; }
+        .cadet-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .cadet-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1.1rem;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .cadet-row:hover { background: var(--surface2); }
+        .cadet-row.selected { 
+            background: rgba(79, 124, 255, 0.22); 
+            border-left-color: var(--accent);
+        }
+        .cadet-row.selected .cadet-name { color: #ffffff; font-weight: 600; }
+
+        .cadet-checkbox {
+            width: 16px; height: 16px;
+            border-radius: 4px;
+            border: 2px solid var(--border);
+            background: var(--surface2);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+        .cadet-row.selected .cadet-checkbox {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .cadet-checkbox i { font-size: 0.55rem; color: white; display: none; }
+        .cadet-row.selected .cadet-checkbox i { display: block; }
+
+        .cadet-info { flex: 1; min-width: 0; }
+        .cadet-name { font-size: 0.8rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cadet-meta { font-size: 0.7rem; color: var(--text3); margin-top: 1px; }
+
+        .sno { font-size: 0.7rem; color: var(--text3); width: 18px; text-align: right; flex-shrink: 0; }
+
+        .empty-list {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text3);
+            font-size: 0.85rem;
+        }
+
+        .cadet-action-btn:hover.edit { color: var(--accent-hover) !important; }
+        .cadet-action-btn:hover.delete { color: var(--red) !important; }
+
+        /* RIGHT PANEL — PREVIEW */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            background: var(--surface);
+        }
+
+        .preview-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text2);
+        }
+
+        .od-count-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(79,124,255,0.15);
+            border: 1px solid rgba(79,124,255,0.3);
+            border-radius: 20px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.78rem;
+            color: var(--accent-hover);
+            font-weight: 600;
+        }
+
+        .btn-download {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.65rem 1.4rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(79,124,255,0.35);
+        }
+        .btn-download:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,124,255,0.45); }
+        .btn-download:active { transform: translateY(0); }
+        .btn-download:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-download.loading i { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .btn-quick-gen {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.65rem 1.4rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(34,197,94,0.35);
+        }
+        .btn-quick-gen:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(34,197,94,0.45); }
+        .btn-quick-gen:active { transform: translateY(0); }
+        .btn-quick-gen:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-quick-gen.loading i { animation: spin 1s linear infinite; }
+
+        /* PAPER PREVIEW */
+        .preview-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .preview-body::-webkit-scrollbar { width: 6px; }
+        .preview-body::-webkit-scrollbar-track { background: transparent; }
+        .preview-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .paper {
+            background: white;
+            color: #1a1a1a;
+            width: 100%;
+            max-width: 680px;
+            min-height: auto;
+            border-radius: 6px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            padding: 1.5rem 1.5rem 1.25rem;
+            font-family: 'Cambria', Georgia, serif;
+            transform-origin: top center;
+            transition: transform 0.15s ease-out;
+        }
+
+        .paper-college {
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+        .paper-unit {
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            text-align: center;
+            margin-bottom: 2px;
+        }
+        .paper-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            text-align: center;
+            text-decoration: underline;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .paper-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
+        }
+        .paper-table th, .paper-table td {
+            border: 1px solid #333;
+            padding: 0.25rem 0.35rem;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .paper-table th {
+            background: #f0f0f0;
+            font-weight: 700;
+            font-size: 0.68rem;
+        }
+        .paper-table td.left { text-align: left; padding-left: 0.4rem; }
+        .paper-table .merged-td { vertical-align: middle; }
+
+        .paper-sigs {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4.5rem;
+            font-family: 'Georgia', serif;
+            font-size: 0.75rem;
+        }
+
+        /* EMPTY STATE */
+        .empty-paper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.25rem;
+            min-height: 380px;
+            color: var(--text3);
+            text-align: center;
+            padding: 2rem;
+        }
+        .empty-paper i {
+            font-size: 4rem;
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 12px rgba(79,124,255,0.3));
+            margin-bottom: 0.5rem;
+            opacity: 0.75;
+        }
+        .empty-paper p {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text2);
+            max-width: 280px;
+            line-height: 1.5;
+            opacity: 0.85;
+        }
+
+        /* TOAST */
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.85rem;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            transform: translateY(6rem);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            min-width: 220px;
+        }
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.success { border-color: rgba(34,197,94,0.4); }
+        #toast.error { border-color: rgba(239,68,68,0.4); }
+
+        /* RESPONSIVE */
+        @media (max-width: 800px) {
+            main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
+            .left-panel { max-height: 50vh; }
+        }
+
+        /* CUSTOM CONFIRM MODAL */
+        #confirm-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        #confirm-modal-overlay.active { display: flex; }
+        #confirm-modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 2rem 1.5rem;
+            width: min(420px, 90vw);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            animation: modalPop 0.2s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.85); opacity: 0; }
+            to   { transform: scale(1);    opacity: 1; }
+        }
+        #confirm-modal .modal-icon {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: rgba(239,68,68,0.15);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.25rem;
+            font-size: 1.4rem; color: #ef4444;
+        }
+        #confirm-modal h3 {
+            font-size: 1.05rem; font-weight: 700;
+            color: var(--text); text-align: center; margin: 0 0 0.5rem;
+        }
+        #confirm-modal p {
+            font-size: 0.85rem; color: var(--text2);
+            text-align: center; margin: 0 0 1.75rem; line-height: 1.55;
+        }
+        #confirm-modal .modal-actions {
+            display: flex; gap: 0.75rem;
+        }
+        #confirm-modal .btn-modal-cancel {
+            flex: 1; padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text2); font-size: 0.875rem;
+            cursor: pointer; font-weight: 500;
+            transition: background 0.15s;
+        }
+        #confirm-modal .btn-modal-cancel:hover { background: var(--border); }
+        #confirm-modal .btn-modal-confirm {
+            flex: 1; padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff; font-size: 0.875rem;
+            cursor: pointer; font-weight: 600;
+            transition: opacity 0.15s;
+        }
+        #confirm-modal .btn-modal-confirm:hover { opacity: 0.88; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <div class="ncc-badge">NCC</div>
+        <div>
+            <h1>NCC OD Form Generator</h1>
+            <p>Sri Ramakrishna College of Arts &amp; Science</p>
+        </div>
+    </div>
+    <div class="header-status" id="conn-status">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">Connecting...</span>
+    </div>
+</header>
+
+<div class="event-bar">
+    <div style="flex: 1;">
+        <label for="od-date">Date</label>
+        <input type="date" id="od-date">
+    </div>
+    <div style="flex: 1.8;">
+        <label for="od-particulars">Particulars (Event Name)</label>
+        <input type="text" id="od-particulars" placeholder="e.g. WORK AT UNIT, PARADE…" autocomplete="off">
+    </div>
+    <div style="flex: 3;">
+        <label for="od-reason">On Duty Clause</label>
+        <textarea id="od-reason" rows="1" placeholder="Auto-filled when you enter a date…" style="min-height:36px; resize:none;"></textarea>
+    </div>
+</div>
+
+<main>
+    <!-- ===== LEFT PANEL ===== -->
+    <div class="left-panel">
+
+
+        <!-- Document Settings (Collapsible) -->
+        <div class="panel-section accordion-section" style="padding: 0.5rem 1.1rem; border-bottom: 1px solid var(--border);">
+            <div class="accordion-header" onclick="toggleAccordion('settings-acc')" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 0.4rem 0; user-select: none;">
+                <span style="font-size:0.75rem; font-weight:600; color:var(--text2);"><i class="fa-solid fa-gear" style="margin-right:0.4rem;"></i>Document Settings</span>
+                <i class="fa-solid fa-chevron-down accordion-icon" id="settings-acc-icon" style="font-size:0.7rem; color:var(--text3); transition: transform 0.2s;"></i>
+            </div>
+            <div class="accordion-content" id="settings-acc-content" style="display:none; padding: 0.5rem 0 0.25rem;">
+                <label for="config-college" style="font-size:0.7rem;">College Name</label>
+                <input type="text" id="config-college" style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;">
+                
+                <label for="config-unit" style="font-size:0.7rem;">Unit Name</label>
+                <input type="text" id="config-unit" style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;">
+                
+                <label for="config-title" style="font-size:0.7rem;">Form Title</label>
+                <input type="text" id="config-title" style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;">
+
+                <div class="input-row">
+                    <div>
+                        <label for="config-sig-left" style="font-size:0.7rem;">Left Signature</label>
+                        <input type="text" id="config-sig-left" style="font-size:0.75rem; padding: 0.35rem 0.5rem;">
+                    </div>
+                    <div>
+                        <label for="config-sig-right" style="font-size:0.7rem;">Right Signature</label>
+                        <input type="text" id="config-sig-right" style="font-size:0.75rem; padding: 0.35rem 0.5rem;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Cadets (Collapsible) -->
+        <div class="panel-section accordion-section" style="padding: 0.5rem 1.1rem; border-bottom: 1px solid var(--border);">
+            <div class="accordion-header" onclick="toggleAccordion('manage-acc')" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 0.4rem 0; user-select: none;">
+                <span style="font-size:0.75rem; font-weight:600; color:var(--text2);"><i class="fa-solid fa-users-gear" style="margin-right:0.4rem;"></i>Manage Cadets</span>
+                <i class="fa-solid fa-chevron-down accordion-icon" id="manage-acc-icon" style="font-size:0.7rem; color:var(--text3); transition: transform 0.2s;"></i>
+            </div>
+            <div class="accordion-content" id="manage-acc-content" style="display:none; padding: 0.5rem 0 0.25rem;">
+                <form id="cadet-form" onsubmit="handleCadetSubmit(event)">
+                    <input type="hidden" id="edit-cadet-original-reg">
+                    
+                    <label for="cadet-name" style="font-size:0.7rem;">Cadet Name *</label>
+                    <input type="text" id="cadet-name" required style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;" placeholder="e.g. AADHIN S">
+                    
+                    <label for="cadet-reg" style="font-size:0.7rem;">Register No</label>
+                    <input type="text" id="cadet-reg" style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;" placeholder="e.g. 24104070">
+                    
+                    <label for="cadet-dept" style="font-size:0.7rem;">Department</label>
+                    <input type="text" id="cadet-dept" style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;" placeholder="e.g. BCOM CA">
+                    
+                    <div style="margin-bottom:0.6rem;">
+                        <label for="cadet-shift" style="font-size:0.7rem;">Shift</label>
+                        <select id="cadet-shift" style="width:100%; font-size:0.75rem; padding: 0.35rem 0.5rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius:8px;">
+                            <option value="">None</option>
+                            <option value="SHIFT-I">Shift I</option>
+                            <option value="SHIFT-II">Shift II</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display:flex; gap:0.4rem;">
+                        <button type="submit" id="btn-save-cadet" class="btn-bulk" style="flex:2; padding:0.45rem; background:var(--accent); color:white; border-color:var(--accent);">Add Cadet</button>
+                        <button type="button" id="btn-cancel-edit" onclick="cancelCadetEdit()" class="btn-bulk" style="flex:1; padding:0.45rem; display:none;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Cadet Search + Bulk -->
+        <div class="cadet-list-wrap">
+            <div class="cadet-list-header">
+                <div style="display:flex; gap:0.4rem; width:100%;">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="search-input" placeholder="Search cadets…">
+                    </div>
+                    <div class="bulk-btns">
+                        <button class="btn-bulk select-all" onclick="selectAll()">All</button>
+                        <button class="btn-bulk deselect" onclick="deselectAll()">Clear</button>
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.3rem; width:100%;">
+                    <select id="filter-shift" style="flex:1; padding: 0.25rem 0.3rem; border-radius: 6px; font-size: 0.72rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text);">
+                        <option value="">Shifts</option>
+                        <option value="SHIFT-I">Shift I</option>
+                        <option value="SHIFT-II">Shift II</option>
+                    </select>
+                    <select id="filter-year" style="flex:1; padding: 0.25rem 0.3rem; border-radius: 6px; font-size: 0.72rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text);">
+                        <option value="">Years</option>
+                        <option value="I">I Year</option>
+                        <option value="II">II Year</option>
+                        <option value="III">III Year</option>
+                    </select>
+                    <select id="filter-dept" style="flex:1.2; padding: 0.25rem 0.3rem; border-radius: 6px; font-size: 0.72rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text);">
+                        <option value="">Depts</option>
+                    </select>
+                    <button class="btn-bulk" id="sort-toggle" onclick="toggleSort()" title="Sort A-Z / Database Order" style="padding: 0.25rem 0.4rem; font-size: 0.72rem;">
+                        <i class="fa-solid fa-sort-alpha-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cadet list -->
+            <div class="cadet-list" id="cadet-list">
+                <div class="empty-list">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    <p>Loading cadets...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== RIGHT PANEL ===== -->
+    <div class="right-panel">
+
+        <div class="preview-header" style="flex-wrap: wrap; gap: 0.6rem; padding: 0.6rem 1.1rem;">
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+                <span class="preview-title" style="display:flex; align-items:center; gap:0.4rem; font-weight:600; color:var(--text2);">
+                    <i class="fa-solid fa-eye" style="opacity:0.6"></i>Live Preview
+                </span>
+                <span class="zoom-wrap" style="display:flex; align-items:center; gap:0.25rem; font-size:0.72rem; margin-left:0.4rem;">
+                    <label for="preview-zoom" style="margin-bottom:0; color:var(--text3); font-size:0.72rem;">Zoom:</label>
+                    <select id="preview-zoom" onchange="applyZoom(this.value)" style="padding:0.15rem 0.3rem; font-size:0.72rem; border-radius:4px; background:var(--surface2); border:1px solid var(--border); color:var(--text); outline:none;">
+                        <option value="5">500%</option>
+                        <option value="2.5">250%</option>
+                        <option value="2">200%</option>
+                        <option value="1.5">150%</option>
+                        <option value="1" selected>100%</option>
+                        <option value="0.9">90%</option>
+                        <option value="0.8">80%</option>
+                        <option value="0.7">70%</option>
+                        <option value="0.6">60%</option>
+                    </select>
+                </span>
+            </div>
+            
+            <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-left:auto;">
+                <span class="od-count-badge" id="od-count-badge" style="padding:0.25rem 0.6rem; font-size:0.75rem;">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span id="od-count-text">0 cadets selected</span>
+                </span>
+                
+                <button class="btn-download" id="btn-browser-download" disabled onclick="downloadODFormBrowser()" style="padding: 0.45rem 0.9rem; font-size: 0.78rem; border-radius:8px; background: linear-gradient(135deg, var(--accent), #3b82f6); box-shadow: 0 2px 8px rgba(79,124,255,0.25);">
+                    <i class="fa-solid fa-download" id="btn-browser-icon"></i>
+                    Download (.docx)
+                </button>
+                
+                <button class="btn-download" id="btn-download" disabled onclick="generateODForm()" style="padding: 0.45rem 0.9rem; font-size: 0.78rem; border-radius:8px; background: linear-gradient(135deg, #7c3aed, #9333ea); box-shadow: 0 2px 8px rgba(124,58,237,0.25);">
+                    <i class="fa-solid fa-file-word" id="btn-icon"></i>
+                    Open in Word
+                </button>
+                
+                <button class="btn-quick-gen" id="btn-quick-gen" onclick="quickGenerateAll()" style="padding: 0.45rem 0.9rem; font-size: 0.78rem; border-radius:8px; background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 2px 8px rgba(34,197,94,0.25);">
+                    <i class="fa-solid fa-bolt" id="btn-quick-icon"></i>
+                    Quick Gen
+                </button>
+            </div>
+        </div>
+
+        <div class="preview-body">
+            <div id="paper-container" style="width: 100%; display: flex; justify-content: center; overflow: hidden;">
+                <div class="paper" id="paper">
+                    <div class="empty-paper" id="preview-empty">
+                        <i class="fa-solid fa-file-word"></i>
+                        <p>Select cadets on the left to preview the OD Form</p>
+                    </div>
+                    <div id="preview-content" style="display:none;">
+                        <div class="paper-college" id="pr-college">SRI RAMAKRISHNA COLLEGE OF ARTS &amp; SCIENCE (AUTONOMOUS)</div>
+                        <div class="paper-unit" id="pr-unit">NATIONAL CADET CORPS</div>
+                        <div class="paper-title" id="pr-title">OD FORM</div>
+                        <table class="paper-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:4%">S.No</th>
+                                    <th style="width:10%">Reg No</th>
+                                    <th style="width:20%">Name</th>
+                                    <th style="width:18%">Department</th>
+                                    <th style="width:6%">Shift</th>
+                                    <th style="width:20%">Particulars</th>
+                                    <th style="width:22%">On Duty</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-tbody"></tbody>
+                        </table>
+                        <div class="paper-sigs">
+                            <span id="pr-sig-left">NCC Officer</span>
+                            <span id="pr-sig-right">Principal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Custom Confirm Modal -->
+<div id="confirm-modal-overlay">
+    <div id="confirm-modal">
+        <div class="modal-icon"><i class="fa-solid fa-trash-can"></i></div>
+        <h3 id="confirm-modal-title">Delete Cadet</h3>
+        <p id="confirm-modal-msg">Are you sure you want to delete this cadet? This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <button class="btn-modal-confirm" onclick="confirmDeleteCadet()">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast">
+    <i class="fa-solid fa-circle-check" id="toast-icon"></i>
+    <span id="toast-msg">Message</span>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let cadets = [];
+let selectedKeys = new Set();
+let searchQuery = '';
+let isSortedAZ = false;
+
+// Doc config (loaded from server or defaults)
+const docConfig = {
+    college: 'SRI RAMAKRISHNA COLLEGE OF ARTS & SCIENCE (AUTONOMOUS)',
+    unit: 'NATIONAL CADET CORPS',
+    formType: 'OD FORM',
+    sigLeft: 'NCC Officer',
+    sigRight: 'Principal'
+};
+
+// ============================================================
+// CUSTOM CONFIRM MODAL
+// ============================================================
+let _modalPendingIndex = null;
+
+function showDeleteModal(idx) {
+    const cadet = cadets[idx];
+    if (!cadet) { showToast('❌ Cadet not found.', 'error'); return; }
+    _modalPendingIndex = idx;
+    document.getElementById('confirm-modal-title').textContent = 'Delete Cadet';
+    document.getElementById('confirm-modal-msg').textContent =
+        'Delete "' + cadet.name + '"? This cannot be undone.';
+    document.getElementById('confirm-modal-overlay').classList.add('active');
+}
+
+function closeDeleteModal() {
+    _modalPendingIndex = null;
+    document.getElementById('confirm-modal-overlay').classList.remove('active');
+}
+
+async function confirmDeleteCadet() {
+    const index = _modalPendingIndex;
+    closeDeleteModal();
+    if (index === null || index < 0 || index >= cadets.length) return;
+
+    const cadet = cadets[index];
+    const key = getCadetKey(cadet);
+    cadets.splice(index, 1);
+    selectedKeys.delete(key);
+
+    localStorage.setItem('ncc_cadets_backup', JSON.stringify(cadets));
+    const synced = await saveCadetsToServer();
+    showToast(synced ? '✅ Cadet deleted!' : '⚠️ Deleted locally.', synced ? 'success' : 'error');
+
+    populateDepartmentFilter();
+    renderList();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', async () => {
+    setTodayDate();
+    initSettings();
+    await checkServer();
+    await loadCadets();
+    setupListeners();
+    applyZoom('1'); // default zoom to fit screen comfortably
+});
+
+function setTodayDate() {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, '0');
+    const d = String(today.getDate()).padStart(2, '0');
+    document.getElementById('od-date').value = `${y}-${m}-${d}`;
+    autoFillODReason();
+}
+
+async function checkServer() {
+    try {
+        const res = await fetch('/api/cadets');
+        const online = res.ok;
+        const dot = document.getElementById('status-dot');
+        const text = document.getElementById('status-text');
+        if(dot) dot.className = 'status-dot' + (online ? '' : ' offline');
+        if(text) text.textContent = online ? 'Server Online' : 'Offline';
+        return online;
+    } catch {
+        return false;
+    }
+}
+
+// Helper to sort cadets by year (III first, then II, then I) and register number (attendance-wise)
+function getYearWeight(department) {
+    const dept = (department || '').trim().toUpperCase();
+    if (dept.startsWith('III')) return 3;
+    if (dept.startsWith('II')) return 2;
+    if (dept.startsWith('I')) return 1;
+    return 0;
+}
+
+function sortCadetsForOD(a, b) {
+    // 1. Sort by Year (III first, then II, then I)
+    const weightA = getYearWeight(a.department);
+    const weightB = getYearWeight(b.department);
+    if (weightB !== weightA) {
+        return weightB - weightA;
+    }
+
+    // 2. Sort by Name (alphabetically)
+    const nameA = (a.name || '').trim().toUpperCase();
+    const nameB = (b.name || '').trim().toUpperCase();
+    if (nameA !== nameB) {
+        return nameA.localeCompare(nameB);
+    }
+
+    // 3. Fallback to Register Number
+    const regA = (a.register_no || '').trim();
+    const regB = (b.register_no || '').trim();
+    return regA.localeCompare(regB);
+}
+
+// ============================================================
+// LOAD CADETS
+// ============================================================
+async function loadCadets() {
+    try {
+        const res = await fetch('/api/cadets');
+        if (res.ok) {
+            cadets = await res.json();
+        } else {
+            throw new Error('Server returned non-ok status');
+        }
+    } catch (e) {
+        console.warn('Could not load cadets from server, trying backup:', e);
+        const backup = localStorage.getItem('ncc_cadets_backup');
+        if (backup) {
+            try {
+                cadets = JSON.parse(backup);
+            } catch (err) {
+                console.error('Failed to parse backup', err);
+            }
+        }
+    }
+    if (Array.isArray(cadets)) {
+        cadets.sort(sortCadetsForOD);
+    } else {
+        cadets = [];
+    }
+    populateDepartmentFilter();
+    renderList();
+}
+
+function getCadetKey(c) {
+    return (c.register_no || c.name || '').trim();
+}
+
+// ============================================================
+// ACCORDION TOGGLE
+// ============================================================
+function toggleAccordion(id) {
+    const content = document.getElementById(`${id}-content`);
+    const icon = document.getElementById(`${id}-icon`);
+    const isOpen = content.style.display === 'block';
+    
+    // Close other accordions
+    document.querySelectorAll('.accordion-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.accordion-icon').forEach(el => el.style.transform = 'rotate(0deg)');
+    
+    if (!isOpen) {
+        content.style.display = 'block';
+        icon.style.transform = 'rotate(180deg)';
+    }
+}
+
+// ============================================================
+// DOCUMENT CONFIG SETTINGS
+// ============================================================
+function initSettings() {
+    const savedConfig = localStorage.getItem('ncc_od_config');
+    if (savedConfig) {
+        try {
+            Object.assign(docConfig, JSON.parse(savedConfig));
+        } catch (e) {
+            console.error('Error loading config from localStorage', e);
+        }
+    }
+    
+    document.getElementById('config-college').value = docConfig.college;
+    document.getElementById('config-unit').value = docConfig.unit;
+    document.getElementById('config-title').value = docConfig.formType;
+    document.getElementById('config-sig-left').value = docConfig.sigLeft;
+    document.getElementById('config-sig-right').value = docConfig.sigRight;
+    
+    const inputs = ['config-college', 'config-unit', 'config-title', 'config-sig-left', 'config-sig-right'];
+    inputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', updateDocConfigFromInputs);
+    });
+    
+    updateDocConfigFromInputs();
+}
+
+function updateDocConfigFromInputs() {
+    docConfig.college = document.getElementById('config-college').value.trim();
+    docConfig.unit = document.getElementById('config-unit').value.trim();
+    docConfig.formType = document.getElementById('config-title').value.trim();
+    docConfig.sigLeft = document.getElementById('config-sig-left').value.trim();
+    docConfig.sigRight = document.getElementById('config-sig-right').value.trim();
+    
+    localStorage.setItem('ncc_od_config', JSON.stringify(docConfig));
+    
+    // Update live preview document texts
+    document.getElementById('pr-college').textContent = docConfig.college;
+    document.getElementById('pr-unit').textContent = docConfig.unit;
+    document.getElementById('pr-title').textContent = docConfig.formType;
+    document.getElementById('pr-sig-left').textContent = docConfig.sigLeft;
+    document.getElementById('pr-sig-right').textContent = docConfig.sigRight;
+}
+
+// ============================================================
+// CADET DATABASE SYNC
+// ============================================================
+async function saveCadetsToServer() {
+    try {
+        const res = await fetch('/api/cadets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cadets)
+        });
+        return res.ok;
+    } catch (e) {
+        console.error('Sync failed:', e);
+        return false;
+    }
+}
+
+async function handleCadetSubmit(e) {
+    e.preventDefault();
+    const nameVal = document.getElementById('cadet-name').value.trim();
+    const regVal = document.getElementById('cadet-reg').value.trim();
+    const deptVal = document.getElementById('cadet-dept').value.trim();
+    const shiftVal = document.getElementById('cadet-shift').value;
+    const originalReg = document.getElementById('edit-cadet-original-reg').value;
+
+    if (!nameVal) {
+        showToast('Name is required.', 'error');
+        return;
+    }
+
+    if (originalReg !== '') {
+        // Edit Mode — originalReg is now the numeric index
+        const idx = parseInt(originalReg, 10);
+        if (!isNaN(idx) && idx >= 0 && idx < cadets.length) {
+            cadets[idx] = { name: nameVal, register_no: regVal, department: deptVal, shift: shiftVal };
+            showToast('Cadet updated');
+        }
+    } else {
+        // Add Mode
+        const newKey = (regVal || nameVal).trim();
+        if (cadets.some(c => getCadetKey(c) === newKey)) {
+            showToast('A cadet with this Reg No or Name already exists!', 'error');
+            return;
+        }
+        cadets.push({ name: nameVal, register_no: regVal, department: deptVal, shift: shiftVal });
+        showToast('Cadet added');
+    }
+
+    cadets.sort(sortCadetsForOD);
+
+    localStorage.setItem('ncc_cadets_backup', JSON.stringify(cadets));
+    const synced = await saveCadetsToServer();
+    if (synced) {
+        showToast('✅ Saved & Synced to server database!', 'success');
+    } else {
+        showToast('⚠️ Saved locally. Offline mode.', 'error');
+    }
+
+    populateDepartmentFilter();
+    renderList();
+    cancelCadetEdit();
+}
+
+function startEditCadet(idx) {
+    const index = parseInt(idx, 10);
+    if (isNaN(index) || index < 0 || index >= cadets.length) return;
+    const cadet = cadets[index];
+
+    // Open manage accordion if closed
+    const content = document.getElementById('manage-acc-content');
+    if (content.style.display !== 'block') {
+        toggleAccordion('manage-acc');
+    }
+
+    document.getElementById('cadet-name').value = cadet.name;
+    document.getElementById('cadet-reg').value = cadet.register_no || '';
+    document.getElementById('cadet-dept').value = cadet.department || '';
+    document.getElementById('cadet-shift').value = cadet.shift || '';
+    document.getElementById('edit-cadet-original-reg').value = String(index);
+
+    const saveBtn = document.getElementById('btn-save-cadet');
+    saveBtn.textContent = 'Save Changes';
+    saveBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+    saveBtn.style.borderColor = '#d97706';
+    document.getElementById('btn-cancel-edit').style.display = 'block';
+}
+
+function cancelCadetEdit() {
+    document.getElementById('cadet-form').reset();
+    document.getElementById('edit-cadet-original-reg').value = '';
+    
+    const saveBtn = document.getElementById('btn-save-cadet');
+    saveBtn.textContent = 'Add Cadet';
+    saveBtn.style.background = 'var(--accent)';
+    saveBtn.style.borderColor = 'var(--border)';
+    document.getElementById('btn-cancel-edit').style.display = 'none';
+}
+
+async function deleteCadet(idx) {
+    showDeleteModal(idx);
+}
+
+
+// ============================================================
+// DYNAMIC FILTERS & DROPDOWNS
+// ============================================================
+function populateDepartmentFilter() {
+    const deptSelect = document.getElementById('filter-dept');
+    if (!deptSelect) return;
+    const currentVal = deptSelect.value;
+    
+    const depts = [...new Set(cadets.map(c => (c.department || '').trim()).filter(Boolean))];
+    depts.sort();
+
+    deptSelect.innerHTML = '<option value="">All Departments</option>' +
+        depts.map(d => `<option value="${d}">${d}</option>`).join('');
+
+    if (depts.includes(currentVal)) {
+        deptSelect.value = currentVal;
+    } else {
+        deptSelect.value = '';
+    }
+}
+
+function toggleSort() {
+    isSortedAZ = !isSortedAZ;
+    const sortBtn = document.getElementById('sort-toggle');
+    if (isSortedAZ) {
+        sortBtn.classList.add('active');
+        sortBtn.style.color = 'var(--accent-hover)';
+        sortBtn.style.borderColor = 'var(--accent)';
+    } else {
+        sortBtn.classList.remove('active');
+        sortBtn.style.color = 'var(--text2)';
+        sortBtn.style.borderColor = 'var(--border)';
+    }
+    renderList();
+}
+
+// ============================================================
+// STATE YEAR DETECTOR HELPER
+// ============================================================
+function getCadetYear(c) {
+    const dept = (c.department || '').trim().toUpperCase();
+    if (dept.startsWith('III ') || dept.startsWith('3RD ') || dept.includes(' III ') || dept.includes(' 3RD ')) {
+        return 'III';
+    }
+    if (dept.startsWith('II ') || dept.startsWith('2ND ') || dept.includes(' II ') || dept.includes(' 2ND ')) {
+        return 'II';
+    }
+    return 'I';
+}
+
+// ============================================================
+// RENDER CADET LIST
+// ============================================================
+function renderList() {
+    const container = document.getElementById('cadet-list');
+    const q = searchQuery.toLowerCase();
+    const shiftVal = document.getElementById('filter-shift').value;
+    const yearVal = document.getElementById('filter-year').value;
+    const deptVal = document.getElementById('filter-dept').value;
+
+    // Build indexed list first to preserve original cadets[] positions
+    let indexed = cadets.map((c, idx) => ({ c, idx })).filter(({ c }) => {
+        const matchesSearch = !q ||
+            c.name.toLowerCase().includes(q) ||
+            (c.register_no || '').toLowerCase().includes(q) ||
+            (c.department || '').toLowerCase().includes(q);
+        const matchesShift = !shiftVal || c.shift === shiftVal;
+        const matchesYear = !yearVal || getCadetYear(c) === yearVal;
+        const matchesDept = !deptVal || c.department === deptVal;
+        return matchesSearch && matchesShift && matchesYear && matchesDept;
+    });
+
+    if (isSortedAZ) {
+        indexed.sort((a, b) => a.c.name.localeCompare(b.c.name));
+    }
+
+    if (indexed.length === 0) {
+        container.innerHTML = `<div class="empty-list"><i class="fa-solid fa-magnifying-glass"></i><p>No cadets found</p></div>`;
+        updatePreview();
+        return;
+    }
+
+    container.innerHTML = indexed.map(({ c, idx }, listPos) => {
+        const key = getCadetKey(c);
+        const sel = selectedKeys.has(key);
+        const encKey = encodeURIComponent(key);
+        return `
+            <div class="cadet-row${sel ? ' selected' : ''}" data-key="${encKey}" onclick="toggleCadet(decodeURIComponent('${encKey}'))" style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 1.1rem; gap:0.5rem; cursor:pointer;">
+                <div style="display:flex; align-items:center; gap:0.5rem; flex:1; min-width:0;">
+                    <span class="sno" style="font-size:0.7rem; color:var(--text3); width:18px; text-align:right; flex-shrink:0;">${listPos + 1}</span>
+                    <div class="cadet-checkbox"><i class="fa-solid fa-check"></i></div>
+                    <div class="cadet-info" style="flex:1; min-width:0;">
+                        <div class="cadet-name" style="font-size:0.8rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
+                        <div class="cadet-meta" style="font-size:0.7rem; color:var(--text3); margin-top:1px;">${c.register_no || 'NO REG'} · ${c.department || ''} · ${c.shift || 'NO SHIFT'}</div>
+                    </div>
+                </div>
+                <div class="cadet-actions-row" style="display:flex; gap:0.35rem; flex-shrink:0;" onclick="event.stopPropagation()">
+                    <span class="cadet-action-btn" title="Edit Cadet" onclick="startEditCadet(${idx})" style="font-size:0.75rem; padding:0.3rem 0.4rem; color:var(--text3); cursor:pointer; transition:color 0.15s; display:inline-flex; align-items:center; border-radius:4px;"><i class="fa-solid fa-pen"></i></span>
+                    <span class="cadet-action-btn" title="Delete Cadet" onclick="deleteCadet(${idx})" style="font-size:0.75rem; padding:0.3rem 0.4rem; color:#ef4444; cursor:pointer; transition:opacity 0.15s; display:inline-flex; align-items:center; border-radius:4px;"><i class="fa-solid fa-trash"></i></span>
+                </div>
+            </div>`;
+    }).join('');
+
+    updatePreview();
+}
+
+// ============================================================
+// SELECTION
+// ============================================================
+function toggleCadet(key) {
+    if (selectedKeys.has(key)) selectedKeys.delete(key);
+    else selectedKeys.add(key);
+    renderList();
+}
+
+function selectAll() {
+    const q = searchQuery.toLowerCase();
+    const shiftVal = document.getElementById('filter-shift').value;
+    const yearVal = document.getElementById('filter-year').value;
+    const deptVal = document.getElementById('filter-dept').value;
+
+    const filtered = cadets.filter(c => {
+        const matchesSearch = !q ||
+            c.name.toLowerCase().includes(q) ||
+            (c.register_no || '').toLowerCase().includes(q);
+        const matchesShift = !shiftVal || c.shift === shiftVal;
+        const matchesYear = !yearVal || getCadetYear(c) === yearVal;
+        const matchesDept = !deptVal || c.department === deptVal;
+        return matchesSearch && matchesShift && matchesYear && matchesDept;
+    });
+
+    filtered.forEach(c => selectedKeys.add(getCadetKey(c)));
+    renderList();
+}
+
+function deselectAll() {
+    selectedKeys.clear();
+    renderList();
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+function setupListeners() {
+    document.getElementById('search-input').addEventListener('input', e => {
+        searchQuery = e.target.value;
+        renderList();
+    });
+
+    document.getElementById('od-date').addEventListener('change', autoFillODReason);
+    document.getElementById('od-particulars').addEventListener('input', updatePreview);
+    document.getElementById('od-reason').addEventListener('input', updatePreview);
+    
+    document.getElementById('filter-shift').addEventListener('change', renderList);
+    document.getElementById('filter-year').addEventListener('change', renderList);
+    document.getElementById('filter-dept').addEventListener('change', renderList);
+
+    // Note: click handlers are now inline on each element for reliability
+}
+
+// ============================================================
+// AUTO-FILL OD REASON
+// ============================================================
+function autoFillODReason() {
+    const dateVal = document.getElementById('od-date').value;
+    if (!dateVal) return;
+    const d = new Date(dateVal);
+    const months = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+    const day = d.getDate();
+    const suffix = day === 1 ? 'ST' : day === 2 ? 'ND' : day === 3 ? 'RD' : 'TH';
+    const dateStr = `${day}${suffix} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    document.getElementById('od-reason').value =
+        `EXEMPTION FROM ALL ACADEMIC WORKS AND REGULAR CLASSES ON ${dateStr}`;
+    updatePreview();
+}
+
+// ============================================================
+// LIVE PREVIEW & ZOOM
+// ============================================================
+function getSelectedCadets() {
+    return cadets.filter(c => selectedKeys.has(getCadetKey(c)));
+}
+
+function applyZoom(val) {
+    const paper = document.getElementById('paper');
+    if (!paper) return;
+    paper.style.transform = `scale(${val})`;
+    
+    const container = document.getElementById('paper-container');
+    const scaleVal = parseFloat(val);
+    const baseHeight = paper.scrollHeight;
+    const baseWidth = paper.offsetWidth || 680;
+    container.style.height = `${baseHeight * scaleVal}px`;
+    container.style.width = `${baseWidth * scaleVal}px`;
+}
+
+function updatePreview() {
+    const selected = getSelectedCadets();
+    const count = selected.length;
+    const particulars = document.getElementById('od-particulars').value.trim();
+    const odReason = document.getElementById('od-reason').value.trim();
+
+    // Update badge
+    document.getElementById('od-count-text').textContent =
+        count === 0 ? '0 cadets selected' : `${count} cadet${count > 1 ? 's' : ''} selected`;
+
+    // Enable / disable download buttons
+    document.getElementById('btn-download').disabled = count === 0;
+    document.getElementById('btn-browser-download').disabled = count === 0;
+
+    if (count === 0) {
+        document.getElementById('preview-empty').style.display = 'flex';
+        document.getElementById('preview-content').style.display = 'none';
+        applyZoom(document.getElementById('preview-zoom').value);
+        return;
+    }
+
+    document.getElementById('preview-empty').style.display = 'none';
+    document.getElementById('preview-content').style.display = 'block';
+
+    // Build preview table
+    const tbody = document.getElementById('preview-tbody');
+    const N = count;
+    let P = 1;
+    if (N > 27) {
+        P = Math.ceil((N - 27) / 32) + 1;
+    }
+    const midPage = Math.ceil(P / 2);
+    const startRow = midPage === 1 ? 0 : 27 + (midPage - 2) * 32;
+
+    tbody.innerHTML = selected.map((c, i) => {
+        let partCell = "";
+        let odCell = "";
+        
+        if (startRow > 0) {
+            if (i === 0) {
+                const rowspan1 = startRow;
+                partCell = `<td class="merged-td left" rowspan="${rowspan1}">—</td>`;
+                odCell = `<td class="merged-td" rowspan="${rowspan1}" style="font-size:0.68rem; line-height:1.25;">—</td>`;
+            } else if (i === startRow) {
+                const rowspan2 = N - startRow;
+                partCell = `<td class="merged-td left" rowspan="${rowspan2}">${particulars || '—'}</td>`;
+                odCell = `<td class="merged-td" rowspan="${rowspan2}" style="font-size:0.68rem; line-height:1.25;">${odReason || '—'}</td>`;
+            }
+        } else {
+            if (i === 0) {
+                partCell = `<td class="merged-td left" rowspan="${N}">${particulars || '—'}</td>`;
+                odCell = `<td class="merged-td" rowspan="${N}" style="font-size:0.68rem; line-height:1.25;">${odReason || '—'}</td>`;
+            }
+        }
+
+        return `<tr>
+            <td>${i + 1}</td>
+            <td>${c.register_no || ''}</td>
+            <td class="left">${c.name}</td>
+            <td class="left">${c.department || ''}</td>
+            <td>${c.shift || ''}</td>
+            ${partCell}${odCell}
+        </tr>`;
+    }).join('');
+
+    // Apply scaling heights
+    setTimeout(() => {
+        applyZoom(document.getElementById('preview-zoom').value);
+    }, 10);
+}
+
+// ============================================================
+// QUICK GENERATE — ALL CADETS FOR CURRENT DATE
+// ============================================================
+async function quickGenerateAll() {
+    const dateVal = document.getElementById('od-date').value;
+    const particularsVal = document.getElementById('od-particulars').value.trim();
+    const odReasonVal = document.getElementById('od-reason').value.trim();
+
+    if (!dateVal) {
+        showToast('Please select a date first.', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-quick-gen');
+    const icon = document.getElementById('btn-quick-icon');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    icon.className = 'fa-solid fa-circle-notch';
+
+    try {
+        const res = await fetch('/api/generate-for-date', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                date: dateVal,
+                particulars: particularsVal || undefined,
+                odReason: odReasonVal || undefined
+            })
+        });
+
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Server error');
+        }
+
+        const result = await res.json();
+        showToast(`✅ OD Form generated for ${result.cadetCount} cadets — saved to Desktop`, 'success');
+    } catch (err) {
+        console.error(err);
+        showToast('Error: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        icon.className = 'fa-solid fa-bolt';
+    }
+}
+
+// ============================================================
+// GENERATE & OPEN IN MS WORD
+// ============================================================
+async function generateODForm() {
+    const selected = getSelectedCadets();
+    if (selected.length === 0) {
+        showToast('Please select at least one cadet.', 'error');
+        return;
+    }
+
+    const dateVal = document.getElementById('od-date').value;
+    const particularsVal = document.getElementById('od-particulars').value.trim() || 'NCC ACTIVITY';
+    const odReasonVal = document.getElementById('od-reason').value.trim();
+
+    if (!dateVal) {
+        showToast('Please select a date first.', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-download');
+    const icon = document.getElementById('btn-icon');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    icon.className = 'fa-solid fa-circle-notch';
+    const originalText = btn.childNodes[2].textContent;
+    btn.childNodes[2].textContent = ' Opening…';
+
+    try {
+        const res = await fetch('/api/generate-and-open', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                selectedCadets: selected,
+                particularsVal,
+                odReasonVal,
+                selectedDate: dateVal,
+                docConfig
+            })
+        });
+
+        if (!res.ok) {
+            const txt = await res.text();
+            throw new Error(txt || 'Server error');
+        }
+
+        await res.json();
+        showToast(`✅ Opened in MS Word — ${selected.length} cadet${selected.length > 1 ? 's' : ''}`, 'success');
+
+    } catch (err) {
+        console.error(err);
+        showToast('Error: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        icon.className = 'fa-solid fa-file-word';
+        btn.childNodes[2].textContent = originalText;
+    }
+}
+
+// ============================================================
+// BROWSER DOWNLOAD DIRECTLY
+// ============================================================
+async function downloadODFormBrowser() {
+    const selected = getSelectedCadets();
+    if (selected.length === 0) {
+        showToast('Please select at least one cadet.', 'error');
+        return;
+    }
+
+    const dateVal = document.getElementById('od-date').value;
+    const particularsVal = document.getElementById('od-particulars').value.trim() || 'NCC ACTIVITY';
+    const odReasonVal = document.getElementById('od-reason').value.trim();
+
+    if (!dateVal) {
+        showToast('Please select a date first.', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-browser-download');
+    const icon = document.getElementById('btn-browser-icon');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    icon.className = 'fa-solid fa-circle-notch';
+    const originalText = btn.childNodes[2].textContent;
+    btn.childNodes[2].textContent = ' Downloading…';
+
+    try {
+        const response = await fetch('/api/generate-docx', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                selectedCadets: selected,
+                particularsVal,
+                odReasonVal,
+                selectedDate: dateVal,
+                docConfig
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to generate document');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        const monthsShort = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+        const d = new Date(dateVal);
+        const formattedDate = `${String(d.getDate()).padStart(2,'0')}-${monthsShort[d.getMonth()]}-${d.getFullYear()}`.toLowerCase();
+        
+        a.download = `od-form-${formattedDate}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        showToast('✅ OD Form downloaded successfully', 'success');
+    } catch (err) {
+        console.error(err);
+        showToast('Error: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        icon.className = 'fa-solid fa-download';
+        btn.childNodes[2].textContent = originalText;
+    }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    const icon = document.getElementById('toast-icon');
+    document.getElementById('toast-msg').textContent = msg;
+    el.className = `show ${type}`;
+    icon.className = type === 'success'
+        ? 'fa-solid fa-circle-check'
+        : 'fa-solid fa-circle-exclamation';
+    icon.style.color = type === 'success' ? '#22c55e' : '#ef4444';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>

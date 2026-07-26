@@ -1,0 +1,764 @@
+[
+  {
+    "register_no": "24104070",
+    "name": "AKASH S",
+    "department": "III BCOM CA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "24115002",
+    "name": "ANBUSELVAM P",
+    "department": "III BSC MATHS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "24103071",
+    "name": "BALAVAITHEESWAR B",
+    "department": "III B.COM",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "24127028",
+    "name": "JAISHREE M",
+    "department": "III BSC CS WITH DA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "KAMALNATH V",
+    "register_no": "24121022",
+    "department": "III BCOM IT",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "24130045",
+    "name": "SHARAN M",
+    "department": "III  BSC CS CYS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "24105064",
+    "name": "VIKASH NETHRAN K.S",
+    "department": "III BCA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "25124003",
+    "name": "ABISHEK RAJA R",
+    "department": "II BSC CS WITH COGNITIVE SYSTEMS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "AMJATH ISMAIL Z",
+    "register_no": "25120005",
+    "department": "II BCOM IB",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "25108003",
+    "name": "ANIRUTH ADITHYA",
+    "department": "II BSC ECS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "ARCHANA M",
+    "register_no": "25127006",
+    "department": "II BSC CS DA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "ARYA BALAJI",
+    "register_no": "25101008",
+    "department": "II BBA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "2513007",
+    "name": "ASHWIN KARTHICK",
+    "department": "II BSC CS CYS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "25104009",
+    "name": "BHARATH S",
+    "department": "II BCOM CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "25128019",
+    "name": "DEEPIKA",
+    "department": "II BSC CS AI DS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "EZHIL OVIYAN K",
+    "register_no": "25106080",
+    "department": "II BSC CS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "HARI PRASATH S",
+    "register_no": "25104085",
+    "department": "II BCOM CA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "HARSHA VARDHAN R",
+    "register_no": "25118117",
+    "department": "II BCOM A&F",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "25130025",
+    "name": "JAYA VIGNESH T",
+    "department": "II BSC CS WITH CYBERSECURITY",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "JEEVIKA R",
+    "register_no": "25106087",
+    "department": "II BSC CS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "25120026",
+    "name": "JYOSHIKA A N",
+    "department": "II BCOM IB",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "KABILEASH S.K",
+    "register_no": "25101119",
+    "department": "II BBA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "25129021",
+    "name": "KAUSHIK S",
+    "department": "II BSC CT",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "25108018",
+    "name": "KIRUTHIKA R",
+    "department": "II BSC ECS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "Maheshwaran",
+    "register_no": "25115013",
+    "department": "II BSC MATHEMATICS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "25130033",
+    "name": "Mayilveni",
+    "department": "II BSC CS WITH CYBERSECURITY",
+    "shift": ""
+  },
+  {
+    "register_no": "25115019",
+    "name": "PRATHIKSHA S",
+    "department": "II BSC MAT",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "PRAVEENRAJ V T",
+    "register_no": "25123041",
+    "department": "II BCOM CS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "25111044",
+    "name": "PRIYANKA K",
+    "department": "II BCOM PA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "25106045",
+    "name": "SAKTHI MURUGAN",
+    "department": "II BSC CS IBM",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "25105117",
+    "name": "SIVAGANAKATHIR M",
+    "department": "II BCA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "SRIGOMATHI NAYAGAM",
+    "register_no": "25131041",
+    "department": "II BBA LOG",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "SUDHARSHAN. R",
+    "register_no": "25115022",
+    "department": "II BSc Mathematics",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "YOHITHRAJA B",
+    "register_no": "25105066",
+    "department": "II BCA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "AADHITH S",
+    "register_no": "26U302068",
+    "department": "I BCOM CA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U102002",
+    "name": "AAKASH M",
+    "department": "I BSC IT",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "ABHIMANYU",
+    "register_no": "26U10010",
+    "department": "I BSC CS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U302071",
+    "name": "ABHISHEK SHARMA D",
+    "department": "I BCOM CA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U503001",
+    "name": "ABINAYA A",
+    "department": "I BSC CHEMISTRY",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U403006",
+    "name": "AJAY P",
+    "department": "I BBA LOG",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "AKILESH S",
+    "register_no": "26U201003",
+    "department": "I BCA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "",
+    "name": "ALAGAR KUMAR M",
+    "department": "I BSC SPORTS SCIENCE",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U305005",
+    "name": "ANJALIN MERCY D",
+    "department": "I BCOM A&F",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U309006",
+    "name": "ARAVIND M",
+    "department": "I BCOM CS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U303011",
+    "name": "ASMITHA K R",
+    "department": "I BCOM PA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U309007",
+    "name": "ASWIN S",
+    "department": "I BCOM CS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U504002",
+    "name": "BHARADHAN R",
+    "department": "I BSC MATHEMATICS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "BHARANI R",
+    "register_no": "26U801003",
+    "department": "I BA ENGLISH",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U301082",
+    "name": "DHARUN PANDI G",
+    "department": "I BCOM",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U502003",
+    "name": "DHEEDSHMA D S",
+    "department": "I BSC PHYSICS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U102015",
+    "name": "DHUVARAKESH P",
+    "department": "I BSC IT",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U502004",
+    "name": "EISHANTH K N",
+    "department": "I BSC PHYSICS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U309015",
+    "name": "GAYATHRI PRIYA A",
+    "department": "I BCOM CS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "GOKUL NATH R",
+    "register_no": "26U403017",
+    "department": "I BBA LOG",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "GOPI KRISHNA G",
+    "register_no": "26U601020",
+    "department": "I BSC ECS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U402014",
+    "name": "HAMSHINI M S",
+    "department": "I BBA CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U101053",
+    "name": "HARI VISHNU R",
+    "department": "I BSC SS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U101017",
+    "name": "HARINIE S",
+    "department": "I BSC CS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U701014",
+    "name": "HARITHA LAKSHMI S",
+    "department": "I BSC CS & HM",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U303087",
+    "name": "HARSHINI T",
+    "department": "I BCOM PA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U201018",
+    "name": "HARSHINI V",
+    "department": "I BCA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "IMMANUVEL",
+    "register_no": "26U308021",
+    "department": "I BCOM B&I",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U101023",
+    "name": "JASWANTH J",
+    "department": "I BSC CS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U303090",
+    "name": "JAYA SRI N",
+    "department": "I BCOM PA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "",
+    "name": "KANI PANDI R",
+    "department": "I BBA LOG",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U105025",
+    "name": "KAPIL KUMAR S",
+    "department": "I BSC CS AIDS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "KARTHIKEYAN M",
+    "register_no": "26U301093",
+    "department": "I BCOM",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U201089",
+    "name": "KAVI SRI K",
+    "department": "I BCA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U402024",
+    "name": "KAVIYA K",
+    "department": "I BBA CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "KAVIYA.B",
+    "register_no": "26U308033",
+    "department": "I BCOM B&I",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U102026",
+    "name": "KEVIN SALAS S",
+    "department": "I BSC IT",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U205034",
+    "name": "KISHOR S",
+    "department": "I BCOM LA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U305093",
+    "name": "LOGAMITHRA M S",
+    "department": "I BCOM A&F",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "",
+    "name": "MADESH M",
+    "department": "I BSC ECS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U402028",
+    "name": "MADHU MITHA R K",
+    "department": "I BBA CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U201030",
+    "name": "MADHUNISHA S M",
+    "department": "I BCA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "MANOBALA S",
+    "register_no": "26U403033",
+    "department": "I BBA LOGISTICS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U105034",
+    "name": "MARIA PRIYANGA A",
+    "department": "I BSC CS AIDS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U402032",
+    "name": "MITHUN T T",
+    "department": "I BBA CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "MOHAMMED IRSHAD",
+    "register_no": "26U503007",
+    "department": "I BSC CHEMISTRY",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "NISHANTH",
+    "register_no": "26U101039",
+    "department": "I BSC CS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U402038",
+    "name": "NITIN CHOUDHARY B",
+    "department": "I BBA CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U102103",
+    "name": "PRAGALATHAN R",
+    "department": "I BSC IT",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "PRASANNA S",
+    "register_no": "26U301041",
+    "department": "I BCOM",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "PRAVEEN KUMAR S",
+    "register_no": "26U401031",
+    "department": "I BBA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U201108",
+    "name": "PRAVEENA S",
+    "department": "I BCA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U304042",
+    "name": "PREETHI P",
+    "department": "I BCOM BPS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U402043",
+    "name": "PRITHIKA SRI C",
+    "department": "I BBA CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U201110",
+    "name": "PRITHIKSHA S",
+    "department": "I BCA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U302109",
+    "name": "PUSHPAKARTHICK",
+    "department": "I BCOM CA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U304043",
+    "name": "RAGHAV V",
+    "department": "I BCOM BPS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U306029",
+    "name": "RATHIRESAN G",
+    "department": "I BCOM IB",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U402046",
+    "name": "RISHAB A",
+    "department": "I BBA CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U201048",
+    "name": "ROHITH K",
+    "department": "I BCA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U901011",
+    "name": "ROSHINI KUMARI",
+    "department": "I BSC SPORTS SCIENCE",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U401109",
+    "name": "RUBY S",
+    "department": "I BBA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U201119",
+    "name": "SAHANAA M",
+    "department": "I BCA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "SAMDANIEL S",
+    "register_no": "26U108052",
+    "department": "I BSC DCFS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "SANCHAYA S",
+    "register_no": "26U201049",
+    "department": "I BCA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U402052",
+    "name": "SANJANA S",
+    "department": "I BBA CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U302119",
+    "name": "SARAN NITISH A",
+    "department": "I BCOM CA",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U301053",
+    "name": "SARAN R",
+    "department": "I BCOM",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U306053",
+    "name": "SARUKESH M S",
+    "department": "I BCOM IB",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U101052",
+    "name": "SHANMUGAVEL A",
+    "department": "I BSC CS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U302051",
+    "name": "SHARVESH M S",
+    "department": "I BCOM CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "SHRI HARI K",
+    "register_no": "26U401055",
+    "department": "I BBA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "SHYAM A",
+    "register_no": "26U301118",
+    "department": "I BCOM",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "SIVACHIDAMBARAN B",
+    "register_no": "26U104054",
+    "department": "I BSC CS WITH DA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U301047",
+    "name": "SIVANESHWARAN R",
+    "department": "I BSC CS WITH COGNITIVE SYSTEMS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U105057",
+    "name": "SUBHASREE B S",
+    "department": "I BSC CS AIDS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U107055",
+    "name": "SUBHASREE N",
+    "department": "I BSC CS WITH COGNITIVE SYSTEMS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U301123",
+    "name": "SUGANYA R",
+    "department": "I BCOM",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U108058",
+    "name": "SUJAN S",
+    "department": "I BSC DCFS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "SUJITH",
+    "register_no": "26U106057",
+    "department": "I BSC CT",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U301124",
+    "name": "SUPA PRIYA S M",
+    "department": "I BCOM",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "THIRUKUMARAN T",
+    "register_no": "26U101123",
+    "department": "I BSC CS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U402064",
+    "name": "VAISHNAVI R",
+    "department": "I BBA CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U101065",
+    "name": "VARSHINI S",
+    "department": "I BSC CS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "VIJAAI MALLAIYAH K",
+    "register_no": "",
+    "department": "I BCOM",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U101127",
+    "name": "VISHNU VARTHAN S",
+    "department": "I BSC CS",
+    "shift": "SHIFT-II"
+  },
+  {
+    "register_no": "26U502011",
+    "name": "VISHNUVETRICHELVAN V",
+    "department": "I BSC PHYSICS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U301065",
+    "name": "VISHOTH V",
+    "department": "I BCOM",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U201066",
+    "name": "YASWANTH KUMAR A",
+    "department": "I BCA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U304066",
+    "name": "YAZHINI B",
+    "department": "I BCOM BPS",
+    "shift": "SHIFT-I"
+  },
+  {
+    "register_no": "26U102132",
+    "name": "YOGESH M",
+    "department": "I BSC IT",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "SACHIN C.B",
+    "register_no": "",
+    "department": "",
+    "shift": ""
+  },
+  {
+    "name": "SURENDAR M",
+    "register_no": "",
+    "department": "",
+    "shift": ""
+  }
+]
