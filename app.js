@@ -1491,6 +1491,7 @@ function generateDocxClientFallback(payload, type) {
 
 // Switch Tabs
 window.switchTab = function(tabId) {
+    logActionToServer('Switch Tab', { tabId });
     // Hide all tab content
     const contents = document.querySelectorAll('.tab-content');
     contents.forEach(c => c.classList.remove('active'));
@@ -1536,6 +1537,7 @@ window.switchTab = function(tabId) {
 
 // Switch SubTabs in History & Stats
 window.switchSubTab = function(subTabId) {
+    logActionToServer('Switch Sub-Tab', { subTabId });
     const contents = document.querySelectorAll('.subtab-content');
     contents.forEach(c => c.style.display = 'none');
 
@@ -1569,6 +1571,7 @@ function formatDateString(dateStr) {
 
 // Toast notification
 function showToast(message, type = "success") {
+    logActionToServer('Toast Shown', { message, type });
     const toast = document.getElementById('toast-notification');
     const text = document.getElementById('toast-message');
     if (!toast || !text) return;
@@ -1590,6 +1593,7 @@ function showToast(message, type = "success") {
 
 // Helper: Trigger Download of JSON data
 function downloadJSON(data, filename) {
+    logActionToServer('Download JSON', { filename });
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1603,6 +1607,7 @@ function downloadJSON(data, filename) {
 
 // Helper: Read files imported via upload input
 function handleJSONImport(event, callback) {
+    logActionToServer('Import JSON File');
     const file = event.target.files[0];
     if (!file) return;
 
@@ -1622,4 +1627,15 @@ function handleJSONImport(event, callback) {
 // Standalone updateUI dummy to maintain initialization calls
 function updateUI() {
     generateLivePreview();
+}
+
+// Helper function to log frontend user actions to the terminal
+function logActionToServer(action, details = {}) {
+    if (isServerConnected) {
+        fetch('/api/log-action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, details })
+        }).catch(err => {});
+    }
 }

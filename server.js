@@ -24,13 +24,13 @@ function buildODTableRows(cadets, particularsVal, odReasonVal) {
     // Header row
     rows.push(new TableRow({
         children: [
-            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'S.NO',        font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
+            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'S.NO', font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
             new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'REGISTER NO', font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
-            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'NAME',        font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
-            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'DEPARTMENT',  font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
-            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'SHIFT',       font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
+            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'NAME', font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
+            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'DEPARTMENT', font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
+            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'SHIFT', font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
             new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'PARTICULARS', font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
-            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'ON DUTY',     font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
+            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'ON DUTY', font: 'Cambria', size: 24, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
         ]
     }));
 
@@ -48,7 +48,7 @@ function buildODTableRows(cadets, particularsVal, odReasonVal) {
         let partVal = "";
         let isOdRestart = false;
         let odVal = "";
-        
+
         if (startRow > 0) {
             if (index === 0) {
                 isPartRestart = true;
@@ -108,11 +108,11 @@ function buildODTableRows(cadets, particularsVal, odReasonVal) {
 
         rows.push(new TableRow({
             children: [
-                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: String(index + 1),             font: 'Cambria', size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: cadet.register_no || '',        font: 'Cambria', size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT,   children: [new TextRun({ text: ' ' + cadet.name,              font: 'Cambria', size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT,   children: [new TextRun({ text: ' ' + (cadet.department || ''), font: 'Cambria', size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: cadet.shift || '',              font: 'Cambria', size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: String(index + 1), font: 'Cambria', size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: cadet.register_no || '', font: 'Cambria', size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: ' ' + cadet.name, font: 'Cambria', size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: ' ' + (cadet.department || ''), font: 'Cambria', size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: cadet.shift || '', font: 'Cambria', size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
                 partCell,
                 odCell,
             ]
@@ -158,11 +158,11 @@ async function buildODDocument(cadets, particularsVal, odReasonVal, docConfig) {
     if (Array.isArray(cadets)) {
         cadets.sort(sortCadetsForOD);
     }
-    const college  = (docConfig && docConfig.college)   || 'SRI RAMAKRISHNA COLLEGE OF ARTS & SCIENCE (AUTONOMOUS)';
-    const unit     = (docConfig && docConfig.unit)      || 'NATIONAL CADET CORPS';
-    const formType = (docConfig && docConfig.formType)  || 'OD FORM';
-    const sigLeft  = (docConfig && docConfig.sigLeft)   || 'NCC Officer';
-    const sigRight = (docConfig && docConfig.sigRight)  || 'Principal';
+    const college = (docConfig && docConfig.college) || 'SRI RAMAKRISHNA COLLEGE OF ARTS & SCIENCE (AUTONOMOUS)';
+    const unit = (docConfig && docConfig.unit) || 'NATIONAL CADET CORPS';
+    const formType = (docConfig && docConfig.formType) || 'OD FORM';
+    const sigLeft = (docConfig && docConfig.sigLeft) || 'NCC Officer';
+    const sigRight = (docConfig && docConfig.sigRight) || 'Principal';
 
     const tableRows = buildODTableRows(cadets, particularsVal, odReasonVal);
 
@@ -170,25 +170,27 @@ async function buildODDocument(cadets, particularsVal, odReasonVal, docConfig) {
         sections: [{
             properties: { page: { margin: { top: 1440, bottom: 1440, left: 1440, right: 1440 } } },
             children: [
-                new Paragraph({ alignment: AlignmentType.LEFT,   spacing: { after: 120 }, children: [new TextRun({ text: college,  font: 'Bookman Old Style', bold: true, size: 24 })] }),
-                new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: [new TextRun({ text: unit,     font: 'Bookman Old Style', bold: true, size: 24 })] }),
+                new Paragraph({ alignment: AlignmentType.LEFT, spacing: { after: 120 }, children: [new TextRun({ text: college, font: 'Bookman Old Style', bold: true, size: 24 })] }),
+                new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: [new TextRun({ text: unit, font: 'Bookman Old Style', bold: true, size: 24 })] }),
                 new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 360 }, children: [new TextRun({ text: formType, font: 'Bookman Old Style', bold: true, size: 24 })] }),
                 new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: tableRows }),
                 new Paragraph({ spacing: { before: 2160 }, children: [new TextRun('')] }),
                 new Table({
                     width: { size: 100, type: WidthType.PERCENTAGE },
                     borders: {
-                        top:             { style: BorderStyle.NONE, size: 0 },
-                        bottom:          { style: BorderStyle.NONE, size: 0 },
-                        left:            { style: BorderStyle.NONE, size: 0 },
-                        right:           { style: BorderStyle.NONE, size: 0 },
-                        insideHorizontal:{ style: BorderStyle.NONE, size: 0 },
-                        insideVertical:  { style: BorderStyle.NONE, size: 0 },
+                        top: { style: BorderStyle.NONE, size: 0 },
+                        bottom: { style: BorderStyle.NONE, size: 0 },
+                        left: { style: BorderStyle.NONE, size: 0 },
+                        right: { style: BorderStyle.NONE, size: 0 },
+                        insideHorizontal: { style: BorderStyle.NONE, size: 0 },
+                        insideVertical: { style: BorderStyle.NONE, size: 0 },
                     },
-                    rows: [new TableRow({ children: [
-                        new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT,  children: [new TextRun({ text: sigLeft,  font: 'Bookman Old Style', size: 24 })] })] }),
-                        new TableCell({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: sigRight, font: 'Bookman Old Style', size: 24 })] })] }),
-                    ]})]  
+                    rows: [new TableRow({
+                        children: [
+                            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: sigLeft, font: 'Bookman Old Style', size: 24 })] })] }),
+                            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: sigRight, font: 'Bookman Old Style', size: 24 })] })] }),
+                        ]
+                    })]
                 })
             ]
         }]
@@ -478,8 +480,8 @@ app.post('/api/generate-docx', async (req, res) => {
 app.post('/api/generate-and-open', async (req, res) => {
     try {
         if (process.env.VERCEL || process.env.RENDER || process.env.NODE_ENV === 'production') {
-            return res.status(400).json({ 
-                error: 'The "Open in Word" feature is only supported when running the app locally on your computer. Please use the "Download (.docx)" button instead.' 
+            return res.status(400).json({
+                error: 'The "Open in Word" feature is only supported when running the app locally on your computer. Please use the "Download (.docx)" button instead.'
             });
         }
         const { selectedCadets, particularsVal, odReasonVal, selectedDate, docConfig: cfg } = req.body;
@@ -488,15 +490,15 @@ app.post('/api/generate-and-open', async (req, res) => {
             return res.status(400).json({ error: 'No cadets selected.' });
         }
 
-        const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
         const d = new Date(selectedDate);
-        const formattedDate = `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        const formattedDate = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
 
         const buffer = await buildODDocument(selectedCadets, particularsVal, odReasonVal, cfg);
 
         // Save to Desktop
         const desktopPath = path.join(require('os').homedir(), 'OneDrive', 'Desktop');
-        const filename = `od-form-${formattedDate.toLowerCase().replace(/ /g,'-')}.docx`;
+        const filename = `od-form-${formattedDate.toLowerCase().replace(/ /g, '-')}.docx`;
         const filePath = path.join(desktopPath, filename);
         fs.writeFileSync(filePath, buffer);
 
@@ -553,9 +555,9 @@ app.post('/api/attendance', (req, res) => {
                 console.error('Error parsing database JSON:', parseErr);
             }
         }
-        
+
         db[date] = { event_name, od_reason, records };
-        
+
         fs.writeFile(ATTENDANCE_FILE, JSON.stringify(db, null, 2), 'utf8', (writeErr) => {
             if (writeErr) {
                 console.error('Error writing attendance database:', writeErr);
@@ -938,7 +940,7 @@ app.get('/download/attendance', async (req, res) => {
 
         // Load cadets
         let cadets = [];
-        try { cadets = JSON.parse(fs.readFileSync(CADETS_FILE, 'utf8') || '[]'); } catch (e) {}
+        try { cadets = JSON.parse(fs.readFileSync(CADETS_FILE, 'utf8') || '[]'); } catch (e) { }
 
         if (cadets.length === 0) {
             return res.status(400).send('No cadets in database. Please add cadets first.');
@@ -958,9 +960,9 @@ app.get('/download/attendance', async (req, res) => {
         }));
 
         // Date formatting
-        const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
         const d = new Date(date);
-        const formattedDateStr = `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+        const formattedDateStr = `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
 
         // Build table rows
         const tableRows = [];
@@ -984,8 +986,8 @@ app.get('/download/attendance', async (req, res) => {
                 children: [
                     new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: String(index + 1), font: "Cambria", size: 22 })] })], verticalAlign: VerticalAlign.CENTER }),
                     new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: cadet.register_no || "", font: "Cambria", size: 22 })] })], verticalAlign: VerticalAlign.CENTER }),
-                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT,   children: [new TextRun({ text: " " + cadet.name, font: "Cambria", size: 22 })] })], verticalAlign: VerticalAlign.CENTER }),
-                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT,   children: [new TextRun({ text: " " + (cadet.department || ""), font: "Cambria", size: 22 })] })], verticalAlign: VerticalAlign.CENTER }),
+                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: " " + cadet.name, font: "Cambria", size: 22 })] })], verticalAlign: VerticalAlign.CENTER }),
+                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: " " + (cadet.department || ""), font: "Cambria", size: 22 })] })], verticalAlign: VerticalAlign.CENTER }),
                     new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: cadet.shift || "", font: "Cambria", size: 22 })] })], verticalAlign: VerticalAlign.CENTER }),
                     new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: statusText, font: "Cambria", size: 22, bold: true })] })], verticalAlign: VerticalAlign.CENTER }),
                 ]
@@ -1008,10 +1010,12 @@ app.get('/download/attendance', async (req, res) => {
                             left: { style: BorderStyle.NONE, size: 0 }, right: { style: BorderStyle.NONE, size: 0 },
                             insideHorizontal: { style: BorderStyle.NONE, size: 0 }, insideVertical: { style: BorderStyle.NONE, size: 0 },
                         },
-                        rows: [new TableRow({ children: [
-                            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT,  children: [new TextRun({ text: "NCC Officer", font: "Bookman Old Style", size: 24 })] })] }),
-                            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: "Principal", font: "Bookman Old Style", size: 24 })] })] }),
-                        ]})]
+                        rows: [new TableRow({
+                            children: [
+                                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: "NCC Officer", font: "Bookman Old Style", size: 24 })] })] }),
+                                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: "Principal", font: "Bookman Old Style", size: 24 })] })] }),
+                            ]
+                        })]
                     })
                 ]
             }]
@@ -1035,8 +1039,8 @@ app.get('/download/attendance', async (req, res) => {
 app.post('/api/generate-for-date', async (req, res) => {
     try {
         if (process.env.VERCEL || process.env.RENDER || process.env.NODE_ENV === 'production') {
-            return res.status(400).json({ 
-                error: 'The "Quick Gen" (save to Desktop) feature is only supported when running the app locally on your computer. Please select cadets and use the "Download (.docx)" button instead.' 
+            return res.status(400).json({
+                error: 'The "Quick Gen" (save to Desktop) feature is only supported when running the app locally on your computer. Please select cadets and use the "Download (.docx)" button instead.'
             });
         }
         const { date, particulars, odReason } = req.body;
@@ -1044,28 +1048,28 @@ app.post('/api/generate-for-date', async (req, res) => {
 
         // Load all cadets
         let allCadets = [];
-        try { allCadets = JSON.parse(fs.readFileSync(CADETS_FILE, 'utf8') || '[]'); } catch (e) {}
+        try { allCadets = JSON.parse(fs.readFileSync(CADETS_FILE, 'utf8') || '[]'); } catch (e) { }
 
         if (allCadets.length === 0) {
             return res.status(400).json({ error: 'No cadets in database. Please add cadets first.' });
         }
 
         // Date formatting
-        const months = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
-        const monthsShort = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+        const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        const monthsShort = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
         const d = new Date(selectedDate);
         const day = d.getDate();
         const suffix = day === 1 ? 'ST' : day === 2 ? 'ND' : day === 3 ? 'RD' : 'TH';
         const dateStr = `${day}${suffix} ${months[d.getMonth()]} ${d.getFullYear()}`;
-        const formattedDate = `${String(day).padStart(2,'0')} ${monthsShort[d.getMonth()]} ${d.getFullYear()}`;
+        const formattedDate = `${String(day).padStart(2, '0')} ${monthsShort[d.getMonth()]} ${d.getFullYear()}`;
 
         const particularsVal = particulars || 'NCC ACTIVITY';
         const odReasonVal = odReason || `EXEMPTION FROM ALL ACADEMIC WORKS AND REGULAR CLASSES ON ${dateStr}`;
 
-        const college  = 'SRI RAMAKRISHNA COLLEGE OF ARTS & SCIENCE (AUTONOMOUS)';
-        const unit     = 'NATIONAL CADET CORPS';
+        const college = 'SRI RAMAKRISHNA COLLEGE OF ARTS & SCIENCE (AUTONOMOUS)';
+        const unit = 'NATIONAL CADET CORPS';
         const formType = 'OD FORM';
-        const sigLeft  = 'NCC Officer';
+        const sigLeft = 'NCC Officer';
         const sigRight = 'Principal';
 
         // Build table rows
@@ -1074,13 +1078,13 @@ app.post('/api/generate-for-date', async (req, res) => {
         // Header
         tableRows.push(new TableRow({
             children: [
-                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "S.NO",        font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "S.NO", font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
                 new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "REGISTER NO", font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "NAME",        font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "DEPARTMENT",  font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "SHIFT",       font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "NAME", font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "DEPARTMENT", font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "SHIFT", font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
                 new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "PARTICULARS", font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "ON DUTY",     font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "ON DUTY", font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
             ]
         }));
 
@@ -1098,7 +1102,7 @@ app.post('/api/generate-for-date', async (req, res) => {
             let partVal = "";
             let isOdRestart = false;
             let odVal = "";
-            
+
             if (startRow > 0) {
                 if (index === 0) {
                     isPartRestart = true;
@@ -1158,11 +1162,11 @@ app.post('/api/generate-for-date', async (req, res) => {
 
             tableRows.push(new TableRow({
                 children: [
-                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: String(index + 1),              font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: cadet.register_no || "",         font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT,   children: [new TextRun({ text: " " + cadet.name,               font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT,   children: [new TextRun({ text: " " + (cadet.department || ""), font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
-                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: cadet.shift || "",               font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: String(index + 1), font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: cadet.register_no || "", font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: " " + cadet.name, font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: " " + (cadet.department || ""), font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
+                    new TableCell({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: cadet.shift || "", font: "Cambria", size: 24 })] })], verticalAlign: VerticalAlign.CENTER }),
                     partCell,
                     odCell,
                 ]
@@ -1174,8 +1178,8 @@ app.post('/api/generate-for-date', async (req, res) => {
             sections: [{
                 properties: { page: { margin: { top: 1440, bottom: 1440, left: 1440, right: 1440 } } },
                 children: [
-                    new Paragraph({ alignment: AlignmentType.LEFT,   spacing: { after: 120 }, children: [new TextRun({ text: college,  font: "Bookman Old Style", bold: true, size: 24 })] }),
-                    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: [new TextRun({ text: unit,     font: "Bookman Old Style", bold: true, size: 24 })] }),
+                    new Paragraph({ alignment: AlignmentType.LEFT, spacing: { after: 120 }, children: [new TextRun({ text: college, font: "Bookman Old Style", bold: true, size: 24 })] }),
+                    new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: [new TextRun({ text: unit, font: "Bookman Old Style", bold: true, size: 24 })] }),
                     new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 360 }, children: [new TextRun({ text: formType, font: "Bookman Old Style", bold: true, size: 24 })] }),
                     new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: tableRows }),
                     new Paragraph({ spacing: { before: 1440 }, children: [new TextRun("")] }),
@@ -1186,10 +1190,12 @@ app.post('/api/generate-for-date', async (req, res) => {
                             left: { style: BorderStyle.NONE, size: 0 }, right: { style: BorderStyle.NONE, size: 0 },
                             insideHorizontal: { style: BorderStyle.NONE, size: 0 }, insideVertical: { style: BorderStyle.NONE, size: 0 },
                         },
-                        rows: [new TableRow({ children: [
-                            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT,  children: [new TextRun({ text: sigLeft,  font: "Bookman Old Style", size: 24 })] })] }),
-                            new TableCell({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: sigRight, font: "Bookman Old Style", size: 24 })] })] }),
-                        ]})]
+                        rows: [new TableRow({
+                            children: [
+                                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.LEFT, children: [new TextRun({ text: sigLeft, font: "Bookman Old Style", size: 24 })] })] }),
+                                new TableCell({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, children: [new TextRun({ text: sigRight, font: "Bookman Old Style", size: 24 })] })] }),
+                            ]
+                        })]
                     })
                 ]
             }]
@@ -1199,7 +1205,7 @@ app.post('/api/generate-for-date', async (req, res) => {
 
         // Save to Desktop
         const desktopPath = path.join(require('os').homedir(), 'OneDrive', 'Desktop');
-        const filename = `od-form-${formattedDate.toLowerCase().replace(/ /g,'-')}.docx`;
+        const filename = `od-form-${formattedDate.toLowerCase().replace(/ /g, '-')}.docx`;
         const filePath = path.join(desktopPath, filename);
         fs.writeFileSync(filePath, buffer);
 
