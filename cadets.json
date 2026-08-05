@@ -24,6 +24,12 @@
     "shift": "SHIFT-I"
   },
   {
+    "name": "JANANI N",
+    "register_no": "24104021",
+    "department": "III B COM CA",
+    "shift": "SHIFT-II"
+  },
+  {
     "name": "KAMALNATH V",
     "register_no": "24121022",
     "department": "III BCOM IT",
@@ -144,16 +150,22 @@
     "shift": "SHIFT-I"
   },
   {
-    "name": "Maheshwaran",
+    "name": "MAHESHWARAN",
     "register_no": "25115013",
     "department": "II BSC MATHEMATICS",
     "shift": "SHIFT-I"
   },
   {
+    "name": "MATHESH",
+    "register_no": "25131020",
+    "department": "II BBA LOGESTIC",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "MAYILVENI",
     "register_no": "25130033",
-    "name": "Mayilveni",
     "department": "II BSC CS WITH CYBERSECURITY",
-    "shift": ""
+    "shift": "SHIFT-II"
   },
   {
     "register_no": "25115019",
@@ -172,6 +184,12 @@
     "name": "PRIYANKA K",
     "department": "II BCOM PA",
     "shift": "SHIFT-I"
+  },
+  {
+    "name": "SAJAN",
+    "register_no": "25128052",
+    "department": "II B.SC.CS AIDS",
+    "shift": "SHIFT-II"
   },
   {
     "register_no": "25106045",
@@ -228,6 +246,12 @@
     "shift": "SHIFT-II"
   },
   {
+    "name": "ABINANTH",
+    "register_no": "26U101067",
+    "department": "I BSC CS",
+    "shift": "SHIFT-II"
+  },
+  {
     "register_no": "26U503001",
     "name": "ABINAYA A",
     "department": "I BSC CHEMISTRY",
@@ -246,8 +270,8 @@
     "shift": "SHIFT-I"
   },
   {
-    "register_no": "",
     "name": "ALAGAR KUMAR M",
+    "register_no": "26U901001",
     "department": "I BSC SPORTS SCIENCE",
     "shift": "SHIFT-I"
   },
@@ -276,15 +300,15 @@
     "shift": "SHIFT-I"
   },
   {
-    "register_no": "26U504002",
-    "name": "BHARADHAN R",
-    "department": "I BSC MATHEMATICS",
+    "name": "BARANI R",
+    "register_no": "26U801003",
+    "department": "I BA ENGLISH",
     "shift": "SHIFT-I"
   },
   {
-    "name": "BHARANI R",
-    "register_no": "26U801003",
-    "department": "I BA ENGLISH",
+    "register_no": "26U504002",
+    "name": "BHARADHAN R",
+    "department": "I BSC MATHEMATICS",
     "shift": "SHIFT-I"
   },
   {
@@ -303,6 +327,12 @@
     "register_no": "26U102015",
     "name": "DHUVARAKESH P",
     "department": "I BSC IT",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "DIYA DEEPAK",
+    "register_no": "26U306016",
+    "department": "I BCOM IT",
     "shift": "SHIFT-I"
   },
   {
@@ -372,6 +402,12 @@
     "shift": "SHIFT-I"
   },
   {
+    "name": "JAI VISHNU VARDHAN M",
+    "register_no": "26U106019",
+    "department": "I BSC CT",
+    "shift": "SHIFT-II"
+  },
+  {
     "register_no": "26U101023",
     "name": "JASWANTH J",
     "department": "I BSC CS",
@@ -384,8 +420,8 @@
     "shift": "SHIFT-II"
   },
   {
-    "register_no": "",
     "name": "KANI PANDI R",
+    "register_no": "26U403023",
     "department": "I BBA LOG",
     "shift": "SHIFT-II"
   },
@@ -400,6 +436,12 @@
     "register_no": "26U301093",
     "department": "I BCOM",
     "shift": "SHIFT-II"
+  },
+  {
+    "name": "KATHIRESAN G",
+    "register_no": "26U306028",
+    "department": "I B COM IB",
+    "shift": "SHIFT-I"
   },
   {
     "register_no": "26U201089",
@@ -486,10 +528,16 @@
     "shift": "SHIFT-I"
   },
   {
+    "name": "NITHIN CHOUDHARY B",
     "register_no": "26U402038",
-    "name": "NITIN CHOUDHARY B",
     "department": "I BBA CA",
     "shift": "SHIFT-I"
+  },
+  {
+    "name": "POSHPAKARTHICK",
+    "register_no": "26U302109",
+    "department": "I BCOM CA",
+    "shift": "SHIFT-II"
   },
   {
     "register_no": "26U102103",
@@ -534,12 +582,6 @@
     "shift": "SHIFT-II"
   },
   {
-    "register_no": "26U302109",
-    "name": "PUSHPAKARTHICK",
-    "department": "I BCOM CA",
-    "shift": "SHIFT-II"
-  },
-  {
     "register_no": "26U304043",
     "name": "RAGHAV V",
     "department": "I BCOM BPS",
@@ -552,8 +594,8 @@
     "shift": "SHIFT-I"
   },
   {
+    "name": "RISHAB PRASANTH A",
     "register_no": "26U402046",
-    "name": "RISHAB A",
     "department": "I BBA CA",
     "shift": "SHIFT-I"
   },
@@ -576,6 +618,12 @@
     "shift": "SHIFT-II"
   },
   {
+    "name": "SACHIN C.B",
+    "register_no": "26U303127",
+    "department": "I BCOM PA",
+    "shift": "SHIFT-II"
+  },
+  {
     "register_no": "26U201119",
     "name": "SAHANAA M",
     "department": "I BCA",
@@ -588,15 +636,15 @@
     "shift": "SHIFT-I"
   },
   {
-    "name": "SANCHAYA S",
-    "register_no": "26U201049",
-    "department": "I BCA",
-    "shift": "SHIFT-I"
-  },
-  {
     "register_no": "26U402052",
     "name": "SANJANA S",
     "department": "I BBA CA",
+    "shift": "SHIFT-I"
+  },
+  {
+    "name": "SANJAYA S",
+    "register_no": "26U201049",
+    "department": "I BCA",
     "shift": "SHIFT-I"
   },
   {
@@ -606,10 +654,10 @@
     "shift": "SHIFT-II"
   },
   {
-    "register_no": "26U301053",
     "name": "SARAN R",
+    "register_no": "26U301053",
     "department": "I BCOM",
-    "shift": "SHIFT-II"
+    "shift": "SHIFT-I"
   },
   {
     "register_no": "26U306053",
@@ -622,6 +670,12 @@
     "name": "SHANMUGAVEL A",
     "department": "I BSC CS",
     "shift": "SHIFT-I"
+  },
+  {
+    "name": "SHARU KKANNA",
+    "register_no": "26U107047",
+    "department": "I B.SC CS WITH CYBERSECURITY",
+    "shift": "SHIFT-II"
   },
   {
     "register_no": "26U302051",
@@ -648,21 +702,21 @@
     "shift": "SHIFT-I"
   },
   {
+    "name": "SIVANESHVARAN R",
     "register_no": "26U301047",
-    "name": "SIVANESHWARAN R",
     "department": "I BSC CS WITH COGNITIVE SYSTEMS",
     "shift": "SHIFT-I"
   },
   {
-    "register_no": "26U105057",
-    "name": "SUBHASREE B S",
-    "department": "I BSC CS AIDS",
+    "name": "SUBHASREE N",
+    "register_no": "26U107055",
+    "department": "I BSC CS WITH cyber security",
     "shift": "SHIFT-II"
   },
   {
-    "register_no": "26U107055",
-    "name": "SUBHASREE N",
-    "department": "I BSC CS WITH COGNITIVE SYSTEMS",
+    "name": "SUBHASREE S",
+    "register_no": "26U105057",
+    "department": "I BSC CS AIDS",
     "shift": "SHIFT-II"
   },
   {
@@ -684,10 +738,10 @@
     "shift": "SHIFT-II"
   },
   {
-    "register_no": "26U301124",
     "name": "SUPA PRIYA S M",
+    "register_no": "26U301124",
     "department": "I BCOM",
-    "shift": "SHIFT-I"
+    "shift": "SHIFT-II"
   },
   {
     "name": "THIRUKUMARAN T",
@@ -709,7 +763,7 @@
   },
   {
     "name": "VIJAAI MALLAIYAH K",
-    "register_no": "",
+    "register_no": "26U301131",
     "department": "I BCOM",
     "shift": "SHIFT-II"
   },
@@ -750,15 +804,27 @@
     "shift": "SHIFT-I"
   },
   {
-    "name": "SACHIN C.B",
-    "register_no": "",
-    "department": "",
-    "shift": ""
+    "name": "GOKUL R",
+    "register_no": "26U106015",
+    "department": "B.SC.COMPUTER TECHNOLOGY",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "ROSHANI KUMARI",
+    "register_no": "26U901011",
+    "department": "BSC SS",
+    "shift": "SHIFT-I"
   },
   {
     "name": "SURENDAR M",
     "register_no": "",
     "department": "",
     "shift": ""
+  },
+  {
+    "name": "YOGAMITHRA M S",
+    "register_no": "26U315093",
+    "department": "B COM AF",
+    "shift": "SHIFT-II"
   }
 ]
