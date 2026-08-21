@@ -843,6 +843,7 @@ async function confirmDeleteCadet() {
     const key = getCadetKey(cadet);
     cadets.splice(index, 1);
     selectedKeys.delete(key);
+    saveSelectedKeys();
 
     localStorage.setItem('ncc_cadets_backup', JSON.stringify(cadets));
     const synced = await saveCadetsToServer();
@@ -945,6 +946,7 @@ async function loadCadets() {
         cadets = [];
     }
     populateDepartmentFilter();
+    loadSelectedKeys();
     renderList();
 }
 
@@ -1224,11 +1226,65 @@ function renderList() {
 }
 
 // ============================================================
+// SELECTION PERSISTENCE
+// ============================================================
+function saveSelectedKeys() {
+    const dateVal = document.getElementById('od-date') ? document.getElementById('od-date').value : '';
+    const arrayKeys = Array.from(selectedKeys);
+    if (dateVal) {
+        localStorage.setItem(`ncc_selected_keys_${dateVal}`, JSON.stringify(arrayKeys));
+    }
+    localStorage.setItem('ncc_selected_keys_current', JSON.stringify(arrayKeys));
+
+    const particularsVal = document.getElementById('od-particulars') ? document.getElementById('od-particulars').value : '';
+    if (dateVal && particularsVal) {
+        localStorage.setItem(`ncc_particulars_${dateVal}`, particularsVal);
+    }
+    const odReasonVal = document.getElementById('od-reason') ? document.getElementById('od-reason').value : '';
+    if (dateVal && odReasonVal) {
+        localStorage.setItem(`ncc_od_reason_${dateVal}`, odReasonVal);
+    }
+}
+
+function loadSelectedKeys() {
+    const dateVal = document.getElementById('od-date') ? document.getElementById('od-date').value : '';
+    let saved = null;
+    if (dateVal) {
+        saved = localStorage.getItem(`ncc_selected_keys_${dateVal}`);
+    }
+    if (!saved) {
+        saved = localStorage.getItem('ncc_selected_keys_current');
+    }
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+                const validKeys = new Set(cadets.map(getCadetKey));
+                selectedKeys = new Set(parsed.filter(k => validKeys.has(k)));
+            }
+        } catch (e) {
+            console.error('Error parsing saved selection', e);
+        }
+    }
+    if (dateVal) {
+        const savedPart = localStorage.getItem(`ncc_particulars_${dateVal}`);
+        if (savedPart !== null && document.getElementById('od-particulars')) {
+            document.getElementById('od-particulars').value = savedPart;
+        }
+        const savedReason = localStorage.getItem(`ncc_od_reason_${dateVal}`);
+        if (savedReason !== null && document.getElementById('od-reason')) {
+            document.getElementById('od-reason').value = savedReason;
+        }
+    }
+}
+
+// ============================================================
 // SELECTION
 // ============================================================
 function toggleCadet(key) {
     if (selectedKeys.has(key)) selectedKeys.delete(key);
     else selectedKeys.add(key);
+    saveSelectedKeys();
     renderList();
 }
 
@@ -1249,11 +1305,13 @@ function selectAll() {
     });
 
     filtered.forEach(c => selectedKeys.add(getCadetKey(c)));
+    saveSelectedKeys();
     renderList();
 }
 
 function deselectAll() {
     selectedKeys.clear();
+    saveSelectedKeys();
     renderList();
 }
 
@@ -1266,9 +1324,19 @@ function setupListeners() {
         renderList();
     });
 
-    document.getElementById('od-date').addEventListener('change', autoFillODReason);
-    document.getElementById('od-particulars').addEventListener('input', updatePreview);
-    document.getElementById('od-reason').addEventListener('input', updatePreview);
+    document.getElementById('od-date').addEventListener('change', () => {
+        autoFillODReason();
+        loadSelectedKeys();
+        renderList();
+    });
+    document.getElementById('od-particulars').addEventListener('input', () => {
+        saveSelectedKeys();
+        updatePreview();
+    });
+    document.getElementById('od-reason').addEventListener('input', () => {
+        saveSelectedKeys();
+        updatePreview();
+    });
     
     document.getElementById('filter-shift').addEventListener('change', renderList);
     document.getElementById('filter-year').addEventListener('change', renderList);

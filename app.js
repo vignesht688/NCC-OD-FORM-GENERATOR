@@ -300,7 +300,7 @@ async function saveAttendance() {
     await generateLivePreview();
 }
 
-function saveAttendanceLocal(payload) {
+function saveAttendanceLocal(payload, showToastMsg = true) {
     localStorage.setItem(`ncc_att_${selectedDate}`, JSON.stringify(payload));
     
     // Add date to index of local attendance dates
@@ -314,7 +314,23 @@ function saveAttendanceLocal(payload) {
         dates.sort();
         localStorage.setItem('ncc_att_dates', JSON.stringify(dates));
     }
-    showToast("Attendance saved to browser storage!");
+    if (showToastMsg) showToast("Attendance saved to browser storage!");
+}
+
+let autoSaveTimer = null;
+function autoSaveAttendance() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+        const particulars = document.getElementById('attendance-particulars') ? document.getElementById('attendance-particulars').value.trim() : attendanceParticulars;
+        const odReason = document.getElementById('attendance-od-reason') ? document.getElementById('attendance-od-reason').value.trim() : attendanceODReason;
+        const payload = {
+            date: selectedDate,
+            event_name: particulars,
+            od_reason: odReason,
+            records: attendanceRecords
+        };
+        saveAttendanceLocal(payload, false);
+    }, 200);
 }
 
 // Get unique cadet key
@@ -503,6 +519,7 @@ function bulkMarkStatus(status) {
             attendanceRecords[key] = status;
         }
     });
+    autoSaveAttendance();
     renderAttendanceChecklist();
     updateAttendanceSummaryCounts();
     generateLivePreview();
@@ -588,6 +605,7 @@ function renderAttendanceChecklist() {
                 e.stopPropagation();
                 // Toggle status
                 attendanceRecords[key] = s.code;
+                autoSaveAttendance();
                 renderAttendanceChecklist();
                 updateAttendanceSummaryCounts();
                 generateLivePreview();
