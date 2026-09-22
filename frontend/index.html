@@ -2305,6 +2305,28 @@ function getVoiceStatusDescription() {
     return 'Listening for Cadet Name or Reg No...';
 }
 
+// Phonetic normalization for Indian cadet names
+function normPhonetic(str) {
+    if (!str) return '';
+    return str.toUpperCase()
+        .replace(/\b[A-Z](\s*\.\s*[A-Z])*\b$/g, '')
+        .replace(/[^A-Z]/g, '')
+        .replace(/AA/g, 'A')
+        .replace(/EE/g, 'I')
+        .replace(/OO/g, 'U')
+        .replace(/SH/g, 'S')
+        .replace(/TH/g, 'T')
+        .replace(/BH/g, 'B')
+        .replace(/DH/g, 'D')
+        .replace(/KH/g, 'K')
+        .replace(/GH/g, 'G')
+        .replace(/PH/g, 'F')
+        .replace(/CK/g, 'K')
+        .replace(/C(?=[EIY])/g, 'S')
+        .replace(/C/g, 'K')
+        .replace(/([B-DF-HJ-NP-TV-Z])\1+/g, '$1');
+}
+
 // Match cadet by voice utterance (Name or Register Number) scoped to active filter
 function findCadetByVoice(utterance) {
     const raw = utterance.trim();
@@ -2330,14 +2352,26 @@ function findCadetByVoice(utterance) {
 
     // 2. Clean query for name matching
     let query = cleanNameStr(raw);
-    // Strip common filler words
+    // Strip common speech command & filler words
     query = query
-        .replace(/\b(CADET|PLEASE|ADD|WRITE|MARK|PUT|STUDENT|NAME|NUMBER|REG|REGISTER)\b/g, '')
+        .replace(/\b(CADET|PLEASE|ADD|WRITE|MARK|PUT|STUDENT|NAME|NUMBER|REG|REGISTER|PRONOUNCE|PRONOUNCING|THE|ALSO|PRESENT|HERE|FOR)\b/g, '')
         .replace(/\s+/g, ' ')
         .trim();
 
+    // Normalize misheard English filler endings that are actually initials (e.g. "Akash is" -> "AKASH S")
+    query = query
+        .replace(/\b(IS|YES|AS)\b$/g, 'S')
+        .replace(/\b(BE|BEE)\b$/g, 'B')
+        .replace(/\b(PEA|PAY)\b$/g, 'P')
+        .replace(/\b(AND|IN)\b$/g, 'N')
+        .replace(/\b(AM|THEM)\b$/g, 'M')
+        .replace(/\b(ARE|OUR)\b$/g, 'R');
+
     if (!query) return null;
 
+    const qNoSpace = query.replace(/\s+/g, '');
+    const qNorm = normPhonetic(query);
+    const qPrimary = query.replace(/\s+[A-Z](\s*\.\s*[A-Z])*\s*$/, '').trim();
     const queryTokens = query.split(' ').filter(t => t.length > 0);
     const queryMainTokens = queryTokens.filter(t => t.length > 1);
 
@@ -2347,15 +2381,47 @@ function findCadetByVoice(utterance) {
 
     for (const c of pool) {
         const cClean = cleanNameStr(c.name);
+        const cNoSpace = cClean.replace(/\s+/g, '');
+        const cPrimary = cClean.replace(/\s+[A-Z](\s*\.\s*[A-Z])*\s*$/, '').trim();
+        const cNorm = normPhonetic(c.name);
         const cTokens = cClean.split(' ').filter(t => t.length > 0);
         const cMainTokens = cTokens.filter(t => t.length > 1);
 
-        // A. Exact clean match
-        if (cClean === query) {
+        // A. Exact clean match or space-insensitive match (e.g. "Bala Vaitheeswar" == "BALAVAITHEESWAR")
+        if (cClean === query || cNoSpace === qNoSpace) {
             return { cadet: c, matchType: 'name (exact)', confidence: 1.0 };
         }
 
-        // B. Contains full query or query contains full name
+        // B. Primary name match without initial (e.g. "Akash" matches "AKASH S")
+        if (cPrimary && (cPrimary === qPrimary || cPrimary === query || cClean.startsWith(query + ' '))) {
+            return { cadet: c, matchType: 'name (primary)', confidence: 0.99 };
+        }
+
+        // C. Phonetic match (e.g. "Aakash" matches "AKASH", "Jai Shree" matches "JAISHREE", "Saran" matches "SHARAN")
+        if (cNorm && qNorm) {
+            if (cNorm === qNorm) {
+                return { cadet: c, matchType: 'name (phonetic exact)', confidence: 0.98 };
+            }
+            if (cNorm.length >= 4 && qNorm.length >= 4) {
+                if (cNorm.startsWith(qNorm) || qNorm.startsWith(cNorm)) {
+                    const score = 0.95;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestCadet = c;
+                        bestType = 'name (phonetic prefix)';
+                    }
+                } else if (cNorm.includes(qNorm) || qNorm.includes(cNorm)) {
+                    const score = 0.92;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestCadet = c;
+                        bestType = 'name (phonetic match)';
+                    }
+                }
+            }
+        }
+
+        // D. Contains full query or query contains full name
         if (cClean.includes(query) && query.length >= 3) {
             const score = 0.94;
             if (score > bestScore) {
@@ -2373,9 +2439,9 @@ function findCadetByVoice(utterance) {
             }
         }
 
-        // C. Main name token matching (ignoring single-letter initials)
+        // E. Main name token matching
         if (queryMainTokens.length > 0 && cMainTokens.length > 0) {
-            const allQueryInCadet = queryMainTokens.every(qTok => cMainTokens.some(cTok => cTok === qTok || (cTok.startsWith(qTok) && qTok.length >= 4)));
+            const allQueryInCadet = queryMainTokens.every(qTok => cMainTokens.some(cTok => cTok === qTok || (cTok.startsWith(qTok) && qTok.length >= 3) || normPhonetic(cTok) === normPhonetic(qTok)));
             if (allQueryInCadet) {
                 const score = 0.91;
                 if (score > bestScore) {
@@ -2386,31 +2452,23 @@ function findCadetByVoice(utterance) {
             }
         }
 
-        // D. Fuzzy Levenshtein on full name
+        // F. Fuzzy Levenshtein
         const simFull = nameSimilarity(cClean, query);
-        if (simFull > 0.72 && simFull > bestScore) {
+        if (simFull > 0.65 && simFull > bestScore) {
             bestScore = simFull;
             bestCadet = c;
             bestType = `name (fuzzy ${Math.round(simFull * 100)}%)`;
         }
 
-        // Check against each main token
-        for (const qTok of queryMainTokens) {
-            for (const cTok of cMainTokens) {
-                const simTok = nameSimilarity(cTok, qTok);
-                if (simTok >= 0.78) {
-                    const score = simTok * 0.88;
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestCadet = c;
-                        bestType = `name (phonetic ${Math.round(simTok * 100)}%)`;
-                    }
-                }
-            }
+        const simNorm = nameSimilarity(cNorm, qNorm);
+        if (simNorm > 0.70 && (simNorm * 0.95) > bestScore) {
+            bestScore = simNorm * 0.95;
+            bestCadet = c;
+            bestType = `name (fuzzy phonetic ${Math.round(simNorm * 100)}%)`;
         }
     }
 
-    if (bestCadet && bestScore >= 0.68) {
+    if (bestCadet && bestScore >= 0.60) {
         return { cadet: bestCadet, matchType: bestType, confidence: bestScore };
     }
 
@@ -2420,7 +2478,9 @@ function findCadetByVoice(utterance) {
     if (yearVal || shiftVal) {
         const otherMatch = cadets.find(c => {
             const cClean = cleanNameStr(c.name);
-            const matchesName = cClean === query || (cClean.includes(query) && query.length >= 3) || (query.includes(cClean) && cClean.length >= 3);
+            const cNoSpace = cClean.replace(/\s+/g, '');
+            const cNorm = normPhonetic(c.name);
+            const matchesName = cClean === query || cNoSpace === qNoSpace || (cNorm && qNorm && cNorm === qNorm) || (cClean.includes(query) && query.length >= 3);
             const matchesReg = digitSeqs.length > 0 && digitSeqs.some(seq => (c.register_no || '').trim() === seq);
             return matchesName || matchesReg;
         });
@@ -2534,6 +2594,38 @@ function processVoiceInput(transcript) {
             playChime(false);
             speakFeedback(`${oCadet.name} is in ${oYear} Year, not in ${result.activeFilter}`);
             return;
+        } else if (!isRemove) {
+            // DIRECT NAME WRITING: If the user pronounced a name not yet in the active directory, write it directly!
+            const rawClean = cleanPart
+                .replace(/\b(WRITE|ADD|MARK|PUT|STUDENT|NAME|CADET|PRONOUNCE|PRONOUNCING|THE|PLEASE|ALSO|PRESENT|HERE)\b/gi, '')
+                .replace(/[^A-Za-z\s\.]/g, '')
+                .trim();
+            if (rawClean.length >= 3) {
+                matchedCount++;
+                const formattedName = rawClean.toUpperCase().replace(/\s+/g, ' ');
+                const yearVal = document.getElementById('filter-year') ? document.getElementById('filter-year').value : '';
+                const shiftVal = document.getElementById('filter-shift') ? document.getElementById('filter-shift').value : '';
+                const deptVal = document.getElementById('filter-dept') ? document.getElementById('filter-dept').value : '';
+
+                const newCadet = {
+                    name: formattedName,
+                    register_no: '',
+                    department: deptVal || (yearVal ? `${yearVal} Year` : 'III Year'),
+                    shift: shiftVal || 'SHIFT-I'
+                };
+                cadets.push(newCadet);
+                cadets.sort(sortCadetsForOD);
+                populateDepartmentFilter();
+                const key = getCadetKey(newCadet);
+                selectedKeys.add(key);
+                saveSelectedKeys();
+                renderList();
+                updatePreview();
+                playChime(true);
+                showToast(`✅ "${formattedName}" written to OD Form`, 'success');
+                showVoiceHUDMatch(formattedName, `Written to OD Form (Voice Entry)`, true);
+                flashAndScrollCadetRow(key);
+            }
         }
     });
 
