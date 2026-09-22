@@ -1136,7 +1136,7 @@
             </ul>
             <div style="margin-top:0.6rem; padding:0.4rem 0.6rem; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); border-radius:6px; font-size:0.72rem; color:var(--text2); display:flex; gap:0.4rem; align-items:center;">
                 <i class="fa-solid fa-lock" style="color:#10b981;"></i>
-                <span><strong>Directory Security:</strong> Voice mode has NO permission to delete cadets permanently from the database. It only selects or unchecks cadets for the OD form.</span>
+                <span><strong>Strict Directory Security:</strong> Voice mode has NO permission to add or delete cadets. It can strictly ONLY select or uncheck existing directory cadets for the OD form.</span>
             </div>
         </div>
 
@@ -2537,12 +2537,21 @@ function processVoiceInput(transcript) {
         return;
     }
 
-    // STRICT PERMISSION SAFEGUARD:
-    // Voice mode NEVER has permission to permanently delete cadets or modify directory records.
+    // STRICT PERMISSION SAFEGUARDS:
+    // 1. Voice mode NEVER has permission to permanently delete cadets or modify directory records.
     if (/\b(delete|destroy|purge|erase|drop)\b/i.test(lower) && /\b(cadet|cadets|directory|database|record|records|permanently|system)\b/i.test(lower)) {
         showToast('🔒 Voice Mode has NO permission to delete cadets permanently.', 'error');
         speakFeedback('Voice mode cannot delete cadet records. Cadets are permanently protected in the database.');
         showVoiceHUDStatus('🔒 Permission Denied: Voice Mode cannot delete cadets', 'idle');
+        playChime(false);
+        return;
+    }
+
+    // 2. Voice mode NEVER has permission to add or create new cadets.
+    if (/\b(add|create|insert|new|register)\s+(cadet|student|record|member)\b/i.test(lower)) {
+        showToast('🔒 Voice Mode has NO permission to add new cadets. Use Manage Cadets form.', 'error');
+        speakFeedback('Voice mode cannot add new cadets.');
+        showVoiceHUDStatus('🔒 Permission Denied: Voice Mode cannot add new cadets', 'idle');
         playChime(false);
         return;
     }
@@ -2594,37 +2603,11 @@ function processVoiceInput(transcript) {
             playChime(false);
             speakFeedback(`${oCadet.name} is in ${oYear} Year, not in ${result.activeFilter}`);
             return;
-        } else if (!isRemove) {
-            // DIRECT NAME WRITING: If the user pronounced a name not yet in the active directory, write it directly!
-            const rawClean = cleanPart
-                .replace(/\b(WRITE|ADD|MARK|PUT|STUDENT|NAME|CADET|PRONOUNCE|PRONOUNCING|THE|PLEASE|ALSO|PRESENT|HERE)\b/gi, '')
-                .replace(/[^A-Za-z\s\.]/g, '')
-                .trim();
-            if (rawClean.length >= 3) {
-                matchedCount++;
-                const formattedName = rawClean.toUpperCase().replace(/\s+/g, ' ');
-                const yearVal = document.getElementById('filter-year') ? document.getElementById('filter-year').value : '';
-                const shiftVal = document.getElementById('filter-shift') ? document.getElementById('filter-shift').value : '';
-                const deptVal = document.getElementById('filter-dept') ? document.getElementById('filter-dept').value : '';
-
-                const newCadet = {
-                    name: formattedName,
-                    register_no: '',
-                    department: deptVal || (yearVal ? `${yearVal} Year` : 'III Year'),
-                    shift: shiftVal || 'SHIFT-I'
-                };
-                cadets.push(newCadet);
-                cadets.sort(sortCadetsForOD);
-                populateDepartmentFilter();
-                const key = getCadetKey(newCadet);
-                selectedKeys.add(key);
-                saveSelectedKeys();
-                renderList();
-                updatePreview();
-                playChime(true);
-                showToast(`✅ "${formattedName}" written to OD Form`, 'success');
-                showVoiceHUDMatch(formattedName, `Written to OD Form (Voice Entry)`, true);
-                flashAndScrollCadetRow(key);
+        } else {
+            // Unrecognized or unknown cadet: voice mode does NOT add new cadets!
+            const cleanNotice = cleanPart.replace(/[^A-Za-z0-9\s]/g, '').trim();
+            if (cleanNotice.length >= 2) {
+                showToast(`⚠️ "${cleanNotice}" not found in directory`, 'info');
             }
         }
     });

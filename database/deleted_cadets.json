@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "name": "DEVIL OVEN",
+    "register_no": "",
+    "department": "III Year",
+    "shift": "SHIFT-I",
+    "deleted_at": "2026-09-22T18:13:38.305Z",
+    "deleted_by": "manual_admin",
+    "reason": "Manually removed via directory UI"
+  },
+  {
+    "name": "HUMAN",
+    "register_no": "",
+    "department": "III Year",
+    "shift": "SHIFT-I",
+    "deleted_at": "2026-09-22T18:13:32.823Z",
+    "deleted_by": "manual_admin",
+    "reason": "Manually removed via directory UI"
+  }
+]
