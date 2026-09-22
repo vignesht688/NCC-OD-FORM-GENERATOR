@@ -1236,15 +1236,15 @@ if (!process.env.VERCEL) {
         console.log(` NCC OD Form Automator server running at: ${url}`);
         console.log(`==================================================`);
 
-        // Auto-open browser on startup (only locally)
-        if (process.platform === 'win32' || process.platform === 'darwin') {
+        // Auto-open browser on startup (disabled for background server)
+        /* if (process.platform === 'win32' || process.platform === 'darwin') {
             const startCmd = process.platform === 'darwin' ? 'open' : 'start';
             exec(`${startCmd} ${url}`, (err) => {
                 if (err) {
                     console.error('Failed to open browser automatically:', err);
                 }
             });
-        }
+        } */
     });
 }
 

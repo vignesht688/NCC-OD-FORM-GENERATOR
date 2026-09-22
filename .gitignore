@@ -9,3 +9,5 @@ node_modules/
 package-lock.json
 served_app.js
 served_index.html
+scratch/
+all.min.css

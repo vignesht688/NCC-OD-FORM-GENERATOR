@@ -547,6 +547,248 @@
             transition: opacity 0.15s;
         }
         #confirm-modal .btn-modal-confirm:hover { opacity: 0.88; }
+
+        /* ===== AI Voice Microphone Styles ===== */
+        .btn-ai-mic {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.65rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            border: 1px solid rgba(236, 72, 153, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(168, 85, 247, 0.3);
+            white-space: nowrap;
+            user-select: none;
+        }
+        .btn-ai-mic:hover {
+            background: linear-gradient(135deg, #9333ea, #db2777);
+            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.45);
+            transform: translateY(-1px);
+        }
+        .btn-ai-mic.listening {
+            background: linear-gradient(135deg, #ef4444, #f43f5e) !important;
+            border-color: #f87171 !important;
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.65) !important;
+            animation: micPulseRing 1.5s infinite;
+        }
+        @keyframes micPulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .header-ai-mic-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            border: 1px solid rgba(236, 72, 153, 0.4);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);
+            user-select: none;
+        }
+        .header-ai-mic-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.45);
+        }
+        .header-ai-mic-btn.listening {
+            background: linear-gradient(135deg, #ef4444, #f43f5e) !important;
+            border-color: #f87171 !important;
+            animation: micPulseRing 1.5s infinite;
+        }
+
+        /* AI Voice HUD */
+        .ai-voice-hud {
+            background: linear-gradient(135deg, rgba(22, 26, 45, 0.98), rgba(28, 33, 56, 0.98));
+            border-bottom: 1px solid rgba(168, 85, 247, 0.35);
+            padding: 0.55rem 1.1rem;
+            display: none;
+            flex-direction: column;
+            gap: 0.45rem;
+            position: relative;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            transition: all 0.2s ease;
+        }
+        .ai-voice-hud.active {
+            display: flex;
+        }
+
+        .ai-hud-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        .ai-hud-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.74rem;
+            color: var(--text2);
+            min-width: 0;
+        }
+        .ai-status-label {
+            font-weight: 600;
+            color: #f43f5e;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ai-status-label.idle {
+            color: var(--text3);
+        }
+        .ai-status-label.matched {
+            color: #22c55e;
+        }
+
+        /* Sound waves animation */
+        .ai-waves {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+        .ai-wave-bar {
+            width: 3px;
+            height: 4px;
+            background: #ec4899;
+            border-radius: 2px;
+            transition: height 0.15s;
+        }
+        .ai-waves.active .ai-wave-bar {
+            animation: waveAnim 0.7s ease-in-out infinite alternate;
+        }
+        .ai-waves.active .ai-wave-bar:nth-child(1) { animation-delay: 0.0s; background: #ec4899; }
+        .ai-waves.active .ai-wave-bar:nth-child(2) { animation-delay: 0.15s; background: #a855f7; }
+        .ai-waves.active .ai-wave-bar:nth-child(3) { animation-delay: 0.3s; background: #6366f1; }
+        .ai-waves.active .ai-wave-bar:nth-child(4) { animation-delay: 0.45s; background: #38bdf8; }
+        .ai-waves.active .ai-wave-bar:nth-child(5) { animation-delay: 0.6s; background: #22c55e; }
+        @keyframes waveAnim {
+            0% { height: 4px; }
+            100% { height: 15px; }
+        }
+
+        .ai-hud-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            flex-shrink: 0;
+        }
+        .ai-icon-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            font-size: 0.68rem;
+            font-weight: 500;
+            padding: 0.22rem 0.45rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.15s;
+        }
+        .ai-icon-btn:hover {
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .ai-icon-btn.active {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #a855f7;
+            color: #c084fc;
+        }
+        .ai-icon-btn.close-btn:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .ai-transcript-box {
+            background: rgba(15, 17, 23, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 6px;
+            padding: 0.35rem 0.6rem;
+            font-size: 0.73rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 28px;
+        }
+        .ai-transcript-box i {
+            color: #ec4899;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        .ai-transcript-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: monospace;
+        }
+
+        .ai-match-card {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            border-radius: 6px;
+            padding: 0.35rem 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeIn 0.2s ease;
+        }
+        .ai-match-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.25);
+            color: #22c55e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+        .ai-match-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .ai-match-name {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ai-match-sub {
+            font-size: 0.68rem;
+            color: #86efac;
+        }
+
+        /* Voice Row Flash */
+        @keyframes rowFlashVoice {
+            0% { background: rgba(236, 72, 153, 0.6); transform: scale(1.01); }
+            50% { background: rgba(34, 197, 94, 0.5); }
+            100% { background: rgba(79, 124, 255, 0.22); transform: scale(1); }
+        }
+        .cadet-row.voice-matched {
+            animation: rowFlashVoice 1.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
+        }
     </style>
 </head>
 <body>
@@ -559,9 +801,15 @@
             <p>Sri Ramakrishna College of Arts &amp; Science</p>
         </div>
     </div>
-    <div class="header-status" id="conn-status">
-        <div class="status-dot" id="status-dot"></div>
-        <span id="status-text">Connecting...</span>
+    <div style="display:flex; align-items:center; gap:0.65rem;">
+        <button class="header-ai-mic-btn" id="header-ai-mic-btn" onclick="toggleAIMic()" title="AI Voice Mic: Pronounce Name or Reg No to add to OD Form">
+            <i class="fa-solid fa-microphone"></i>
+            <span>AI Voice Mic</span>
+        </button>
+        <div class="header-status" id="conn-status">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="status-text">Connecting...</span>
+        </div>
     </div>
 </header>
 
@@ -653,11 +901,15 @@
         <!-- Cadet Search + Bulk -->
         <div class="cadet-list-wrap">
             <div class="cadet-list-header">
-                <div style="display:flex; gap:0.4rem; width:100%;">
+                <div style="display:flex; gap:0.4rem; width:100%; align-items:center;">
                     <div class="search-box">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="text" id="search-input" placeholder="Search cadets…">
                     </div>
+                    <button class="btn-ai-mic" id="btn-ai-mic" onclick="toggleAIMic()" title="AI Voice Mic: Pronounce Name or Reg No to add to OD Form">
+                        <i class="fa-solid fa-microphone" id="ai-mic-icon"></i>
+                        <span class="mic-btn-text">AI Mic</span>
+                    </button>
                     <div class="bulk-btns">
                         <button class="btn-bulk select-all" onclick="selectAll()">All</button>
                         <button class="btn-bulk deselect" onclick="deselectAll()">Clear</button>
@@ -681,6 +933,48 @@
                     <button class="btn-bulk" id="sort-toggle" onclick="toggleSort()" title="Sort A-Z / Database Order" style="padding: 0.25rem 0.4rem; font-size: 0.72rem;">
                         <i class="fa-solid fa-sort-alpha-down"></i>
                     </button>
+                </div>
+            </div>
+
+            <!-- AI Voice Assistant HUD -->
+            <div class="ai-voice-hud" id="ai-voice-hud">
+                <div class="ai-hud-top">
+                    <div class="ai-hud-status">
+                        <div class="ai-waves" id="ai-waves">
+                            <span class="ai-wave-bar"></span>
+                            <span class="ai-wave-bar"></span>
+                            <span class="ai-wave-bar"></span>
+                            <span class="ai-wave-bar"></span>
+                            <span class="ai-wave-bar"></span>
+                        </div>
+                        <span class="ai-status-label" id="ai-status-label">Listening for Name or Reg No...</span>
+                    </div>
+                    <div class="ai-hud-actions">
+                        <button class="ai-icon-btn active" id="ai-btn-continuous" onclick="toggleContinuousMode()" title="Toggle Roll Call Mode">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                            <span id="ai-continuous-label">Roll Call</span>
+                        </button>
+                        <button class="ai-icon-btn active" id="ai-btn-sound" onclick="toggleSoundFeedback()" title="Toggle Audio Feedback">
+                            <i class="fa-solid fa-volume-high" id="ai-sound-icon"></i>
+                        </button>
+                        <button class="ai-icon-btn" onclick="openVoiceHelpModal()" title="Voice Commands Guide">
+                            <i class="fa-solid fa-circle-question"></i>
+                        </button>
+                        <button class="ai-icon-btn close-btn" onclick="stopAIMic()" title="Close Mic">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="ai-transcript-box" id="ai-transcript-box">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                    <span class="ai-transcript-text" id="ai-transcript-text">Say a cadet's name or reg number...</span>
+                </div>
+                <div class="ai-match-card" id="ai-match-card" style="display:none;">
+                    <div class="ai-match-icon"><i class="fa-solid fa-user-check"></i></div>
+                    <div class="ai-match-info">
+                        <div class="ai-match-name" id="ai-match-name">AKASH S</div>
+                        <div class="ai-match-sub" id="ai-match-sub">24104070 · Added to OD Form</div>
+                    </div>
                 </div>
             </div>
 
@@ -787,6 +1081,49 @@
         <div class="modal-actions">
             <button class="btn-modal-cancel" onclick="closeDeleteModal()">Cancel</button>
             <button class="btn-modal-confirm" onclick="confirmDeleteCadet()">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Voice Help & Test Modal -->
+<div id="voice-help-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); z-index:1000; align-items:center; justify-content:center; padding:1rem;">
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; width:min(540px, 95vw); max-height:88vh; overflow-y:auto; padding:1.5rem; box-shadow:var(--shadow);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+                <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, #ec4899, #8b5cf6); display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 2px 10px rgba(236,72,153,0.35);">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:0.95rem; font-weight:700; color:var(--text);">AI Voice Form Assistant</h3>
+                    <p style="font-size:0.72rem; color:var(--text3);">Pronounce cadet names or register numbers to auto-write OD Form</p>
+                </div>
+            </div>
+            <button onclick="closeVoiceHelpModal()" style="background:none; border:none; color:var(--text3); font-size:1.1rem; cursor:pointer; padding:0.2rem;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.85rem; margin-bottom:1rem;">
+            <div style="font-size:0.72rem; font-weight:700; color:var(--text2); text-transform:uppercase; margin-bottom:0.5rem; letter-spacing:0.05em;"><i class="fa-solid fa-bullhorn" style="margin-right:0.4rem; color:#ec4899;"></i>Voice Pronunciation & Commands</div>
+            <ul style="font-size:0.76rem; color:var(--text2); line-height:1.65; padding-left:1.2rem; margin:0;">
+                <li><strong>Pronounce Name:</strong> Say <code style="color:#f472b6; background:rgba(244,114,182,0.1); padding:1px 4px; border-radius:4px;">"Aadhin"</code>, <code style="color:#f472b6; background:rgba(244,114,182,0.1); padding:1px 4px; border-radius:4px;">"Akash"</code>, <code style="color:#f472b6; background:rgba(244,114,182,0.1); padding:1px 4px; border-radius:4px;">"Balavaitheeswar"</code>, or <code style="color:#f472b6; background:rgba(244,114,182,0.1); padding:1px 4px; border-radius:4px;">"Jaishree"</code></li>
+                <li><strong>Pronounce Reg No:</strong> Say <code style="color:#38bdf8; background:rgba(56,189,248,0.1); padding:1px 4px; border-radius:4px;">"24104070"</code> or <code style="color:#38bdf8; background:rgba(56,189,248,0.1); padding:1px 4px; border-radius:4px;">"twenty four ten forty seventy"</code> or <code style="color:#38bdf8; background:rgba(56,189,248,0.1); padding:1px 4px; border-radius:4px;">"two four one zero four zero seven zero"</code></li>
+                <li><strong>Roll Call / Multi-Cadet:</strong> Say <code style="color:#a78bfa; background:rgba(167,139,250,0.1); padding:1px 4px; border-radius:4px;">"Akash, Anbuselvam, and Balavaitheeswar"</code></li>
+                <li><strong>Remove Cadet:</strong> Say <code style="color:#f87171; background:rgba(248,113,113,0.1); padding:1px 4px; border-radius:4px;">"Remove Akash"</code> or <code style="color:#f87171; background:rgba(248,113,113,0.1); padding:1px 4px; border-radius:4px;">"Deselect 24104070"</code></li>
+                <li><strong>Bulk Actions:</strong> Say <code style="color:#f59e0b; background:rgba(245,158,11,0.1); padding:1px 4px; border-radius:4px;">"Select all"</code> or <code style="color:#f59e0b; background:rgba(245,158,11,0.1); padding:1px 4px; border-radius:4px;">"Clear all"</code></li>
+                <li><strong>Download Form:</strong> Say <code style="color:#34d399; background:rgba(52,211,153,0.1); padding:1px 4px; border-radius:4px;">"Download OD Form"</code></li>
+            </ul>
+        </div>
+
+        <div style="background:rgba(79,124,255,0.08); border:1px solid rgba(79,124,255,0.25); border-radius:8px; padding:0.85rem; margin-bottom:1rem;">
+            <div style="font-size:0.72rem; font-weight:700; color:#93c5fd; margin-bottom:0.4rem;"><i class="fa-solid fa-keyboard" style="margin-right:0.4rem;"></i>Test Voice Command (Simulate Speech)</div>
+            <div style="display:flex; gap:0.4rem;">
+                <input type="text" id="ai-voice-test-input" placeholder="e.g. Akash or 24104070 or Remove Aadhin" style="flex:1; font-size:0.75rem; padding:0.4rem 0.6rem; border-radius:6px; background:var(--surface); border:1px solid var(--border); color:var(--text);" onkeydown="if(event.key==='Enter') executeSimulatedVoice()">
+                <button onclick="executeSimulatedVoice()" style="background:var(--accent); color:#fff; border:none; border-radius:6px; padding:0.4rem 0.8rem; font-size:0.74rem; font-weight:600; cursor:pointer;">Run Test</button>
+            </div>
+            <div id="ai-voice-test-result" style="font-size:0.72rem; color:var(--text2); margin-top:0.4rem; min-height:16px;"></div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end;">
+            <button onclick="closeVoiceHelpModal()" class="btn-bulk" style="padding:0.4rem 1.1rem; background:var(--surface2);">Close</button>
         </div>
     </div>
 </div>
@@ -1644,6 +1981,574 @@ function showToast(msg, type = 'success') {
     icon.style.color = type === 'success' ? '#22c55e' : '#ef4444';
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ============================================================
+// AI VOICE MICROPHONE CONTROLLER & ENGINE
+// ============================================================
+let aiSpeechRecognition = null;
+let isAIMicActive = false;
+let aiContinuousMode = true; // Roll call continuous listening mode
+let aiSoundFeedback = true;
+let aiRecognitionRestartTimer = null;
+let aiLastSpokenText = '';
+
+// Dual-tone Web Audio Chime (Offline, 0 latency)
+function playChime(success = true) {
+    if (!aiSoundFeedback) return;
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (success) {
+            osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+            osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.08); // G5
+            gain.gain.setValueAtTime(0.12, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.32);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.32);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(220, ctx.currentTime);
+            osc.frequency.setValueAtTime(160, ctx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.08, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.25);
+        }
+    } catch(e) {}
+}
+
+// Optional voice response feedback
+function speakFeedback(text) {
+    if (!aiSoundFeedback || !('speechSynthesis' in window)) return;
+    try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.rate = 1.05;
+        utter.pitch = 1.0;
+        utter.volume = 0.85;
+        const voices = window.speechSynthesis.getVoices();
+        const engVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha')));
+        if (engVoice) utter.voice = engVoice;
+        window.speechSynthesis.speak(utter);
+    } catch(e) {}
+}
+
+// Convert spoken number words to digits
+function wordsToDigits(text) {
+    if (!text) return '';
+    const wordMap = {
+        'zero': '0', 'oh': '0', 'o': '0',
+        'one': '1', 'won': '1',
+        'two': '2', 'to': '2', 'too': '2',
+        'three': '3',
+        'four': '4', 'for': '4', 'fore': '4',
+        'five': '5',
+        'six': '6',
+        'seven': '7',
+        'eight': '8', 'ate': '8',
+        'nine': '9',
+        'ten': '10', 'eleven': '11', 'twelve': '12', 'thirteen': '13',
+        'fourteen': '14', 'fifteen': '15', 'sixteen': '16', 'seventeen': '17',
+        'eighteen': '18', 'nineteen': '19', 'twenty': '20', 'thirty': '30',
+        'forty': '40', 'fifty': '50', 'sixty': '60', 'seventy': '70',
+        'eighty': '80', 'ninety': '90'
+    };
+
+    let s = text.toLowerCase()
+        .replace(/\bdouble\s+([a-z0-9]+)/g, '$1 $1')
+        .replace(/\btriple\s+([a-z0-9]+)/g, '$1 $1 $1');
+
+    const tokens = s.split(/[\s\-]+/);
+    let out = '';
+    for (let i = 0; i < tokens.length; i++) {
+        const tok = tokens[i];
+        if (/^\d+$/.test(tok)) {
+            out += tok;
+        } else if (wordMap[tok] !== undefined) {
+            out += wordMap[tok];
+        } else {
+            out += ' ' + tok + ' ';
+        }
+    }
+    return out;
+}
+
+// Extract digit sequences from speech
+function extractDigitSequences(text) {
+    const norm = wordsToDigits(text);
+    const matches = norm.match(/\d+/g) || [];
+    const results = [];
+    const joined = matches.join('');
+    if (joined.length >= 4) results.push(joined);
+    matches.forEach(m => {
+        if (m.length >= 4 && !results.includes(m)) results.push(m);
+    });
+    return results;
+}
+
+// Levenshtein distance for fuzzy name comparison
+function levenshtein(a, b) {
+    if (!a || !b) return (a || '').length + (b || '').length;
+    const m = a.length, n = b.length;
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            dp[i][j] = Math.min(
+                dp[i - 1][j] + 1,
+                dp[i][j - 1] + 1,
+                dp[i - 1][j - 1] + cost
+            );
+        }
+    }
+    return dp[m][n];
+}
+
+function nameSimilarity(a, b) {
+    if (!a || !b) return 0;
+    const maxLen = Math.max(a.length, b.length);
+    if (maxLen === 0) return 1;
+    const dist = levenshtein(a, b);
+    return 1 - (dist / maxLen);
+}
+
+function cleanNameStr(s) {
+    return (s || '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+// Match cadet by voice utterance (Name or Register Number)
+function findCadetByVoice(utterance) {
+    const raw = utterance.trim();
+    if (!raw) return null;
+
+    // 1. Check Register Number match first
+    const digitSeqs = extractDigitSequences(raw);
+    for (const seq of digitSeqs) {
+        // Direct exact match
+        const exactReg = cadets.find(c => (c.register_no || '').trim() === seq);
+        if (exactReg) return { cadet: exactReg, matchType: 'register_no (exact)', confidence: 1.0 };
+
+        // EndsWith partial match (e.g. user speaks "4070" or "04070")
+        if (seq.length >= 4) {
+            const endsWith = cadets.filter(c => (c.register_no || '').trim().endsWith(seq));
+            if (endsWith.length === 1) {
+                return { cadet: endsWith[0], matchType: 'register_no (partial)', confidence: 0.95 };
+            }
+        }
+    }
+
+    // 2. Clean query for name matching
+    let query = cleanNameStr(raw);
+    // Strip common filler words
+    query = query
+        .replace(/\b(CADET|PLEASE|ADD|WRITE|MARK|PUT|STUDENT|NAME|NUMBER|REG|REGISTER)\b/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    if (!query) return null;
+
+    const queryTokens = query.split(' ').filter(t => t.length > 0);
+    const queryMainTokens = queryTokens.filter(t => t.length > 1);
+
+    let bestCadet = null;
+    let bestScore = 0;
+    let bestType = '';
+
+    for (const c of cadets) {
+        const cClean = cleanNameStr(c.name);
+        const cTokens = cClean.split(' ').filter(t => t.length > 0);
+        const cMainTokens = cTokens.filter(t => t.length > 1);
+
+        // A. Exact clean match
+        if (cClean === query) {
+            return { cadet: c, matchType: 'name (exact)', confidence: 1.0 };
+        }
+
+        // B. Contains full query or query contains full name
+        if (cClean.includes(query) && query.length >= 3) {
+            const score = 0.94;
+            if (score > bestScore) {
+                bestScore = score;
+                bestCadet = c;
+                bestType = 'name (substring)';
+            }
+        }
+        if (query.includes(cClean) && cClean.length >= 3) {
+            const score = 0.93;
+            if (score > bestScore) {
+                bestScore = score;
+                bestCadet = c;
+                bestType = 'name (contained)';
+            }
+        }
+
+        // C. Main name token matching (ignoring single-letter initials)
+        if (queryMainTokens.length > 0 && cMainTokens.length > 0) {
+            const allQueryInCadet = queryMainTokens.every(qTok => cMainTokens.some(cTok => cTok === qTok || (cTok.startsWith(qTok) && qTok.length >= 4)));
+            if (allQueryInCadet) {
+                const score = 0.91;
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestCadet = c;
+                    bestType = 'name (token match)';
+                }
+            }
+        }
+
+        // D. Fuzzy Levenshtein on full name
+        const simFull = nameSimilarity(cClean, query);
+        if (simFull > 0.72 && simFull > bestScore) {
+            bestScore = simFull;
+            bestCadet = c;
+            bestType = `name (fuzzy ${Math.round(simFull * 100)}%)`;
+        }
+
+        // Check against each main token
+        for (const qTok of queryMainTokens) {
+            for (const cTok of cMainTokens) {
+                const simTok = nameSimilarity(cTok, qTok);
+                if (simTok >= 0.78) {
+                    const score = simTok * 0.88;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestCadet = c;
+                        bestType = `name (phonetic ${Math.round(simTok * 100)}%)`;
+                    }
+                }
+            }
+        }
+    }
+
+    if (bestCadet && bestScore >= 0.68) {
+        return { cadet: bestCadet, matchType: bestType, confidence: bestScore };
+    }
+
+    return null;
+}
+
+// Process full speech transcript
+function processVoiceInput(transcript) {
+    aiLastSpokenText = transcript;
+    updateVoiceHUDTranscript(transcript);
+
+    const lower = transcript.toLowerCase().trim();
+
+    // Global voice commands
+    if (lower.includes('select all') || lower.includes('mark all') || lower.includes('all cadets')) {
+        selectAll();
+        showToast('✅ All cadets selected via voice', 'success');
+        playChime(true);
+        speakFeedback('All cadets selected');
+        showVoiceHUDMatch('ALL CADETS', 'Selected all cadets for OD form');
+        return;
+    }
+
+    if (lower.includes('clear all') || lower.includes('deselect all') || lower.includes('remove all')) {
+        deselectAll();
+        showToast('🗑️ OD form cleared via voice', 'info');
+        playChime(false);
+        speakFeedback('Cleared all cadets');
+        showVoiceHUDMatch('CLEARED ALL', 'Deselected all cadets', false);
+        return;
+    }
+
+    if (lower.includes('download') || lower.includes('generate form') || lower.includes('save word') || lower.includes('save doc')) {
+        downloadODFormBrowser();
+        showToast('📥 Downloading OD Form...', 'success');
+        playChime(true);
+        speakFeedback('Downloading OD Form');
+        showVoiceHUDMatch('DOWNLOADING', 'Generating OD Form document');
+        return;
+    }
+
+    if (lower.includes('stop listening') || lower.includes('stop mic') || lower.includes('turn off mic')) {
+        stopAIMic();
+        showToast('Mic turned off', 'info');
+        return;
+    }
+
+    // Split for multi-cadet roll call: split by "and", "next", "also", or commas
+    const parts = lower.split(/,|\band\b|\bnext\b|\balso\b/).map(p => p.trim()).filter(p => p.length > 0);
+    let matchedCount = 0;
+
+    parts.forEach(part => {
+        const isRemove = part.startsWith('remove ') || part.startsWith('delete ') || part.startsWith('deselect ') || part.startsWith('cancel ');
+        const cleanPart = part.replace(/^(remove|delete|deselect|cancel)\s+/, '');
+
+        const result = findCadetByVoice(cleanPart);
+        if (result && result.cadet) {
+            matchedCount++;
+            const cadet = result.cadet;
+            const key = getCadetKey(cadet);
+
+            if (isRemove) {
+                if (selectedKeys.has(key)) {
+                    selectedKeys.delete(key);
+                    saveSelectedKeys();
+                    renderList();
+                    playChime(false);
+                    speakFeedback(`${cadet.name} removed`);
+                    showToast(`Removed ${cadet.name} from OD Form`, 'info');
+                    showVoiceHUDMatch(cadet.name, `${cadet.register_no || 'NO REG'} · Removed from OD Form`, false);
+                } else {
+                    showToast(`${cadet.name} was not in OD Form`, 'info');
+                }
+            } else {
+                // Add to OD Form
+                selectedKeys.add(key);
+                saveSelectedKeys();
+                renderList();
+                playChime(true);
+                speakFeedback(`${cadet.name} added`);
+                showToast(`✅ ${cadet.name} added to OD Form`, 'success');
+                showVoiceHUDMatch(cadet.name, `${cadet.register_no || 'NO REG'} · Added to OD Form (${result.matchType})`, true);
+                flashAndScrollCadetRow(key);
+            }
+        }
+    });
+
+    if (matchedCount === 0) {
+        showVoiceHUDStatus(`No matching cadet for: "${transcript}"`, 'idle');
+        playChime(false);
+    }
+}
+
+// Flash cadet row in list and scroll into view
+function flashAndScrollCadetRow(key) {
+    setTimeout(() => {
+        const encKey = encodeURIComponent(key);
+        const row = document.querySelector(`.cadet-row[data-key="${encKey}"]`);
+        if (row) {
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            row.classList.add('voice-matched');
+            setTimeout(() => row.classList.remove('voice-matched'), 1500);
+        }
+    }, 50);
+}
+
+// Voice HUD UI Helpers
+function updateVoiceHUDTranscript(text) {
+    const el = document.getElementById('ai-transcript-text');
+    if (el) el.textContent = text ? `"${text}"` : 'Say a cadet\'s name or reg number...';
+}
+
+function showVoiceHUDMatch(title, sub, isAdd = true) {
+    const card = document.getElementById('ai-match-card');
+    const nameEl = document.getElementById('ai-match-name');
+    const subEl = document.getElementById('ai-match-sub');
+    const iconEl = card ? card.querySelector('.ai-match-icon i') : null;
+    if (card && nameEl && subEl) {
+        nameEl.textContent = title;
+        subEl.textContent = sub;
+        if (iconEl) {
+            iconEl.className = isAdd ? 'fa-solid fa-user-check' : 'fa-solid fa-user-minus';
+        }
+        card.style.display = 'flex';
+        card.style.borderColor = isAdd ? 'rgba(34, 197, 94, 0.35)' : 'rgba(239, 68, 68, 0.35)';
+        card.style.background = isAdd ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+        setTimeout(() => {
+            if (card) card.style.display = 'none';
+        }, 4000);
+    }
+    showVoiceHUDStatus(isAdd ? '✓ Cadet Written to OD Form' : '✓ Cadet Removed', isAdd ? 'matched' : 'idle');
+}
+
+function showVoiceHUDStatus(label, type = 'listening') {
+    const lbl = document.getElementById('ai-status-label');
+    const waves = document.getElementById('ai-waves');
+    if (lbl) {
+        lbl.textContent = label;
+        lbl.className = 'ai-status-label ' + type;
+    }
+    if (waves) {
+        if (type === 'listening') waves.classList.add('active');
+        else waves.classList.remove('active');
+    }
+}
+
+// Microphone Control
+function toggleAIMic() {
+    if (isAIMicActive) {
+        stopAIMic();
+    } else {
+        startAIMic();
+    }
+}
+
+function startAIMic() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+        showToast('⚠️ Web Speech API not supported in this browser. Use Chrome or Edge.', 'error');
+        openVoiceHelpModal();
+        return;
+    }
+
+    try {
+        if (!aiSpeechRecognition) {
+            aiSpeechRecognition = new SpeechRec();
+            aiSpeechRecognition.continuous = aiContinuousMode;
+            aiSpeechRecognition.interimResults = true;
+            aiSpeechRecognition.lang = 'en-IN'; // Optimized for Indian English names & numbers
+
+            aiSpeechRecognition.onstart = () => {
+                isAIMicActive = true;
+                updateMicUIState(true);
+                showVoiceHUDStatus('Listening for Cadet Name or Reg No...', 'listening');
+                updateVoiceHUDTranscript('');
+            };
+
+            aiSpeechRecognition.onresult = (event) => {
+                let interim = '';
+                let final = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        final += event.results[i][0].transcript;
+                    } else {
+                        interim += event.results[i][0].transcript;
+                    }
+                }
+
+                if (interim) {
+                    updateVoiceHUDTranscript(interim + ' …');
+                }
+
+                if (final) {
+                    processVoiceInput(final);
+                }
+            };
+
+            aiSpeechRecognition.onerror = (event) => {
+                console.warn('Speech Recognition Error:', event.error);
+                if (event.error === 'not-allowed') {
+                    showToast('❌ Microphone permission denied in browser.', 'error');
+                    stopAIMic();
+                } else if (event.error === 'no-speech') {
+                    // Silently wait if continuous
+                } else {
+                    showVoiceHUDStatus(`Mic notice: ${event.error}`, 'idle');
+                }
+            };
+
+            aiSpeechRecognition.onend = () => {
+                if (isAIMicActive && aiContinuousMode) {
+                    // Auto-restart in continuous roll call mode
+                    clearTimeout(aiRecognitionRestartTimer);
+                    aiRecognitionRestartTimer = setTimeout(() => {
+                        if (isAIMicActive) {
+                            try { aiSpeechRecognition.start(); } catch(e) {}
+                        }
+                    }, 250);
+                } else {
+                    isAIMicActive = false;
+                    updateMicUIState(false);
+                }
+            };
+        }
+
+        aiSpeechRecognition.start();
+        isAIMicActive = true;
+        updateMicUIState(true);
+        showToast('🎙️ AI Mic active: Speak cadet name or reg no', 'success');
+
+    } catch(err) {
+        console.error('Error starting speech recognition:', err);
+        // If already started, just update state
+        isAIMicActive = true;
+        updateMicUIState(true);
+    }
+}
+
+function stopAIMic() {
+    isAIMicActive = false;
+    clearTimeout(aiRecognitionRestartTimer);
+    if (aiSpeechRecognition) {
+        try { aiSpeechRecognition.stop(); } catch(e) {}
+    }
+    updateMicUIState(false);
+    showVoiceHUDStatus('Microphone stopped', 'idle');
+    setTimeout(() => {
+        const hud = document.getElementById('ai-voice-hud');
+        if (hud && !isAIMicActive) hud.classList.remove('active');
+    }, 1200);
+}
+
+function updateMicUIState(active) {
+    const btnList = document.getElementById('btn-ai-mic');
+    const btnHeader = document.getElementById('header-ai-mic-btn');
+    const hud = document.getElementById('ai-voice-hud');
+    const waves = document.getElementById('ai-waves');
+
+    if (btnList) {
+        if (active) btnList.classList.add('listening');
+        else btnList.classList.remove('listening');
+    }
+    if (btnHeader) {
+        if (active) btnHeader.classList.add('listening');
+        else btnHeader.classList.remove('listening');
+    }
+    if (hud) {
+        if (active) hud.classList.add('active');
+    }
+    if (waves) {
+        if (active) waves.classList.add('active');
+        else waves.classList.remove('active');
+    }
+}
+
+function toggleContinuousMode() {
+    aiContinuousMode = !aiContinuousMode;
+    const btn = document.getElementById('ai-btn-continuous');
+    if (btn) {
+        if (aiContinuousMode) btn.classList.add('active');
+        else btn.classList.remove('active');
+    }
+    showToast(aiContinuousMode ? '🔄 Continuous Roll Call Mode ON' : 'Single Utterance Mode', 'info');
+}
+
+function toggleSoundFeedback() {
+    aiSoundFeedback = !aiSoundFeedback;
+    const icon = document.getElementById('ai-sound-icon');
+    const btn = document.getElementById('ai-btn-sound');
+    if (icon && btn) {
+        icon.className = aiSoundFeedback ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+        if (aiSoundFeedback) btn.classList.add('active');
+        else btn.classList.remove('active');
+    }
+    showToast(aiSoundFeedback ? '🔊 Audio feedback ON' : '🔇 Audio feedback Muted', 'info');
+}
+
+function openVoiceHelpModal() {
+    const m = document.getElementById('voice-help-modal-overlay');
+    if (m) m.style.display = 'flex';
+}
+
+function closeVoiceHelpModal() {
+    const m = document.getElementById('voice-help-modal-overlay');
+    if (m) m.style.display = 'none';
+}
+
+function executeSimulatedVoice() {
+    const input = document.getElementById('ai-voice-test-input');
+    const resEl = document.getElementById('ai-voice-test-result');
+    if (!input || !input.value.trim()) return;
+    const text = input.value.trim();
+    processVoiceInput(text);
+    if (resEl) {
+        resEl.innerHTML = `<span style="color:#22c55e;">✓ Processed voice test: "${text}"</span>`;
+    }
 }
 </script>
 </body>
