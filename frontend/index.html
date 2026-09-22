@@ -2150,26 +2150,29 @@ function playChime(success = true) {
     } catch(e) {}
 }
 
-// Non-interfering voice feedback (releases mic cleanly)
+// Non-interfering voice feedback (pure audio chime is primary; TTS is kept non-blocking)
 function speakFeedback(text) {
     if (!aiSoundFeedback || !('speechSynthesis' in window)) return;
     try {
-        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+        }
         const utter = new SpeechSynthesisUtterance(text);
-        utter.rate = 1.18; // Fast and snappy to release audio focus immediately
+        utter.rate = 1.25; // Fast and snappy to release audio focus immediately
         utter.pitch = 1.0;
-        utter.volume = 0.75;
+        utter.volume = 0.6;
         const voices = window.speechSynthesis.getVoices();
         const engVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha')));
         if (engVoice) utter.voice = engVoice;
 
-        aiIsSpeakingVoice = true;
+        // Prevent Chrome GC bug on SpeechSynthesisUtterance
+        window._activeUtterance = utter;
         utter.onend = () => {
-            aiIsSpeakingVoice = false;
+            window._activeUtterance = null;
             aiLastEventTimestamp = Date.now();
         };
         utter.onerror = () => {
-            aiIsSpeakingVoice = false;
+            window._activeUtterance = null;
         };
 
         if (window.speechSynthesis.paused) {
@@ -2177,7 +2180,7 @@ function speakFeedback(text) {
         }
         window.speechSynthesis.speak(utter);
     } catch(e) {
-        aiIsSpeakingVoice = false;
+        window._activeUtterance = null;
     }
 }
 
@@ -2505,7 +2508,6 @@ function processVoiceInput(transcript) {
                     renderList();
                     updatePreview();
                     playChime(false);
-                    speakFeedback(`${cadet.name} unselected from form`);
                     showToast(`Unchecked ${cadet.name} from OD Form (Cadet preserved in database)`, 'info');
                     showVoiceHUDMatch(cadet.name, `${cadet.register_no || 'NO REG'} · Unchecked from Form (Record Safe in DB)`, false);
                 } else {
@@ -2518,7 +2520,6 @@ function processVoiceInput(transcript) {
                 renderList();
                 updatePreview();
                 playChime(true);
-                speakFeedback(`${cadet.name} added`);
                 showToast(`✅ ${cadet.name} added to OD Form`, 'success');
                 showVoiceHUDMatch(cadet.name, `${cadet.register_no || 'NO REG'} · Added to OD Form (${result.matchType})`, true);
                 flashAndScrollCadetRow(key);
@@ -2598,6 +2599,9 @@ function showVoiceHUDStatus(label, type = 'listening') {
 // ============================================================
 // BULLETPROOF AI VOICE ENGINE (AUTO-HEALING & ANTI-FREEZE)
 // ============================================================
+// ============================================================
+// BULLETPROOF CONTINUOUS VOICE ENGINE (NATURAL DISCRETE LOOP)
+// ============================================================
 function toggleAIMic() {
     if (isAIMicActive) {
         stopAIMic();
@@ -2622,7 +2626,7 @@ function startAIMic() {
     aiLastEventTimestamp = Date.now();
 
     startVoiceWatchdog();
-    createAndStartSpeechRecognition();
+    launchRecognitionSession();
 }
 
 function stopAIMic() {
@@ -2651,17 +2655,17 @@ function stopAIMic() {
     setTimeout(() => {
         const hud = document.getElementById('ai-voice-hud');
         if (hud && !isAIMicActive) hud.classList.remove('active');
-    }, 1000);
+    }, 800);
 }
 
-// Create a brand new recognition instance per cycle to avoid Chrome's WebSocket freeze bug
-function createAndStartSpeechRecognition() {
+// Launches a clean recognition session that automatically cycles via native onend
+function launchRecognitionSession() {
     if (!isAIMicActive) return;
 
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) return;
 
-    // Safely abort and discard any old instance
+    // Discard any previous instance
     if (aiSpeechRecognition) {
         try {
             aiSpeechRecognition.onstart = null;
@@ -2675,9 +2679,10 @@ function createAndStartSpeechRecognition() {
 
     try {
         const rec = new SpeechRec();
-        rec.continuous = true;
+        // continuous = false gives instant, discrete recognition with natural onend on every utterance or pause
+        rec.continuous = false;
         rec.interimResults = true;
-        rec.lang = 'en-IN'; // Optimized for Indian English cadet names and accents
+        rec.lang = 'en-IN'; // Indian English pronunciation
 
         rec.onstart = () => {
             isRecognitionRunning = true;
@@ -2687,10 +2692,6 @@ function createAndStartSpeechRecognition() {
         };
 
         rec.onaudiostart = () => {
-            aiLastEventTimestamp = Date.now();
-        };
-
-        rec.onsoundstart = () => {
             aiLastEventTimestamp = Date.now();
         };
 
@@ -2717,39 +2718,31 @@ function createAndStartSpeechRecognition() {
             if (final && final.trim()) {
                 updateVoiceHUDTranscript(`"${final.trim()}"`);
                 processVoiceInput(final);
-
-                // Anti-stuck auto-recycle:
-                // Recycling speech recognition after a final utterance prevents Chrome's audio buffer from stalling
-                scheduleRecognitionRecycle(350);
             }
         };
 
         rec.onerror = (event) => {
             aiLastEventTimestamp = Date.now();
-            console.warn('Speech Recognition notice:', event.error);
             if (event.error === 'not-allowed') {
                 showToast('❌ Microphone permission denied in browser.', 'error');
                 stopAIMic();
                 return;
             }
-            if (event.error === 'no-speech') {
-                // Natural silence: cycle smoothly
-                scheduleRecognitionRecycle(120);
-                return;
-            }
-            if (event.error === 'aborted') {
-                return;
-            }
-            // Network or audio capture hiccups: reconnect quickly
-            scheduleRecognitionRecycle(300);
+            // All other events (no-speech, network, audio-capture) will immediately flow into onend cleanly
         };
 
         rec.onend = () => {
             isRecognitionRunning = false;
             aiSpeechRecognition = null;
+
+            // Immediately and seamlessly re-arm the next session!
             if (isAIMicActive) {
-                // Automatically launch next fresh recognition cycle
-                scheduleRecognitionRecycle(100);
+                clearTimeout(aiRecognitionRestartTimer);
+                aiRecognitionRestartTimer = setTimeout(() => {
+                    if (isAIMicActive) {
+                        launchRecognitionSession();
+                    }
+                }, 30);
             } else {
                 updateMicUIState(false);
             }
@@ -2761,23 +2754,15 @@ function createAndStartSpeechRecognition() {
         aiLastEventTimestamp = Date.now();
 
     } catch (err) {
-        console.warn('Recognition start exception, scheduling recovery:', err);
+        console.warn('Recognition start exception, scheduling immediate recovery:', err);
         isRecognitionRunning = false;
         if (isAIMicActive) {
-            scheduleRecognitionRecycle(300);
+            clearTimeout(aiRecognitionRestartTimer);
+            aiRecognitionRestartTimer = setTimeout(() => {
+                if (isAIMicActive) launchRecognitionSession();
+            }, 80);
         }
     }
-}
-
-// Schedule an instant, clean recycle of the recognition engine
-function scheduleRecognitionRecycle(delayMs = 120) {
-    if (!isAIMicActive) return;
-    clearTimeout(aiRecognitionRestartTimer);
-    aiRecognitionRestartTimer = setTimeout(() => {
-        if (isAIMicActive && !aiIsSpeakingVoice) {
-            createAndStartSpeechRecognition();
-        }
-    }, delayMs);
 }
 
 // Watchdog heartbeat: actively detects and heals any silent freezes or dropped audio streams
@@ -2792,14 +2777,13 @@ function startVoiceWatchdog() {
         const now = Date.now();
         const inactiveMs = now - aiLastEventTimestamp;
 
-        // If recognition died or no audio event occurred for > 4.5 seconds, auto-heal!
-        if (!isRecognitionRunning || inactiveMs > 4500) {
-            console.log('Watchdog: Auto-healing voice recognition stream (silent for ' + inactiveMs + 'ms)');
+        // If recognition died or stayed silent for > 8 seconds without onend firing, auto-heal!
+        if (!isRecognitionRunning || inactiveMs > 8000) {
             aiLastEventTimestamp = now;
             showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
-            createAndStartSpeechRecognition();
+            launchRecognitionSession();
         }
-    }, 2000);
+    }, 2500);
 }
 
 function stopVoiceWatchdog() {
