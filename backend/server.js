@@ -223,6 +223,36 @@ const DATABASE_DIR = path.join(__dirname, '..', 'database');
 const FRONTEND_DIR = path.join(__dirname, '..', 'frontend');
 const CADETS_FILE = path.join(DATABASE_DIR, 'cadets.json');
 const ATTENDANCE_FILE = path.join(DATABASE_DIR, 'attendance.json');
+const DELETED_CADETS_FILE = path.join(DATABASE_DIR, 'deleted_cadets.json');
+
+// Helper to safely read JSON from disk
+function readJsonSafely(filePath, defaultValue = []) {
+    try {
+        if (fs.existsSync(filePath)) {
+            const data = fs.readFileSync(filePath, 'utf8');
+            return JSON.parse(data || '[]');
+        }
+    } catch (err) {
+        console.error(`Error reading ${filePath}:`, err);
+    }
+    return defaultValue;
+}
+
+// Helper to safely write JSON to disk
+function writeJsonSafely(filePath, data) {
+    try {
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+        return true;
+    } catch (err) {
+        console.error(`Error writing ${filePath}:`, err);
+        return false;
+    }
+}
+
+// Ensure deleted_cadets.json exists in database
+if (!fs.existsSync(DELETED_CADETS_FILE)) {
+    writeJsonSafely(DELETED_CADETS_FILE, []);
+}
 
 // Middleware to parse JSON and URL-encoded bodies
 app.use(express.json({ limit: '10mb' }));
@@ -244,7 +274,7 @@ app.use(express.static(FRONTEND_DIR, {
     }
 }));
 
-// Endpoint to fetch cadets from cadets.json
+// Endpoint to fetch active cadets from cadets.json
 app.get('/api/cadets', (req, res) => {
     fs.readFile(CADETS_FILE, 'utf8', (err, data) => {
         if (err) {
@@ -265,20 +295,127 @@ app.get('/api/cadets', (req, res) => {
     });
 });
 
-// Endpoint to write cadets to cadets.json
+// Endpoint to fetch deleted / archived cadets from deleted_cadets.json
+app.get('/api/cadets/deleted', (req, res) => {
+    const deletedCadets = readJsonSafely(DELETED_CADETS_FILE, []);
+    res.json(deletedCadets);
+});
+
+// Endpoint to manually delete a cadet: removes from cadets.json and permanently preserves in deleted_cadets.json
+app.post('/api/cadets/manual-delete', (req, res) => {
+    const { cadet, reason } = req.body;
+    if (!cadet || (!cadet.register_no && !cadet.name)) {
+        return res.status(400).json({ error: 'Cadet details required' });
+    }
+
+    const currentCadets = readJsonSafely(CADETS_FILE, []);
+    const cadetKey = (cadet.register_no || cadet.name || '').trim().toLowerCase();
+
+    // Find and remove from active cadets
+    const targetIdx = currentCadets.findIndex(c => (c.register_no || c.name || '').trim().toLowerCase() === cadetKey);
+    const deletedCadet = targetIdx !== -1 ? currentCadets.splice(targetIdx, 1)[0] : cadet;
+
+    // Archive in deleted_cadets.json
+    const deletedList = readJsonSafely(DELETED_CADETS_FILE, []);
+    const archiveRecord = {
+        name: deletedCadet.name,
+        register_no: deletedCadet.register_no || '',
+        department: deletedCadet.department || '',
+        shift: deletedCadet.shift || '',
+        deleted_at: new Date().toISOString(),
+        deleted_by: 'manual_admin',
+        reason: reason || 'Manual deletion by user'
+    };
+    deletedList.unshift(archiveRecord);
+
+    writeJsonSafely(CADETS_FILE, currentCadets);
+    writeJsonSafely(DELETED_CADETS_FILE, deletedList);
+
+    console.log(`Cadet "${deletedCadet.name}" manually removed and safely archived in database/deleted_cadets.json.`);
+    res.json({
+        success: true,
+        message: `Cadet "${deletedCadet.name}" removed from active list and preserved in database archive`,
+        archived: archiveRecord,
+        remainingCount: currentCadets.length
+    });
+});
+
+// Endpoint to restore a previously deleted cadet back to active list
+app.post('/api/cadets/restore', (req, res) => {
+    const { register_no, name } = req.body;
+    const deletedList = readJsonSafely(DELETED_CADETS_FILE, []);
+    const key = (register_no || name || '').trim().toLowerCase();
+
+    const idx = deletedList.findIndex(c => (c.register_no || c.name || '').trim().toLowerCase() === key);
+    if (idx === -1) {
+        return res.status(404).json({ error: 'Cadet not found in database archive' });
+    }
+
+    const [restored] = deletedList.splice(idx, 1);
+    const activeCadets = readJsonSafely(CADETS_FILE, []);
+
+    // Check if cadet is already back in active list
+    const alreadyExists = activeCadets.some(c => (c.register_no || c.name || '').trim().toLowerCase() === key);
+    if (!alreadyExists) {
+        activeCadets.push({
+            name: restored.name,
+            register_no: restored.register_no,
+            department: restored.department,
+            shift: restored.shift
+        });
+    }
+
+    writeJsonSafely(CADETS_FILE, activeCadets);
+    writeJsonSafely(DELETED_CADETS_FILE, deletedList);
+
+    console.log(`Cadet "${restored.name}" restored to active list.`);
+    res.json({
+        success: true,
+        message: `Cadet "${restored.name}" successfully restored from database archive`,
+        cadets: activeCadets
+    });
+});
+
+// Endpoint to write cadets to cadets.json with automatic preservation of removed records in deleted_cadets.json
 app.post('/api/cadets', (req, res) => {
-    const cadets = req.body;
-    if (!Array.isArray(cadets)) {
+    const newCadets = req.body;
+    if (!Array.isArray(newCadets)) {
         return res.status(400).json({ error: 'Data must be an array of cadets' });
     }
 
-    fs.writeFile(CADETS_FILE, JSON.stringify(cadets, null, 2), 'utf8', (err) => {
+    // Safety check: detect any cadets that were removed and archive them in deleted_cadets.json
+    const previousCadets = readJsonSafely(CADETS_FILE, []);
+    const newKeys = new Set(newCadets.map(c => (c.register_no || c.name || '').trim().toLowerCase()));
+    const removedCadets = previousCadets.filter(c => !newKeys.has((c.register_no || c.name || '').trim().toLowerCase()));
+
+    if (removedCadets.length > 0) {
+        const deletedList = readJsonSafely(DELETED_CADETS_FILE, []);
+        removedCadets.forEach(rc => {
+            const rKey = (rc.register_no || rc.name || '').trim().toLowerCase();
+            const existsInArchive = deletedList.some(d => (d.register_no || d.name || '').trim().toLowerCase() === rKey);
+            if (!existsInArchive) {
+                deletedList.unshift({
+                    name: rc.name,
+                    register_no: rc.register_no || '',
+                    department: rc.department || '',
+                    shift: rc.shift || '',
+                    deleted_at: new Date().toISOString(),
+                    deleted_by: 'manual_sync_removal',
+                    reason: 'Removed during cadet list update'
+                });
+            }
+        });
+        writeJsonSafely(DELETED_CADETS_FILE, deletedList);
+        console.log(`Preserved ${removedCadets.length} removed cadet(s) into database/deleted_cadets.json.`);
+    }
+
+    fs.writeFile(CADETS_FILE, JSON.stringify(newCadets, null, 2), 'utf8', (err) => {
         if (err) {
             console.error('Error writing database file:', err);
             return res.status(500).json({ error: 'Failed to save database file' });
         }
-        console.log(`Database updated successfully with ${cadets.length} cadets.`);
-        res.json({ success: true, count: cadets.length });
+        console.log(`Database updated successfully with ${newCadets.length} cadets.`);
+        res.json({ success: true, count: newCadets.length, archivedCount: removedCadets.length });
     });
 });
 

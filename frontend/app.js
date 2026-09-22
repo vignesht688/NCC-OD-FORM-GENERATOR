@@ -790,6 +790,18 @@ async function saveCadetAction() {
 // Delete Cadet Action
 async function deleteCadetAction(cadet) {
     const key = getCadetKey(cadet);
+
+    // Safely archive in server database
+    try {
+        await fetch('/api/cadets/manual-delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cadet, reason: 'Manually deleted via directory action' })
+        });
+    } catch (e) {
+        console.warn('Could not archive deleted cadet on server', e);
+    }
+
     cadetDatabase = cadetDatabase.filter(c => getCadetKey(c) !== key);
     await saveCadetDatabase();
     
@@ -801,7 +813,7 @@ async function deleteCadetAction(cadet) {
     renderDirectoryChecklist();
     renderAttendanceChecklist();
     updateAttendanceSummaryCounts();
-    showToast("Cadet deleted from directory.");
+    showToast("Cadet removed from directory and archived in database.");
 }
 
 function clearAddCadetForm() {

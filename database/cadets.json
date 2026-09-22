@@ -24,12 +24,6 @@
     "shift": "SHIFT-I"
   },
   {
-    "name": "JANANI N",
-    "register_no": "24104021",
-    "department": "III B COM CA",
-    "shift": "SHIFT-II"
-  },
-  {
     "name": "KAMALNATH V",
     "register_no": "24121022",
     "department": "III BCOM IT",
@@ -825,6 +819,12 @@
     "name": "YOGAMITHRA M S",
     "register_no": "26U315093",
     "department": "B COM AF",
+    "shift": "SHIFT-II"
+  },
+  {
+    "name": "JANANI N",
+    "register_no": "24104021",
+    "department": "III B COM CA",
     "shift": "SHIFT-II"
   }
 ]
