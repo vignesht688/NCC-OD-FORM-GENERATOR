@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// Absolute path to the cadets file in the workspace
-const CADETS_FILE = 'c:\\Users\\jayav\\OneDrive\\Desktop\\od form for ncc\\cadets.json';
+// Path to the cadets file in the database directory
+const CADETS_FILE = path.join(__dirname, '..', 'database', 'cadets.json');
 
 const newCadetsList = [
   { "register_no": "", "name": "ABI DHARSHAN H K", "department": "BSC MATHS", "shift": "" },

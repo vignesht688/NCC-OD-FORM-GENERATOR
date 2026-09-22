@@ -198,17 +198,47 @@ async function buildODDocument(cadets, particularsVal, odReasonVal, docConfig) {
     return await Packer.toBuffer(doc);
 }
 
+// Load environment variables from .env if present (check backend/ or root)
+const envFile = fs.existsSync(path.join(__dirname, '.env')) 
+    ? path.join(__dirname, '.env') 
+    : path.join(__dirname, '..', '.env');
+if (fs.existsSync(envFile)) {
+    try {
+        const envContent = fs.readFileSync(envFile, 'utf8');
+        envContent.split(/\r?\n/).forEach(line => {
+            const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+            if (match) {
+                const key = match[1];
+                let value = match[2] || '';
+                if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+                if (!process.env[key]) process.env[key] = value;
+            }
+        });
+    } catch (e) {}
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
-const CADETS_FILE = path.join(__dirname, 'cadets.json');
-const ATTENDANCE_FILE = path.join(__dirname, 'attendance.json');
+const DATABASE_DIR = path.join(__dirname, '..', 'database');
+const FRONTEND_DIR = path.join(__dirname, '..', 'frontend');
+const CADETS_FILE = path.join(DATABASE_DIR, 'cadets.json');
+const ATTENDANCE_FILE = path.join(DATABASE_DIR, 'attendance.json');
 
 // Middleware to parse JSON and URL-encoded bodies
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static files from the current directory with caching disabled for local development comfort
-app.use(express.static(__dirname, {
+// Endpoint to check voice configuration
+app.get('/api/voice-config', (req, res) => {
+    res.json({
+        provider: 'CadetAssist',
+        projectId: process.env.CADET_ASSIST_PROJECT_ID || 'p-3ce6a60b',
+        configured: Boolean(process.env.CADET_ASSIST_API_KEY)
+    });
+});
+
+// Serve static frontend files with caching disabled for local development
+app.use(express.static(FRONTEND_DIR, {
     setHeaders: (res, path) => {
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     }
@@ -1225,7 +1255,7 @@ app.post('/api/generate-for-date', async (req, res) => {
 
 // Serve index.html for the root route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
 });
 
 // Start the server (only if not running on serverless Vercel environment)

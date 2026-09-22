@@ -11,3 +11,5 @@ served_app.js
 served_index.html
 scratch/
 all.min.css
+.env
+

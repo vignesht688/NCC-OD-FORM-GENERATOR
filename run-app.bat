@@ -19,7 +19,7 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING') 
 )
 
 :: Start server in background
-start /B node server.js > server.log 2>&1
+start /B node backend\server.js > server.log 2>&1
 
 :: Wait for server to start (poll up to 10 seconds)
 set /a tries=0

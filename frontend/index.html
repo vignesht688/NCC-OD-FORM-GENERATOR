@@ -1094,8 +1094,11 @@
                     <i class="fa-solid fa-microphone-lines"></i>
                 </div>
                 <div>
-                    <h3 style="font-size:0.95rem; font-weight:700; color:var(--text);">AI Voice Form Assistant</h3>
-                    <p style="font-size:0.72rem; color:var(--text3);">Pronounce cadet names or register numbers to auto-write OD Form</p>
+                    <h3 style="font-size:0.95rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                        AI Voice Form Assistant
+                        <span style="font-size:0.62rem; padding:0.15rem 0.45rem; border-radius:10px; background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3); font-weight:600;">CadetAssist Active</span>
+                    </h3>
+                    <p style="font-size:0.72rem; color:var(--text3);">Pronounce cadet names or register numbers to auto-write OD Form · Project: <code style="color:#a78bfa;">p-3ce6a60b</code></p>
                 </div>
             </div>
             <button onclick="closeVoiceHelpModal()" style="background:none; border:none; color:var(--text3); font-size:1.1rem; cursor:pointer; padding:0.2rem;"><i class="fa-solid fa-xmark"></i></button>
@@ -1675,9 +1678,18 @@ function setupListeners() {
         updatePreview();
     });
     
-    document.getElementById('filter-shift').addEventListener('change', renderList);
-    document.getElementById('filter-year').addEventListener('change', renderList);
-    document.getElementById('filter-dept').addEventListener('change', renderList);
+    document.getElementById('filter-shift').addEventListener('change', () => {
+        renderList();
+        if (typeof isAIMicActive !== 'undefined' && isAIMicActive) showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
+    });
+    document.getElementById('filter-year').addEventListener('change', () => {
+        renderList();
+        if (typeof isAIMicActive !== 'undefined' && isAIMicActive) showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
+    });
+    document.getElementById('filter-dept').addEventListener('change', () => {
+        renderList();
+        if (typeof isAIMicActive !== 'undefined' && isAIMicActive) showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
+    });
 
     // Note: click handlers are now inline on each element for reliability
 }
@@ -2129,21 +2141,55 @@ function cleanNameStr(s) {
         .trim();
 }
 
-// Match cadet by voice utterance (Name or Register Number)
+// Get currently active cadet pool based on dropdown filters (Year, Shift, Dept)
+function getActiveCadetPool() {
+    const shiftVal = document.getElementById('filter-shift') ? document.getElementById('filter-shift').value : '';
+    const yearVal = document.getElementById('filter-year') ? document.getElementById('filter-year').value : '';
+    const deptVal = document.getElementById('filter-dept') ? document.getElementById('filter-dept').value : '';
+
+    if (!shiftVal && !yearVal && !deptVal) {
+        return cadets;
+    }
+
+    return cadets.filter(c => {
+        const matchesShift = !shiftVal || c.shift === shiftVal;
+        const matchesYear = !yearVal || getCadetYear(c) === yearVal;
+        const matchesDept = !deptVal || c.department === deptVal;
+        return matchesShift && matchesYear && matchesDept;
+    });
+}
+
+function getVoiceStatusDescription() {
+    const yearVal = document.getElementById('filter-year') ? document.getElementById('filter-year').value : '';
+    const shiftVal = document.getElementById('filter-shift') ? document.getElementById('filter-shift').value : '';
+    const deptVal = document.getElementById('filter-dept') ? document.getElementById('filter-dept').value : '';
+    const filters = [];
+    if (yearVal) filters.push(`${yearVal} Year`);
+    if (shiftVal) filters.push(shiftVal);
+    if (deptVal) filters.push(deptVal);
+    if (filters.length > 0) {
+        return `Listening (${filters.join(' · ')} only)...`;
+    }
+    return 'Listening for Cadet Name or Reg No...';
+}
+
+// Match cadet by voice utterance (Name or Register Number) scoped to active filter
 function findCadetByVoice(utterance) {
     const raw = utterance.trim();
     if (!raw) return null;
 
-    // 1. Check Register Number match first
+    const pool = getActiveCadetPool();
+
+    // 1. Check Register Number match first inside active filter pool
     const digitSeqs = extractDigitSequences(raw);
     for (const seq of digitSeqs) {
-        // Direct exact match
-        const exactReg = cadets.find(c => (c.register_no || '').trim() === seq);
+        // Direct exact match in pool
+        const exactReg = pool.find(c => (c.register_no || '').trim() === seq);
         if (exactReg) return { cadet: exactReg, matchType: 'register_no (exact)', confidence: 1.0 };
 
-        // EndsWith partial match (e.g. user speaks "4070" or "04070")
+        // EndsWith partial match in pool (e.g. user speaks "4070" or "04070")
         if (seq.length >= 4) {
-            const endsWith = cadets.filter(c => (c.register_no || '').trim().endsWith(seq));
+            const endsWith = pool.filter(c => (c.register_no || '').trim().endsWith(seq));
             if (endsWith.length === 1) {
                 return { cadet: endsWith[0], matchType: 'register_no (partial)', confidence: 0.95 };
             }
@@ -2167,7 +2213,7 @@ function findCadetByVoice(utterance) {
     let bestScore = 0;
     let bestType = '';
 
-    for (const c of cadets) {
+    for (const c of pool) {
         const cClean = cleanNameStr(c.name);
         const cTokens = cClean.split(' ').filter(t => t.length > 0);
         const cMainTokens = cTokens.filter(t => t.length > 1);
@@ -2234,6 +2280,25 @@ function findCadetByVoice(utterance) {
 
     if (bestCadet && bestScore >= 0.68) {
         return { cadet: bestCadet, matchType: bestType, confidence: bestScore };
+    }
+
+    // Check if the cadet exists in another year/filter so we can inform the user clearly
+    const yearVal = document.getElementById('filter-year') ? document.getElementById('filter-year').value : '';
+    const shiftVal = document.getElementById('filter-shift') ? document.getElementById('filter-shift').value : '';
+    if (yearVal || shiftVal) {
+        const otherMatch = cadets.find(c => {
+            const cClean = cleanNameStr(c.name);
+            const matchesName = cClean === query || (cClean.includes(query) && query.length >= 3) || (query.includes(cClean) && cClean.length >= 3);
+            const matchesReg = digitSeqs.length > 0 && digitSeqs.some(seq => (c.register_no || '').trim() === seq);
+            return matchesName || matchesReg;
+        });
+        if (otherMatch) {
+            return {
+                cadet: null,
+                outOfPoolCadet: otherMatch,
+                activeFilter: yearVal ? `${yearVal} Year` : shiftVal
+            };
+        }
     }
 
     return null;
@@ -2317,6 +2382,16 @@ function processVoiceInput(transcript) {
                 showVoiceHUDMatch(cadet.name, `${cadet.register_no || 'NO REG'} · Added to OD Form (${result.matchType})`, true);
                 flashAndScrollCadetRow(key);
             }
+        } else if (result && result.outOfPoolCadet) {
+            // Cadet exists in another year/filter
+            const oCadet = result.outOfPoolCadet;
+            const oYear = getCadetYear(oCadet);
+            const msg = `⚠️ ${oCadet.name} is in ${oYear} Year (Active filter is ${result.activeFilter})`;
+            showToast(msg, 'error');
+            showVoiceHUDStatus(msg, 'idle');
+            playChime(false);
+            speakFeedback(`${oCadet.name} is in ${oYear} Year, not in ${result.activeFilter}`);
+            return;
         }
     });
 
@@ -2406,7 +2481,7 @@ function startAIMic() {
             aiSpeechRecognition.onstart = () => {
                 isAIMicActive = true;
                 updateMicUIState(true);
-                showVoiceHUDStatus('Listening for Cadet Name or Reg No...', 'listening');
+                showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
                 updateVoiceHUDTranscript('');
             };
 
