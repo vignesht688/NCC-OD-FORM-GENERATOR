@@ -1665,6 +1665,13 @@
                 <strong id="otp-display-email" style="color:#93c5fd; font-size:0.95rem; word-break:break-all;"></strong>
             </p>
 
+                        <div id="otp-dev-banner" style="display:none; background:rgba(30,58,138,0.45); border:1.5px solid #3b82f6; border-radius:10px; padding:12px 14px; margin-bottom:1rem; text-align:center;">
+                <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; color:#93c5fd; font-weight:700; margin-bottom:4px;">
+                    <i class="fa-solid fa-key" style="color:#f59e0b;"></i> Your Verification Code (DEV MODE)
+                </div>
+                <div style="font-size:2.2rem; font-weight:800; letter-spacing:8px; color:#60a5fa; font-family:monospace; margin:4px 0;" id="otp-dev-code-val"></div>
+                <div style="font-size:0.75rem; color:#94a3b8;">This code is displayed on screen for local testing.</div>
+            </div>
             <div class="verify-info-notice" style="text-align:left;">
                 <i class="fa-solid fa-clock" style="color:#f59e0b;"></i> <strong>Expires in 10 minutes</strong> &bull; Single-use code.
             </div>
@@ -2373,7 +2380,7 @@ let lastUnverifiedEmail = '';
 let otpCooldownInterval = null;
 
 // Open OTP Verification Screen
-function openOtpScreen(email) {
+function openOtpScreen(email, devOtp = null) {
     const targetEmail = (email || currentOtpEmail || lastUnverifiedEmail).trim().toLowerCase();
     if (!targetEmail) return;
 
@@ -2395,8 +2402,17 @@ function openOtpScreen(email) {
     if (emailDisplay) emailDisplay.textContent = targetEmail;
     if (otpView) otpView.style.display = 'block';
 
+    const devBanner = document.getElementById('otp-dev-banner');
+    const devVal = document.getElementById('otp-dev-code-val');
+    if (devOtp) {
+        if (devVal) devVal.textContent = devOtp;
+        if (devBanner) devBanner.style.display = 'block';
+        if (otpInput) otpInput.value = devOtp;
+    } else if (devBanner) {
+        devBanner.style.display = 'none';
+        if (otpInput) otpInput.value = '';
+    }
     if (otpInput) {
-        otpInput.value = '';
         setTimeout(() => otpInput.focus(), 100);
     }
 }
@@ -2485,7 +2501,7 @@ async function triggerResendOtp(targetEmail) {
                 showAuthAlert('A fresh 6-digit verification code has been sent. Please check your inbox.', 'success');
             }
             startOtpCooldown(data.cooldownSeconds || 60);
-            openOtpScreen(email);
+            openOtpScreen(email, data.devOtp);
         } else if (res.status === 429) {
             showAuthAlert(data.error || 'Please wait before requesting another OTP.');
             startOtpCooldown(data.remainingSeconds || 60);
@@ -2705,7 +2721,7 @@ async function submitRegister(e) {
             } else {
                 showToast('📧 6-digit OTP sent to ' + email, 'success');
             }
-            openOtpScreen(email);
+            openOtpScreen(email, data.devOtp);
             startOtpCooldown(data.cooldownSeconds || 60);
             return;
         } else {
