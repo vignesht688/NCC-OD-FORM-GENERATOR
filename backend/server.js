@@ -1,6 +1,13 @@
+// 1. Load Root .env via dotenv first before other modules
+const path = require('path');
+const rootEnvPath = path.resolve(__dirname, '..', '.env');
+require('dotenv').config({ path: rootEnvPath, override: true });
+
+// 2. Import dependencies after environment variables are loaded
 const express = require('express');
 const fs = require('fs');
-const path = require('path');
+const crypto = require('crypto');
+const { sendOtpEmail, checkSmtpConfig, verifySmtpConnection, getLatestTestEmail } = require('./mailer');
 const { exec } = require('child_process');
 const docxLib = require('docx');
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, AlignmentType, WidthType, VerticalAlign, BorderStyle, XmlComponent } = docxLib;
@@ -198,24 +205,7 @@ async function buildODDocument(cadets, particularsVal, odReasonVal, docConfig) {
     return await Packer.toBuffer(doc);
 }
 
-// Load environment variables from .env if present (check backend/ or root)
-const envFile = fs.existsSync(path.join(__dirname, '.env')) 
-    ? path.join(__dirname, '.env') 
-    : path.join(__dirname, '..', '.env');
-if (fs.existsSync(envFile)) {
-    try {
-        const envContent = fs.readFileSync(envFile, 'utf8');
-        envContent.split(/\r?\n/).forEach(line => {
-            const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
-            if (match) {
-                const key = match[1];
-                let value = match[2] || '';
-                if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
-                if (!process.env[key]) process.env[key] = value;
-            }
-        });
-    } catch (e) {}
-}
+// Root .env loaded via dotenv at top of file
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -224,6 +214,16 @@ const FRONTEND_DIR = path.join(__dirname, '..', 'frontend');
 const CADETS_FILE = path.join(DATABASE_DIR, 'cadets.json');
 const ATTENDANCE_FILE = path.join(DATABASE_DIR, 'attendance.json');
 const DELETED_CADETS_FILE = path.join(DATABASE_DIR, 'deleted_cadets.json');
+
+// Credential Data Directory: stores email and password records
+const CREDENTIAL_DIR = path.join(__dirname, '..', 'credential data');
+if (!fs.existsSync(CREDENTIAL_DIR)) {
+    fs.mkdirSync(CREDENTIAL_DIR, { recursive: true });
+}
+const CREDENTIALS_FILE = path.join(CREDENTIAL_DIR, 'credentials.json');
+const CREDENTIALS_SUMMARY_FILE = path.join(CREDENTIAL_DIR, 'credentials_summary.txt');
+const USERS_FILE = CREDENTIALS_FILE;
+const AUTHORIZED_EMAILS_FILE = path.join(CREDENTIAL_DIR, 'authorized_emails.json');
 
 // Helper to safely read JSON from disk
 function readJsonSafely(filePath, defaultValue = []) {
@@ -254,9 +254,638 @@ if (!fs.existsSync(DELETED_CADETS_FILE)) {
     writeJsonSafely(DELETED_CADETS_FILE, []);
 }
 
+// ============================================================
+// AUTHENTICATION & SESSION MANAGEMENT
+// ============================================================
+function hashPassword(password, salt) {
+    if (!salt) salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return { salt, hash };
+}
+
+function verifyPassword(password, salt, hash) {
+    if (!salt || !hash) return false;
+    const checkHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return checkHash === hash;
+}
+
+// Helper to check if an email is authorized per credential data/authorized_emails.json
+function isEmailAuthorized(email) {
+    if (!email) return { authorized: false, reason: 'Email address is required.' };
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Basic format validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+        return { authorized: false, reason: 'Please enter a valid email address.' };
+    }
+
+    const authConfig = readJsonSafely(AUTHORIZED_EMAILS_FILE, {
+        allowedDomains: ['@srcas.ac.in'],
+        authorizedEmails: ['vignesh@srcas.ac.in', 'ncc@srcas.ac.in', 'admin@ncc.org']
+    });
+
+    const allowedDomains = (authConfig.allowedDomains || ['@srcas.ac.in']).map(d => d.trim().toLowerCase());
+    const authorizedEmails = (authConfig.authorizedEmails || []).map(e => e.trim().toLowerCase());
+
+    // 2. Check specifically listed authorized emails
+    if (authorizedEmails.includes(cleanEmail)) {
+        return { authorized: true, cleanEmail };
+    }
+
+    // 3. Check allowed domain (e.g. @srcas.ac.in)
+    // Strictly checks that the email ends with the exact domain (e.g. @srcas.ac.in), rejecting fake domains
+    const isDomainAllowed = allowedDomains.some(domain => {
+        const d = domain.startsWith('@') ? domain : '@' + domain;
+        return cleanEmail.endsWith(d);
+    });
+
+    if (isDomainAllowed) {
+        return { authorized: true, cleanEmail };
+    }
+
+    return {
+        authorized: false,
+        reason: 'Access Denied: Registration is restricted to official @srcas.ac.in institutional emails and authorized accounts. Unauthorized email domains (e.g. Gmail, Yahoo, Outlook) are blocked.'
+    };
+}
+
+// Generate a random cryptographically secure 6-digit OTP
+function generateSixDigitOtp() {
+    return crypto.randomInt(100000, 1000000).toString();
+}
+
+// Hash OTP with SHA-256 (raw OTP is never stored in DB)
+function hashOtp(otp) {
+    if (!otp) return '';
+    return crypto.createHash('sha256').update(String(otp).trim()).digest('hex');
+}
+
+function parseJwtPayload(token) {
+    try {
+        const parts = token.split('.');
+        if (parts.length < 2) return null;
+        let base64Url = parts[1];
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        while (base64.length % 4) {
+            base64 += '=';
+        }
+        const payload = Buffer.from(base64, 'base64').toString('utf8');
+        return JSON.parse(payload);
+    } catch (e) {
+        return null;
+    }
+}
+
+// In-memory session store: token -> { user, expiresAt }
+const activeSessions = new Map();
+
+// In-memory pending password changes for first-time login: tempToken -> { userId, email, expiresAt }
+const pendingPasswordChanges = new Map();
+
+function createSession(user) {
+    const token = crypto.randomBytes(32).toString('hex');
+    const safeUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role || 'officer',
+        avatarUrl: user.avatarUrl || '',
+        provider: user.provider || 'local'
+    };
+    // 7-day session validity
+    activeSessions.set(token, {
+        user: safeUser,
+        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000
+    });
+    return { token, user: safeUser };
+}
+
+function getSessionUser(token) {
+    if (!token) return null;
+    const session = activeSessions.get(token);
+    if (!session) return null;
+    if (session.expiresAt < Date.now()) {
+        activeSessions.delete(token);
+        return null;
+    }
+    return session.user;
+}
+
+// Authentication Middleware to protect administrative routes
+function requireAuth(req, res, next) {
+    const authHeader = req.headers.authorization;
+    let token = null;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+    } else if (req.query.token) {
+        token = req.query.token;
+    }
+    const user = getSessionUser(token);
+    if (!user) {
+        return res.status(401).json({ error: 'Authentication required. Please sign in.' });
+    }
+    req.user = user;
+    next();
+}
+
+// Ensure credentials.json exists and migrate schema for OTP system
+function migrateCredentialsSchema() {
+    if (!fs.existsSync(USERS_FILE)) {
+        writeJsonSafely(USERS_FILE, []);
+        syncCredentialsSummary([]);
+        return;
+    }
+    const users = readJsonSafely(USERS_FILE, []);
+    let modified = false;
+    users.forEach(u => {
+        if (typeof u.email_verified !== 'boolean') {
+            u.email_verified = false;
+            modified = true;
+        }
+        if (!('otp_hash' in u)) {
+            u.otp_hash = null;
+            modified = true;
+        }
+        if (!('otp_expires_at' in u)) {
+            u.otp_expires_at = null;
+            modified = true;
+        }
+        if (!('otp_attempts' in u)) {
+            u.otp_attempts = 0;
+            modified = true;
+        }
+        if (!('last_otp_sent_at' in u)) {
+            u.last_otp_sent_at = null;
+            modified = true;
+        }
+        // Remove legacy plaintext password if salted PBKDF2 hash exists
+        if (u.password && u.passwordHash && u.salt) {
+            delete u.password;
+            modified = true;
+        }
+    });
+    if (modified) {
+        writeJsonSafely(USERS_FILE, users);
+    }
+    syncCredentialsSummary(users);
+}
+migrateCredentialsSchema();
+
 // Middleware to parse JSON and URL-encoded bodies
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Auth Config
+app.get('/api/auth/config', (req, res) => {
+    res.json({
+        googleClientId: process.env.GOOGLE_CLIENT_ID || ''
+    });
+});
+
+// Helper to synchronize plain text summary in credential data folder
+function syncCredentialsSummary(users) {
+    try {
+        let content = "======================================================================\n";
+        content += " NCC OD FORM GENERATOR - REGISTERED CREDENTIALS DIRECTORY\n";
+        content += "======================================================================\n";
+        content += "Directory Location: credential data/credentials.json\n";
+        content += "Total Registered Accounts: " + users.length + "\n";
+        content += "Policy: Authorized @srcas.ac.in & Listed Emails (6-Digit OTP Verified)\n";
+        content += "Last Updated:  " + new Date().toLocaleString() + "\n\n";
+
+        if (users.length === 0) {
+            content += "----------------------------------------------------------------------\n";
+            content += "No credentials currently stored.\n";
+            content += "Authorized users must register and complete 6-digit OTP verification\n";
+            content += "before signing in.\n";
+            content += "----------------------------------------------------------------------\n\n";
+        } else {
+            users.forEach((u, i) => {
+                const statusStr = u.email_verified 
+                    ? "VERIFIED [ACTIVE]" 
+                    : "UNVERIFIED (Pending OTP Verification)";
+                content += "----------------------------------------------------------------------\n";
+                content += "[" + (i + 1) + "] NAME:     " + (u.name || 'User') + "\n";
+                content += "    Email:    " + u.email + "\n";
+                content += "    Status:   " + statusStr + "\n";
+                content += "    Role:     " + ((u.role || 'Officer').charAt(0).toUpperCase() + (u.role || 'Officer').slice(1)) + "\n";
+                content += "    Created:  " + (u.createdAt || 'N/A') + "\n";
+                content += "    Verified: " + (u.otp_verified_at || (u.email_verified ? 'Yes' : 'No (Pending)')) + "\n\n";
+            });
+        }
+
+        content += "======================================================================\n";
+        content += " INSTRUCTIONS:\n";
+        content += " 1. Only @srcas.ac.in emails & authorized accounts can register.\n";
+        content += " 2. Accounts require 6-digit OTP verification before first sign-in.\n";
+        content += " 3. Passwords and OTPs are securely hashed.\n";
+        content += "======================================================================\n";
+
+        fs.writeFileSync(CREDENTIALS_SUMMARY_FILE, content, 'utf8');
+    } catch (err) {
+        console.error('Error syncing credentials summary:', err);
+    }
+}
+
+// Auth Login - Strictly Email-Verified Users Only
+app.post('/api/auth/login', (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Please enter both your email address and password.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Check whether email domain or address is authorized
+    const authCheck = isEmailAuthorized(cleanEmail);
+    if (!authCheck.authorized) {
+        return res.status(403).json({ error: authCheck.reason });
+    }
+
+    const users = readJsonSafely(USERS_FILE, []);
+    const user = users.find(u => (u.email || '').toLowerCase() === cleanEmail);
+
+    if (!user) {
+        return res.status(401).json({
+            error: 'No registered account found with email "' + cleanEmail + '". Please switch to the "Create Account" tab to register.'
+        });
+    }
+
+    const isPasswordValid = verifyPassword(password, user.salt, user.passwordHash) || 
+                            (user.password && user.password === password);
+
+    if (!isPasswordValid) {
+        return res.status(401).json({
+            error: 'Incorrect password. Please enter the password you created for this account.'
+        });
+    }
+
+    // UPGRADE: Hash plain password legacy record if needed
+    if (!user.passwordHash && isPasswordValid) {
+        const { salt, hash } = hashPassword(password);
+        user.salt = salt;
+        user.passwordHash = hash;
+        delete user.password;
+        writeJsonSafely(USERS_FILE, users);
+    }
+
+    // LOGIN RESTRICTION: Check whether email verification is completed
+    if (!user.email_verified) {
+        return res.status(403).json({
+            unverified: true,
+            email: user.email,
+            error: 'Your email address is not verified. Please verify your email before logging in.'
+        });
+    }
+
+    user.lastLoginAt = new Date().toISOString();
+    writeJsonSafely(USERS_FILE, users);
+    syncCredentialsSummary(users);
+
+    const session = createSession(user);
+    res.json({ success: true, token: session.token, user: session.user });
+});
+
+// Auth Register - Strictly Authorizes Email & Dispatches 6-Digit OTP
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required.' });
+        }
+
+        const cleanEmail = email.trim().toLowerCase();
+
+        // 1. Authorize Email against authorized_emails.json
+        const authCheck = isEmailAuthorized(cleanEmail);
+        if (!authCheck.authorized) {
+            return res.status(403).json({ error: authCheck.reason });
+        }
+
+        if (password.length < 5) {
+            return res.status(400).json({ error: 'Password must be at least 5 characters long.' });
+        }
+
+        const users = readJsonSafely(USERS_FILE, []);
+        const existingIndex = users.findIndex(u => (u.email || '').toLowerCase() === cleanEmail);
+
+        if (existingIndex >= 0) {
+            const existing = users[existingIndex];
+            if (existing.email_verified) {
+                return res.status(400).json({
+                    error: 'An account with email "' + cleanEmail + '" is already registered. Please switch to the Sign In tab.'
+                });
+            }
+
+            // Account exists but is unverified: enforce 60s cooldown or issue fresh OTP
+            const elapsed = Date.now() - new Date(existing.last_otp_sent_at || 0).getTime();
+            if (elapsed < 60000) {
+                const remainingSec = Math.ceil((60000 - elapsed) / 1000);
+                return res.status(429).json({
+                    unverified: true,
+                    email: cleanEmail,
+                    error: 'A verification OTP was recently sent. Please wait ' + remainingSec + ' seconds before requesting a new code.',
+                    remainingSeconds: remainingSec
+                });
+            }
+
+            // Issue new OTP and update password
+            const { salt, hash } = hashPassword(password);
+            const otp = generateSixDigitOtp();
+            existing.name = (name || existing.name).trim();
+            existing.salt = salt;
+            existing.passwordHash = hash;
+            delete existing.password;
+            existing.otp_hash = hashOtp(otp);
+            existing.otp_expires_at = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes
+            existing.otp_attempts = 0;
+            existing.last_otp_sent_at = new Date().toISOString();
+
+            writeJsonSafely(USERS_FILE, users);
+            syncCredentialsSummary(users);
+
+            const mailResult = await sendOtpEmail(cleanEmail, existing.name, otp);
+
+            if (!mailResult.delivered) {
+                return res.status(503).json({
+                    success: false,
+                    delivered: false,
+                    smtpDelivered: false,
+                    email: cleanEmail,
+                    error: mailResult.error || 'Failed to deliver OTP email. SMTP service is not configured or unavailable.'
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                delivered: true,
+                smtpDelivered: true,
+                devMode: Boolean(mailResult.devMode),
+                devOtp: mailResult.devOtp || null,
+                email_verified: false,
+                email: cleanEmail,
+                message: mailResult.devMode 
+                    ? ('[DEV MODE] Verification OTP: ' + mailResult.devOtp + ' (Expires in 10 minutes)')
+                    : ('A 6-digit verification code has been sent to ' + cleanEmail + '. It will expire in 10 minutes.'),
+                cooldownSeconds: 60,
+                otpExpiresInMinutes: 10
+            });
+        }
+
+        // New user registration
+        const { salt, hash } = hashPassword(password);
+        const otp = generateSixDigitOtp();
+        const otpHash = hashOtp(otp);
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes
+
+        const newUser = {
+            id: 'usr-' + Date.now().toString(36) + '-' + crypto.randomBytes(3).toString('hex'),
+            name: (name || cleanEmail.split('@')[0]).trim(),
+            email: cleanEmail,
+            salt,
+            passwordHash: hash,
+            role: users.length === 0 ? 'admin' : 'officer',
+            provider: 'local',
+            mustChangePassword: false,
+            avatarUrl: '',
+            createdAt: new Date().toISOString(),
+            lastLoginAt: null,
+            email_verified: false,
+            otp_hash: otpHash,
+            otp_expires_at: expiresAt,
+            otp_attempts: 0,
+            last_otp_sent_at: new Date().toISOString()
+        };
+
+        // 1. Dispatch OTP email FIRST
+        const mailResult = await sendOtpEmail(cleanEmail, newUser.name, otp);
+
+        // 2. If email delivery fails, DO NOT add user to database - report error immediately
+        if (!mailResult.delivered) {
+            return res.status(503).json({
+                success: false,
+                delivered: false,
+                smtpDelivered: false,
+                email: cleanEmail,
+                error: mailResult.error || 'Failed to deliver verification email. Please check your SMTP configuration in .env.'
+            });
+        }
+
+        // 3. Email delivered successfully: Commit user to credentials database
+        users.push(newUser);
+        writeJsonSafely(USERS_FILE, users);
+        syncCredentialsSummary(users);
+
+        res.status(201).json({
+            success: true,
+            delivered: true,
+            smtpDelivered: true,
+            devMode: Boolean(mailResult.devMode),
+            devOtp: mailResult.devOtp || null,
+            email_verified: false,
+            email: cleanEmail,
+            message: mailResult.devMode 
+                ? ('[DEV MODE] Verification OTP: ' + mailResult.devOtp + ' (Expires in 10 minutes)')
+                : ('A 6-digit verification code has been sent to ' + cleanEmail + '. It will expire in 10 minutes.'),
+            cooldownSeconds: 60,
+            otpExpiresInMinutes: 10
+        });
+    } catch (err) {
+        console.error('Registration error:', err);
+        res.status(500).json({ error: 'Registration error: ' + err.message });
+    }
+});
+
+// Verify 6-Digit OTP - Validates OTP, enforces expiration (10m) & attempts limit, marks account as verified
+app.post('/api/auth/verify-otp', (req, res) => {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+        return res.status(400).json({ error: 'Email and 6-digit OTP code are required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanOtp = String(otp).trim();
+
+    if (!/^\d{6}$/.test(cleanOtp)) {
+        return res.status(400).json({ error: 'Invalid OTP format. OTP must be exactly 6 digits.' });
+    }
+
+    const users = readJsonSafely(USERS_FILE, []);
+    const user = users.find(u => (u.email || '').toLowerCase() === cleanEmail);
+
+    if (!user) {
+        return res.status(404).json({ error: 'No registered account found with email "' + cleanEmail + '".' });
+    }
+
+    if (user.email_verified) {
+        return res.status(400).json({ error: 'This account is already verified. You can sign in immediately.' });
+    }
+
+    if (!user.otp_hash || !user.otp_expires_at) {
+        return res.status(400).json({ error: 'No active OTP verification session found. Please request a new OTP.' });
+    }
+
+    // 1. Check expiration (10 minutes)
+    const now = Date.now();
+    const expiresAt = new Date(user.otp_expires_at).getTime();
+    if (now > expiresAt) {
+        return res.status(400).json({
+            error: 'Verification OTP has expired (codes expire in 10 minutes). Please request a new OTP.',
+            expired: true
+        });
+    }
+
+    // 2. Limit repeated incorrect OTP attempts (max 5 attempts)
+    if ((user.otp_attempts || 0) >= 5) {
+        return res.status(429).json({
+            error: 'Too many incorrect OTP attempts. Please click "Resend OTP" to generate a fresh code.',
+            maxAttempts: true
+        });
+    }
+
+    // 3. Compare hashed OTP
+    const inputHash = hashOtp(cleanOtp);
+    if (inputHash !== user.otp_hash) {
+        user.otp_attempts = (user.otp_attempts || 0) + 1;
+        writeJsonSafely(USERS_FILE, users);
+        const remainingAttempts = 5 - user.otp_attempts;
+        return res.status(400).json({
+            error: 'Incorrect OTP. Please check your email and try again (' + remainingAttempts + ' attempts remaining).'
+        });
+    }
+
+    // 4. Mark verified and invalidate OTP (strictly single-use)
+    user.email_verified = true;
+    user.otp_hash = null;
+    user.otp_expires_at = null;
+    user.otp_attempts = 0;
+    user.otp_verified_at = new Date().toISOString();
+
+    writeJsonSafely(USERS_FILE, users);
+    syncCredentialsSummary(users);
+
+    console.log(`[AUTH] User verified successfully via OTP: ${user.email}`);
+
+    res.json({
+        success: true,
+        message: 'Email verified successfully! You can now sign in with your credentials.',
+        email: user.email
+    });
+});
+
+// Resend 6-Digit OTP - with 60-second cooldown, invalidates previous OTP
+app.post('/api/auth/resend-otp', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ error: 'Email address is required.' });
+        }
+
+        const cleanEmail = email.trim().toLowerCase();
+        const users = readJsonSafely(USERS_FILE, []);
+        const user = users.find(u => (u.email || '').toLowerCase() === cleanEmail);
+
+        if (!user) {
+            return res.status(404).json({ error: 'No account found with email "' + cleanEmail + '". Please register first.' });
+        }
+
+        if (user.email_verified) {
+            return res.status(400).json({ error: 'This email is already verified. You can sign in immediately.' });
+        }
+
+        // 1. Enforce 60-second cooldown
+        if (user.last_otp_sent_at) {
+            const elapsedMs = Date.now() - new Date(user.last_otp_sent_at).getTime();
+            const cooldownMs = 60 * 1000;
+            if (elapsedMs < cooldownMs) {
+                const remainingSec = Math.ceil((cooldownMs - elapsedMs) / 1000);
+                return res.status(429).json({
+                    error: 'Please wait ' + remainingSec + ' second' + (remainingSec === 1 ? '' : 's') + ' before requesting another OTP.',
+                    remainingSeconds: remainingSec
+                });
+            }
+        }
+
+        // 2. Generate fresh 6-digit OTP & invalidate previous
+        const freshOtp = generateSixDigitOtp();
+        user.otp_hash = hashOtp(freshOtp);
+        user.otp_expires_at = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes
+        user.otp_attempts = 0;
+        user.last_otp_sent_at = new Date().toISOString();
+
+        writeJsonSafely(USERS_FILE, users);
+        syncCredentialsSummary(users);
+
+        const mailResult = await sendOtpEmail(user.email, user.name, freshOtp);
+
+        if (!mailResult.delivered) {
+            return res.status(503).json({
+                success: false,
+                delivered: false,
+                smtpDelivered: false,
+                email: user.email,
+                error: mailResult.error || 'Failed to deliver OTP email. SMTP service is not configured or unavailable.'
+            });
+        }
+
+        res.json({
+            success: true,
+            delivered: true,
+            smtpDelivered: true,
+            devMode: Boolean(mailResult.devMode),
+            devOtp: mailResult.devOtp || null,
+            email: user.email,
+            message: mailResult.devMode 
+                ? ('[DEV MODE] Fresh Verification OTP: ' + mailResult.devOtp + ' (Expires in 10 minutes)')
+                : ('A fresh 6-digit OTP has been sent to ' + user.email + '. It will expire in 10 minutes.'),
+            cooldownSeconds: 60,
+            otpExpiresInMinutes: 10
+        });
+    } catch (err) {
+        console.error('Error resending OTP:', err);
+        res.status(500).json({ error: 'Failed to resend OTP: ' + err.message });
+    }
+});
+
+// Endpoint to inspect latest dispatched email in development/testing
+app.get('/api/auth/dev-latest-email', (req, res) => {
+    if (process.env.NODE_ENV === 'production') {
+        return res.status(403).json({ error: 'Not available in production' });
+    }
+    res.json(getLatestDevEmail() || { message: 'No email dispatched yet' });
+});
+
+// Auth Status / Current User
+app.get('/api/auth/me', (req, res) => {
+    const authHeader = req.headers.authorization;
+    let token = null;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+    } else if (req.query.token) {
+        token = req.query.token;
+    }
+
+    const user = getSessionUser(token);
+    if (user) {
+        return res.json({ authenticated: true, user });
+    }
+    return res.status(401).json({ authenticated: false, error: 'Unauthorized or session expired' });
+});
+
+// Auth Logout
+app.post('/api/auth/logout', (req, res) => {
+    const authHeader = req.headers.authorization;
+    let token = null;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+    } else if (req.body && req.body.token) {
+        token = req.body.token;
+    }
+    if (token) {
+        activeSessions.delete(token);
+    }
+    res.json({ success: true });
+});
 
 // Endpoint to check voice configuration
 app.get('/api/voice-config', (req, res) => {
@@ -684,128 +1313,7 @@ app.post('/api/generate-and-open', async (req, res) => {
 });
 
 
-app.get('/api/attendance', (req, res) => {
-    const { date } = req.query;
-    if (!date) {
-        return res.status(400).json({ error: 'Date is required' });
-    }
-    fs.readFile(ATTENDANCE_FILE, 'utf8', (err, data) => {
-        if (err) {
-            if (err.code === 'ENOENT') {
-                return res.json({});
-            }
-            console.error('Error reading attendance database:', err);
-            return res.status(500).json({ error: 'Failed to read database' });
-        }
-        try {
-            const db = JSON.parse(data || '{}');
-            res.json(db[date] || {});
-        } catch (parseErr) {
-            console.error('Error parsing database JSON:', parseErr);
-            res.status(500).json({ error: 'Invalid database format' });
-        }
-    });
-});
-
-// Endpoint to save attendance for a date
-app.post('/api/attendance', (req, res) => {
-    const { date, event_name, od_reason, records } = req.body;
-    if (!date) {
-        return res.status(400).json({ error: 'Date is required' });
-    }
-    fs.readFile(ATTENDANCE_FILE, 'utf8', (err, data) => {
-        let db = {};
-        if (!err) {
-            try {
-                db = JSON.parse(data || '{}');
-            } catch (parseErr) {
-                console.error('Error parsing database JSON:', parseErr);
-            }
-        }
-
-        db[date] = { event_name, od_reason, records };
-
-        fs.writeFile(ATTENDANCE_FILE, JSON.stringify(db, null, 2), 'utf8', (writeErr) => {
-            if (writeErr) {
-                console.error('Error writing attendance database:', writeErr);
-                return res.status(500).json({ error: 'Failed to save database' });
-            }
-            res.json({ success: true });
-        });
-    });
-});
-
-// Endpoint to fetch attendance history summary
-app.get('/api/attendance/history', (req, res) => {
-    fs.readFile(ATTENDANCE_FILE, 'utf8', (err, data) => {
-        if (err) {
-            if (err.code === 'ENOENT') {
-                return res.json([]);
-            }
-            console.error('Error reading attendance database:', err);
-            return res.status(500).json({ error: 'Failed to read database' });
-        }
-        try {
-            const db = JSON.parse(data || '{}');
-            const summary = [];
-            for (const date in db) {
-                const record = db[date];
-                const counts = { present: 0, absent: 0, od: 0, total: 0 };
-                if (record.records) {
-                    for (const cadetId in record.records) {
-                        const status = record.records[cadetId];
-                        counts.total++;
-                        if (status === 'present') counts.present++;
-                        else if (status === 'absent') counts.absent++;
-                        else if (status === 'od') counts.od++;
-                    }
-                }
-                summary.push({
-                    date,
-                    event_name: record.event_name || 'Regular parade',
-                    od_reason: record.od_reason || '',
-                    counts
-                });
-            }
-            // Sort by date descending
-            summary.sort((a, b) => b.date.localeCompare(a.date));
-            res.json(summary);
-        } catch (parseErr) {
-            console.error('Error parsing database JSON:', parseErr);
-            res.status(500).json({ error: 'Invalid database format' });
-        }
-    });
-});
-
-// Endpoint to delete attendance for a date
-app.delete('/api/attendance', (req, res) => {
-    const { date } = req.query;
-    if (!date) {
-        return res.status(400).json({ error: 'Date is required' });
-    }
-    fs.readFile(ATTENDANCE_FILE, 'utf8', (err, data) => {
-        if (err) {
-            console.error('Error reading database file:', err);
-            return res.status(500).json({ error: 'Failed to read database' });
-        }
-        try {
-            const db = JSON.parse(data || '{}');
-            if (db[date]) {
-                delete db[date];
-                fs.writeFile(ATTENDANCE_FILE, JSON.stringify(db, null, 2), 'utf8', (writeErr) => {
-                    if (writeErr) {
-                        return res.status(500).json({ error: 'Failed to save database' });
-                    }
-                    res.json({ success: true });
-                });
-            } else {
-                res.json({ success: true, message: 'No record found to delete' });
-            }
-        } catch (parseErr) {
-            res.status(500).json({ error: 'Invalid database format' });
-        }
-    });
-});
+// Duplicate attendance routes removed - using consolidated routes below
 
 // Endpoint to generate attendance sheet docx
 app.post('/api/generate-attendance-sheet-docx', async (req, res) => {
@@ -1403,15 +1911,21 @@ if (!process.env.VERCEL) {
         console.log(` NCC OD Form Automator server running at: ${url}`);
         console.log(`==================================================`);
 
-        // Auto-open browser on startup (disabled for background server)
-        /* if (process.platform === 'win32' || process.platform === 'darwin') {
-            const startCmd = process.platform === 'darwin' ? 'open' : 'start';
-            exec(`${startCmd} ${url}`, (err) => {
-                if (err) {
-                    console.error('Failed to open browser automatically:', err);
+        const smtpStatus = checkSmtpConfig();
+        if (smtpStatus.configured) {
+            console.log(`[SMTP] Service configured with host: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT || 587}`);
+            verifySmtpConnection().then(res => {
+                if (res.ok) {
+                    console.log('[SMTP] Mail server connection verified successfully.');
+                } else {
+                    console.warn(`[SMTP WARNING] Mail server connection test failed: ${res.error}`);
                 }
+            }).catch(err => {
+                console.warn(`[SMTP WARNING] Mail server connection test failed: ${err.message}`);
             });
-        } */
+        } else {
+            console.log(`[SMTP] Email service unconfigured. Missing in .env: ${smtpStatus.missing.join(', ')}`);
+        }
     });
 }
 

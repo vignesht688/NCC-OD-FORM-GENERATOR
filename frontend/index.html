@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NCC OD Form Generator</title>
-    <meta name="description" content="NCC On Duty Form Generator — Sri Ramakrishna College of Arts & Science">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -789,6 +789,701 @@
         .cadet-row.voice-matched {
             animation: rowFlashVoice 1.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
         }
+
+        /* ============================================================ */
+        /* AUTHENTICATION & LOGIN PORTAL STYLES */
+        /* ============================================================ */
+        #auth-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 50% 20%, #171b30 0%, #0a0c16 85%, #05060b 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            overflow-y: auto;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+
+        #auth-overlay.auth-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .auth-card {
+            position: relative;
+            width: min(440px, 94vw);
+            background: rgba(26, 29, 46, 0.94);
+            border: 1px solid rgba(79, 124, 255, 0.3);
+            border-radius: 20px;
+            padding: 2.25rem 2rem 1.85rem;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 40px rgba(79, 124, 255, 0.15);
+            animation: authCardEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes authCardEnter {
+            from { transform: scale(0.92) translateY(12px); opacity: 0; }
+            to   { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .auth-glow-top {
+            position: absolute;
+            top: -50px;
+            left: 20%;
+            right: 20%;
+            height: 100px;
+            background: radial-gradient(circle, rgba(79, 124, 255, 0.35) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-crest {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0.85rem;
+        }
+
+        .auth-badge-ncc {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1e3a8a, #dc2626);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #ffffff;
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35), 0 0 15px rgba(79, 124, 255, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .auth-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .auth-sub {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-bottom: 0.65rem;
+        }
+
+        .auth-security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #60a5fa;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        /* Alert Message */
+        .auth-alert {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.65rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-bottom: 1.15rem;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .auth-alert.error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .auth-alert.success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #86efac;
+        }
+
+        /* Tabs */
+        .auth-tabs {
+            display: flex;
+            background: rgba(15, 17, 23, 0.75);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid #2e3250;
+            margin-bottom: 1.35rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.55rem 0.75rem;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #94a3b8;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            transition: all 0.2s ease;
+        }
+
+        .auth-tab:hover {
+            color: #f8fafc;
+        }
+
+        .auth-tab.active {
+            background: #4f7cff;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(79, 124, 255, 0.35);
+        }
+
+        /* Google Sign In Button */
+        .btn-google-signin {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            transition: all 0.2s ease;
+        }
+
+        .btn-google-signin:hover {
+            background: #f8fafc;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+            transform: translateY(-1px);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Divider */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.25rem 0;
+            color: #64748b;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #2e3250;
+        }
+
+        .auth-divider span {
+            padding: 0 0.75rem;
+        }
+
+        /* Input Fields */
+        .auth-input-group {
+            margin-bottom: 1rem;
+        }
+
+        .auth-input-group label {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.35rem;
+            display: block;
+        }
+
+        .auth-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-input-wrap .input-icon {
+            position: absolute;
+            left: 0.85rem;
+            color: #64748b;
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        .auth-input-wrap input {
+            width: 100%;
+            padding: 0.65rem 0.85rem 0.65rem 2.4rem;
+            background: #22263a;
+            border: 1px solid #2e3250;
+            border-radius: 10px;
+            color: #f8fafc;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .auth-input-wrap input:focus {
+            border-color: #4f7cff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.25);
+            background: #272c44;
+        }
+
+        .btn-toggle-pwd {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
+            transition: color 0.15s;
+        }
+
+        .btn-toggle-pwd:hover {
+            color: #f8fafc;
+        }
+
+        .auth-actions-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            font-size: 0.76rem;
+        }
+
+        .auth-remember {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: #94a3b8;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .auth-remember input[type="checkbox"] {
+            accent-color: #4f7cff;
+            cursor: pointer;
+        }
+
+        .auth-link {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .auth-link:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .btn-auth-submit {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #4f7cff 0%, #3b82f6 100%);
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 16px rgba(79, 124, 255, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .btn-auth-submit:hover {
+            background: linear-gradient(135deg, #6b92ff 0%, #4f7cff 100%);
+            box-shadow: 0 6px 20px rgba(79, 124, 255, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .btn-auth-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-auth-submit:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        /* Header User Profile Badge */
+        .header-user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.6rem 0.25rem 0.35rem;
+            border-radius: 24px;
+        }
+
+        .header-user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f7cff, #a855f7);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .header-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-user-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .header-user-name {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+
+        .header-user-email {
+            font-size: 0.64rem;
+            color: var(--text3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            border-radius: 16px;
+            padding: 0.25rem 0.55rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.25);
+            color: #ffffff;
+            border-color: #ef4444;
+        }
+
+        /* Mock Google Dialog */
+        #google-mock-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .mock-google-dialog {
+            background: #ffffff;
+            color: #1f2937;
+            border-radius: 16px;
+            width: min(380px, 92vw);
+            padding: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            animation: authCardEnter 0.25s ease;
+        }
+
+        .mock-g-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .google-icon-sm {
+            width: 22px;
+            height: 22px;
+        }
+
+        .mock-g-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .mock-g-sub {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .mock-account-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .mock-account-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .mock-account-item:hover {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        .mock-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .mock-acc-info {
+            text-align: left;
+        }
+
+        .mock-acc-name {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .mock-acc-email {
+            font-size: 0.72rem;
+            color: #6b7280;
+        }
+
+        .mock-custom-google {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 0.75rem;
+        }
+
+        .mock-custom-google label {
+            font-size: 0.75rem;
+            color: #4b5563;
+            display: block;
+            font-weight: 500;
+        }
+
+        .mock-custom-google input {
+            background: #f9fafb !important;
+            border: 1px solid #d1d5db !important;
+            color: #111827 !important;
+            padding: 0.45rem 0.65rem !important;
+            border-radius: 6px !important;
+            font-size: 0.8rem !important;
+        }
+
+        .btn-mock-go {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.45rem 0.75rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    
+        .btn-quick-cred {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            padding: 0.38rem 0.55rem;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .btn-quick-cred:hover {
+            background: rgba(79, 124, 255, 0.15);
+            border-color: var(--accent);
+            color: var(--text);
+        }
+        .btn-quick-cred i {
+            color: #60a5fa;
+            font-size: 0.72rem;
+        }
+    
+        /* ============================================================ */
+        /* EMAIL VERIFICATION STYLING */
+        /* ============================================================ */
+        .verify-state-panel {
+            text-align: center;
+            padding: 0.5rem 0.25rem 0.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .verify-icon-bubble {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1.15rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.85rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .verify-state-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin: 0 0 0.5rem;
+        }
+
+        .verify-state-desc {
+            font-size: 0.84rem;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin: 0 0 1.25rem;
+        }
+
+        .verify-email-chip {
+            display: inline-block;
+            background: rgba(79, 124, 255, 0.15);
+            border: 1px solid rgba(79, 124, 255, 0.4);
+            color: #93c5fd;
+            font-size: 0.88rem;
+            font-weight: 600;
+            padding: 0.45rem 1rem;
+            border-radius: 20px;
+            margin-bottom: 1.25rem;
+            word-break: break-all;
+        }
+
+        .verify-info-notice {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.76rem;
+            color: #cbd5e1;
+            margin-bottom: 1.35rem;
+            line-height: 1.4;
+        }
+
+        .btn-verify-back {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-top: 0.85rem;
+            cursor: pointer;
+            padding: 0.4rem 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s ease;
+        }
+
+        .btn-verify-back:hover {
+            color: #f8fafc;
+        }
+
+        .btn-resend-auth {
+            background: rgba(79, 124, 255, 0.16);
+            border: 1px solid rgba(79, 124, 255, 0.4);
+            color: #93c5fd;
+            padding: 0.5rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .btn-resend-auth:hover:not(:disabled) {
+            background: rgba(79, 124, 255, 0.28);
+            border-color: #60a5fa;
+            color: #ffffff;
+        }
+
+        .btn-resend-auth:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
     </style>
 </head>
 <body>
@@ -802,6 +1497,19 @@
         </div>
     </div>
     <div style="display:flex; align-items:center; gap:0.65rem;">
+        <div class="header-user-profile" id="header-user-profile" style="display:none;">
+            <div class="header-user-avatar" id="header-user-avatar">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div class="header-user-info">
+                <div class="header-user-name" id="header-user-name">Officer</div>
+                <div class="header-user-email" id="header-user-email">ncc@srcas.ac.in</div>
+            </div>
+            <button class="btn-logout" id="btn-logout" onclick="handleLogout()" title="Log out of session">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </button>
+        </div>
         <button class="header-ai-mic-btn" id="header-ai-mic-btn" onclick="toggleAIMic()" title="AI Voice Mic: Pronounce Name or Reg No to add to OD Form">
             <i class="fa-solid fa-microphone"></i>
             <span>AI Voice Mic</span>
@@ -812,6 +1520,222 @@
         </div>
     </div>
 </header>
+
+<!-- ============================================================ -->
+<!-- AUTHENTICATION & LOGIN OVERLAY -->
+<!-- ============================================================ -->
+<div id="auth-overlay">
+    <div class="auth-card">
+        <div class="auth-glow-top"></div>
+
+        <div class="auth-header">
+            <div class="auth-crest">
+                <div class="auth-badge-ncc">NCC</div>
+            </div>
+            <h2 class="auth-title">NCC OD Portal</h2>
+            <p class="auth-sub">Sri Ramakrishna College of Arts &amp; Science</p>
+            <div class="auth-security-badge">
+                <i class="fa-solid fa-shield-halved"></i> Authorized Personnel Access Only
+            </div>
+        </div>
+
+        <div id="auth-alert" class="auth-alert" style="display:none;">
+            <div style="display:flex; align-items:flex-start; gap:0.55rem; width:100%;">
+                <i class="fa-solid fa-circle-exclamation" id="auth-alert-icon" style="margin-top:2px;"></i>
+                <div style="flex:1;">
+                    <div id="auth-alert-msg"></div>
+                    <div id="auth-resend-container" style="display:none; margin-top:0.65rem;">
+                        <button type="button" class="btn-resend-auth" id="btn-resend-verification" onclick="triggerResendVerification()">
+                            <i class="fa-solid fa-paper-plane"></i> Resend Verification Email
+                        </button>
+                        <div id="resend-cooldown-text" style="display:none; font-size:0.75rem; color:#93c5fd; margin-top:0.35rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab active" id="tab-btn-login" onclick="switchAuthMode('login')">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In
+            </button>
+            <button type="button" class="auth-tab" id="tab-btn-register" onclick="switchAuthMode('register')">
+                <i class="fa-solid fa-user-plus"></i> Create Account
+            </button>
+        </div>
+
+        <!-- Form: Sign In with Original Email & User-Created Password -->
+        <form id="form-login" onsubmit="submitLogin(event)">
+            <div class="auth-input-group">
+                <label for="login-email">Email Address</label>
+                <div class="auth-input-wrap">
+                    <i class="fa-solid fa-envelope input-icon"></i>
+                    <input type="email" id="login-email" placeholder="Enter your registered email" autocomplete="email" required>
+                </div>
+            </div>
+
+            <div class="auth-input-group">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label for="login-password">Your Password</label>
+                    <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('login-password', 'eye-icon-login')">
+                        <i class="fa-solid fa-eye" id="eye-icon-login"></i>
+                    </button>
+                </div>
+                <div class="auth-input-wrap">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="login-password" placeholder="Enter the password you created" autocomplete="current-password" required>
+                </div>
+            </div>
+
+            <div class="auth-actions-row">
+                <label class="auth-remember">
+                    <input type="checkbox" id="login-remember" checked>
+                    <span>Remember me</span>
+                </label>
+                <a href="javascript:void(0)" onclick="switchAuthMode('register')" class="auth-link">New user? Create Account</a>
+            </div>
+
+            <button type="submit" class="btn-auth-submit" id="btn-login-submit">
+                <span id="btn-login-text"><i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In to Generator</span>
+                <span class="auth-spinner" id="login-spinner" style="display:none;"><i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...</span>
+            </button>
+        </form>
+
+        <!-- Form: Create Account with Original Email & Custom Password -->
+        <form id="form-register" style="display:none;" onsubmit="submitRegister(event)">
+            <div class="auth-input-group">
+                <label for="reg-name">Full Name</label>
+                <div class="auth-input-wrap">
+                    <i class="fa-solid fa-user input-icon"></i>
+                    <input type="text" id="reg-name" placeholder="e.g. Lt. Dr. S. Vignesh / Cadet Name" required>
+                </div>
+            </div>
+
+            <div class="auth-input-group">
+                <label for="reg-email">Institutional Email (@srcas.ac.in)</label>
+                <div class="auth-input-wrap">
+                    <i class="fa-solid fa-envelope input-icon"></i>
+                    <input type="email" id="reg-email" placeholder="e.g. officer@srcas.ac.in" autocomplete="email" required>
+                </div>
+                <div style="font-size:0.68rem; color:var(--text3); margin-top:0.25rem;">
+                    <i class="fa-solid fa-shield-halved" style="color:#60a5fa;"></i> Strictly restricted to @srcas.ac.in & authorized emails. A 6-digit OTP will be sent.
+                </div>
+            </div>
+
+            <div class="auth-input-group">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label for="reg-password">Create Password (min. 5 chars)</label>
+                    <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('reg-password', 'eye-icon-reg')">
+                        <i class="fa-solid fa-eye" id="eye-icon-reg"></i>
+                    </button>
+                </div>
+                <div class="auth-input-wrap">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="reg-password" placeholder="Create your secret password" autocomplete="new-password" minlength="5" required>
+                </div>
+            </div>
+
+            <div class="auth-input-group">
+                <label for="reg-confirm-password">Confirm Password</label>
+                <div class="auth-input-wrap">
+                    <i class="fa-solid fa-shield-halved input-icon"></i>
+                    <input type="password" id="reg-confirm-password" placeholder="Re-enter your password" autocomplete="new-password" minlength="5" required>
+                </div>
+            </div>
+
+            <div style="font-size:0.72rem; color:var(--text3); margin-bottom:1rem; line-height:1.4;">
+                <i class="fa-solid fa-shield-halved" style="color:var(--accent);"></i> Account will be activated upon email verification.
+            </div>
+
+            <button type="submit" class="btn-auth-submit" id="btn-reg-submit">
+                <span id="btn-reg-text"><i class="fa-solid fa-user-plus"></i> Create Account &amp; Send OTP</span>
+                <span class="auth-spinner" id="reg-spinner" style="display:none;"><i class="fa-solid fa-circle-notch fa-spin"></i> Creating Account...</span>
+            </button>
+        </form>
+
+        <!-- ============================================================ -->
+        <!-- OTP VERIFICATION SCREEN -->
+        <!-- ============================================================ -->
+        <div id="auth-view-otp" style="display:none; text-align:center;">
+            <div class="verify-icon-bubble" style="background:rgba(59,130,246,0.15); color:#60a5fa;">
+                <i class="fa-solid fa-envelope-open-text"></i>
+            </div>
+            <h3 class="verify-state-title">Verify Your Email</h3>
+            <p class="verify-state-desc">
+                We sent a 6-digit OTP code to:<br>
+                <strong id="otp-display-email" style="color:#93c5fd; font-size:0.95rem; word-break:break-all;"></strong>
+            </p>
+
+            <div class="verify-info-notice" style="text-align:left;">
+                <i class="fa-solid fa-clock" style="color:#f59e0b;"></i> <strong>Expires in 10 minutes</strong> &bull; Single-use code.
+            </div>
+
+            <form id="form-otp" onsubmit="submitVerifyOtp(event)">
+                <div class="auth-input-group" style="text-align:center; margin-bottom:1.25rem;">
+                    <label for="otp-input" style="font-size:0.75rem; letter-spacing:1px; color:#cbd5e1; text-transform:uppercase;">Enter 6-Digit OTP</label>
+                    <div class="auth-input-wrap" style="justify-content:center;">
+                        <input type="text" id="otp-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" placeholder="000000" autocomplete="one-time-code" style="text-align:center; font-size:1.75rem; letter-spacing:0.6rem; font-weight:700; color:#60a5fa; font-family:monospace; padding:0.6rem 0.5rem;" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth-submit" id="btn-otp-submit">
+                    <span id="btn-otp-text"><i class="fa-solid fa-circle-check"></i> Verify OTP &amp; Activate</span>
+                    <span class="auth-spinner" id="otp-spinner" style="display:none;"><i class="fa-solid fa-circle-notch fa-spin"></i> Verifying Code...</span>
+                </button>
+            </form>
+
+            <div style="margin-top:1rem; display:flex; flex-direction:column; gap:0.4rem;">
+                <button type="button" class="btn-resend-auth" id="btn-otp-resend" onclick="triggerResendOtp()">
+                    <i class="fa-solid fa-rotate-right"></i> Resend 6-Digit OTP
+                </button>
+                <div id="otp-cooldown-text" style="display:none; font-size:0.75rem; color:#93c5fd; text-align:center;"></div>
+            </div>
+
+            <div style="text-align:center; margin-top:0.75rem;">
+                <button type="button" class="btn-verify-back" onclick="switchAuthMode('login')">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Sign In
+                </button>
+            </div>
+        </div>
+
+        <!-- Verification Success Screen -->
+        <div id="auth-view-otp-success" style="display:none; text-align:center;">
+            <div class="verify-icon-bubble" style="background:rgba(16,185,129,0.15); color:#34d399;">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 class="verify-state-title" style="color:#34d399;">Email Verified Successfully!</h3>
+            <p class="verify-state-desc">
+                Your email address has been verified and your account is active. You can now sign in using your credentials.
+            </p>
+            <button type="button" class="btn-auth-submit" onclick="returnToSignIn(true)">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In to Your Account
+            </button>
+        </div>
+
+        <!-- Registration Success View (Pending Email Verification) -->
+        <div id="auth-view-reg-success" style="display:none; text-align:center; padding:0.5rem 0.25rem;">
+            <div class="verify-icon-bubble" style="background:rgba(59,130,246,0.15); color:#60a5fa;">
+                <i class="fa-solid fa-paper-plane"></i>
+            </div>
+            <h3 class="verify-state-title">Verification Email Sent!</h3>
+            <p class="verify-state-desc">
+                We sent a verification link to <strong id="reg-sent-email-display" style="color:#93c5fd;"></strong>.
+            </p>
+            <div class="verify-info-notice" style="text-align:left;">
+                <i class="fa-solid fa-circle-info" style="color:#60a5fa;"></i> Please check your inbox and verify your email before logging in. Links expire in <strong>1 hour</strong>.
+            </div>
+            <div style="margin-top:1.25rem; display:flex; flex-direction:column; gap:0.6rem;">
+                <button type="button" class="btn-auth-submit" onclick="returnToSignIn(true)">
+                    <i class="fa-solid fa-right-to-bracket"></i> Proceed to Sign In
+                </button>
+                <button type="button" class="btn-resend-auth" id="btn-reg-resend" onclick="triggerResendVerification(lastRegisteredEmail)">
+                    <i class="fa-solid fa-rotate-right"></i> Resend Verification Email
+                </button>
+                <div id="reg-cooldown-text" style="display:none; font-size:0.75rem; color:#93c5fd;"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 <div class="event-bar">
     <div style="flex: 1;">
@@ -1162,6 +2086,675 @@
 
 <script>
 // ============================================================
+// AUTHENTICATION STATE & LOGIC
+// ============================================================
+let currentAuthUser = null;
+let currentAuthToken = localStorage.getItem('ncc_auth_token') || null;
+let authServerConfig = { googleClientId: '' };
+let hasLoadedDataOnce = false;
+
+// Check / verify login on app start
+async function initAuth() {
+
+    // 1. Fetch auth config (Google Client ID & settings)
+    try {
+        const cfgRes = await fetch('/api/auth/config');
+        if (cfgRes.ok) {
+            authServerConfig = await cfgRes.json();
+            initGoogleGIS();
+        }
+    } catch (e) {
+        console.warn('Could not fetch auth config:', e);
+    }
+
+    // 2. Validate existing token from localStorage
+    if (currentAuthToken) {
+        try {
+            const meRes = await fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${currentAuthToken}` }
+            });
+            if (meRes.ok) {
+                const meData = await meRes.json();
+                if (meData.authenticated && meData.user) {
+                    onAuthSuccess(meData.user, currentAuthToken, false);
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn('Token verification error:', e);
+        }
+    }
+
+    // If not authenticated or token expired, show overlay gate
+    showAuthOverlay();
+}
+
+function showAuthOverlay() {
+    const overlay = document.getElementById('auth-overlay');
+    if (overlay) overlay.classList.remove('auth-hidden');
+    const headerProfile = document.getElementById('header-user-profile');
+    if (headerProfile) headerProfile.style.display = 'none';
+}
+
+function hideAuthOverlay() {
+    const overlay = document.getElementById('auth-overlay');
+    if (overlay) overlay.classList.add('auth-hidden');
+}
+
+function onAuthSuccess(user, token, showWelcome = true) {
+    currentAuthUser = user;
+    currentAuthToken = token;
+    localStorage.setItem('ncc_auth_token', token);
+    localStorage.setItem('ncc_auth_user', JSON.stringify(user));
+
+    hideAuthOverlay();
+
+    // Update Header Profile Badge
+    const headerProfile = document.getElementById('header-user-profile');
+    const headerName = document.getElementById('header-user-name');
+    const headerEmail = document.getElementById('header-user-email');
+    const headerAvatar = document.getElementById('header-user-avatar');
+
+    if (headerProfile) headerProfile.style.display = 'flex';
+    if (headerName) headerName.textContent = user.name || 'NCC Officer';
+    if (headerEmail) headerEmail.textContent = user.email || '';
+    if (headerAvatar) {
+        if (user.avatarUrl) {
+            headerAvatar.innerHTML = `<img src="${user.avatarUrl}" alt="Avatar">`;
+        } else {
+            const initials = (user.name || user.email || 'NO')
+                .split(' ')
+                .map(n => n[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase();
+            headerAvatar.textContent = initials || 'NCC';
+        }
+    }
+
+    if (showWelcome) {
+        showToast(`🎖️ Welcome, ${user.name || 'Officer'}! Logged in successfully.`, 'success');
+    }
+
+    // Load data upon successful authentication
+    if (!hasLoadedDataOnce) {
+        hasLoadedDataOnce = true;
+        loadCadets();
+        loadDeletedCadetsArchive();
+    }
+}
+
+// Switch between Sign In and Create Account tabs
+function switchAuthMode(mode) {
+    const loginForm = document.getElementById('form-login');
+    const regForm = document.getElementById('form-register');
+    const tabLogin = document.getElementById('tab-btn-login');
+    const tabReg = document.getElementById('tab-btn-register');
+    const otpView = document.getElementById('auth-view-otp');
+    const otpSuccessView = document.getElementById('auth-view-otp-success');
+    const resendContainer = document.getElementById('auth-resend-container');
+    const tabs = document.querySelector('.auth-tabs');
+    if (tabs) tabs.style.display = 'flex';
+    if (otpView) otpView.style.display = 'none';
+    if (otpSuccessView) otpSuccessView.style.display = 'none';
+    if (resendContainer) resendContainer.style.display = 'none';
+    clearAuthAlert();
+
+    if (mode === 'login') {
+        if (loginForm) loginForm.style.display = 'block';
+        if (regForm) regForm.style.display = 'none';
+        if (tabLogin) tabLogin.classList.add('active');
+        if (tabReg) tabReg.classList.remove('active');
+    } else {
+        if (loginForm) loginForm.style.display = 'none';
+        if (regForm) regForm.style.display = 'block';
+        if (tabLogin) tabLogin.classList.remove('active');
+        if (tabReg) tabReg.classList.add('active');
+    }
+}
+
+// Toggle password visibility
+function togglePasswordVisibility(inputId, iconId) {
+    const inp = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (!inp || !icon) return;
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+    } else {
+        inp.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+    }
+}
+
+// Alert banner in auth box
+function showAuthAlert(msg, type = 'error') {
+    const box = document.getElementById('auth-alert');
+    const msgEl = document.getElementById('auth-alert-msg');
+    const iconEl = document.getElementById('auth-alert-icon');
+    if (!box || !msgEl) return;
+    box.className = `auth-alert ${type}`;
+    msgEl.textContent = msg;
+    if (iconEl) {
+        iconEl.className = type === 'error' ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-check';
+    }
+    box.style.display = 'flex';
+}
+
+function clearAuthAlert() {
+    const box = document.getElementById('auth-alert');
+    if (box) box.style.display = 'none';
+}
+
+// Auto-fill Demo Credentials
+function fillDemoCreds(email, password) {
+    switchAuthMode('login');
+    const emailInp = document.getElementById('login-email');
+    const pwdInp = document.getElementById('login-password');
+    if (emailInp) emailInp.value = email;
+    if (pwdInp) pwdInp.value = password;
+    showToast(`🔑 Loaded credentials for ${email}`, 'info');
+}
+
+// Quick-fill pre-approved credentials
+function fillQuickCred(email, tempPwd) {
+    switchAuthMode('login');
+    const emailInp = document.getElementById('login-email');
+    const pwdInp = document.getElementById('login-password');
+    if (emailInp) emailInp.value = email;
+    if (pwdInp) pwdInp.value = tempPwd;
+    clearAuthAlert();
+    showToast('🔑 Loaded credentials for ' + email, 'info');
+}
+
+let currentFirstTimeToken = null;
+let currentFirstTimeEmail = null;
+
+function showFirstTimePasswordSetup(tempToken, email, name) {
+    currentFirstTimeToken = tempToken;
+    currentFirstTimeEmail = email;
+
+    const formLogin = document.getElementById('form-login');
+    const formReg = document.getElementById('form-register');
+    const tabs = document.querySelector('.auth-tabs');
+    const gSection = document.querySelector('.auth-google-section');
+    const divider = document.querySelector('.auth-divider');
+    const formFirstTime = document.getElementById('form-first-time-pwd');
+    const nameEl = document.getElementById('first-time-user-name');
+
+    if (formLogin) formLogin.style.display = 'none';
+    if (formReg) formReg.style.display = 'none';
+    if (tabs) tabs.style.display = 'none';
+    if (gSection) gSection.style.display = 'none';
+    if (divider) divider.style.display = 'none';
+    if (nameEl) nameEl.textContent = name || email;
+    if (formFirstTime) formFirstTime.style.display = 'block';
+
+    clearAuthAlert();
+    showToast('🔑 Temporary password accepted. Please create your permanent password.', 'info');
+}
+
+function cancelFirstTimePassword() {
+    currentFirstTimeToken = null;
+    currentFirstTimeEmail = null;
+
+    const tabs = document.querySelector('.auth-tabs');
+    const gSection = document.querySelector('.auth-google-section');
+    const divider = document.querySelector('.auth-divider');
+    const formFirstTime = document.getElementById('form-first-time-pwd');
+
+    if (formFirstTime) formFirstTime.style.display = 'none';
+    if (tabs) tabs.style.display = 'flex';
+    if (gSection) gSection.style.display = 'block';
+    if (divider) divider.style.display = 'flex';
+    switchAuthMode('login');
+    clearAuthAlert();
+}
+
+async function submitFirstTimePassword(e) {
+    if (e) e.preventDefault();
+    clearAuthAlert();
+
+    const pwdInp = document.getElementById('new-permanent-password');
+    const confirmInp = document.getElementById('confirm-permanent-password');
+    const btnSubmit = document.getElementById('btn-set-pwd-submit');
+    const btnText = document.getElementById('btn-set-pwd-text');
+    const spinner = document.getElementById('set-pwd-spinner');
+
+    const password = pwdInp ? pwdInp.value : '';
+    const confirmPassword = confirmInp ? confirmInp.value : '';
+
+    if (!password || !confirmPassword) {
+        showAuthAlert('Please enter and confirm your new permanent password.');
+        return;
+    }
+    if (password.length < 5) {
+        showAuthAlert('Permanent password must be at least 5 characters long.');
+        return;
+    }
+    if (password !== confirmPassword) {
+        showAuthAlert('Passwords do not match. Please verify.');
+        return;
+    }
+
+    if (btnSubmit) btnSubmit.disabled = true;
+    if (btnText) btnText.style.display = 'none';
+    if (spinner) spinner.style.display = 'inline-flex';
+
+    try {
+        const res = await fetch('/api/auth/set-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                tempToken: currentFirstTimeToken,
+                newPassword: password
+            })
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.delivered) {
+            cancelFirstTimePassword();
+            onAuthSuccess(data.user, data.token, true);
+            showToast('🎉 Permanent password activated successfully!', 'success');
+        } else {
+            showAuthAlert(data.error || 'Failed to update permanent password.');
+        }
+    } catch (err) {
+        showAuthAlert('Unable to reach server. Please check your network connection.');
+    } finally {
+        if (btnSubmit) btnSubmit.disabled = false;
+        if (btnText) btnText.style.display = 'inline-flex';
+        if (spinner) spinner.style.display = 'none';
+    }
+}
+
+// State variables for email OTP verification
+let currentOtpEmail = '';
+let lastUnverifiedEmail = '';
+let otpCooldownInterval = null;
+
+// Open OTP Verification Screen
+function openOtpScreen(email) {
+    const targetEmail = (email || currentOtpEmail || lastUnverifiedEmail).trim().toLowerCase();
+    if (!targetEmail) return;
+
+    currentOtpEmail = targetEmail;
+    clearAuthAlert();
+
+    const tabs = document.querySelector('.auth-tabs');
+    const formLogin = document.getElementById('form-login');
+    const formRegister = document.getElementById('form-register');
+    const otpView = document.getElementById('auth-view-otp');
+    const otpSuccessView = document.getElementById('auth-view-otp-success');
+    const emailDisplay = document.getElementById('otp-display-email');
+    const otpInput = document.getElementById('otp-input');
+
+    if (tabs) tabs.style.display = 'none';
+    if (formLogin) formLogin.style.display = 'none';
+    if (formRegister) formRegister.style.display = 'none';
+    if (otpSuccessView) otpSuccessView.style.display = 'none';
+    if (emailDisplay) emailDisplay.textContent = targetEmail;
+    if (otpView) otpView.style.display = 'block';
+
+    if (otpInput) {
+        otpInput.value = '';
+        setTimeout(() => otpInput.focus(), 100);
+    }
+}
+
+// Submit 6-digit OTP verification
+async function submitVerifyOtp(e) {
+    if (e) e.preventDefault();
+    clearAuthAlert();
+
+    const otpInput = document.getElementById('otp-input');
+    const otpVal = otpInput ? otpInput.value.trim() : '';
+    const btnSubmit = document.getElementById('btn-otp-submit');
+    const btnText = document.getElementById('btn-otp-text');
+    const spinner = document.getElementById('otp-spinner');
+
+    if (!otpVal || otpVal.length !== 6 || !/^\d{6}$/.test(otpVal)) {
+        showAuthAlert('Please enter the 6-digit numeric verification code.');
+        if (otpInput) otpInput.focus();
+        return;
+    }
+
+    if (btnSubmit) btnSubmit.disabled = true;
+    if (btnText) btnText.style.display = 'none';
+    if (spinner) spinner.style.display = 'inline-flex';
+
+    try {
+        const res = await fetch('/api/auth/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentOtpEmail, otp: otpVal })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            const otpView = document.getElementById('auth-view-otp');
+            const otpSuccessView = document.getElementById('auth-view-otp-success');
+            if (otpView) otpView.style.display = 'none';
+            if (otpSuccessView) otpSuccessView.style.display = 'block';
+            showToast('🎉 Email verified successfully!', 'success');
+        } else {
+            showAuthAlert(data.error || 'Invalid OTP code. Please check your inbox.');
+            if (data.expired) {
+                // If expired, highlight resend
+                const btnResend = document.getElementById('btn-otp-resend');
+                if (btnResend) btnResend.focus();
+            }
+        }
+    } catch (err) {
+        showAuthAlert(getNetworkErrorMessage('Unable to connect to verification server. Please check your connection.'));
+    } finally {
+        if (btnSubmit) btnSubmit.disabled = false;
+        if (btnText) btnText.style.display = 'inline-flex';
+        if (spinner) spinner.style.display = 'none';
+    }
+}
+
+// Resend 6-Digit OTP
+async function triggerResendOtp(targetEmail) {
+    const email = (targetEmail || currentOtpEmail || lastUnverifiedEmail).trim().toLowerCase();
+    if (!email) {
+        showAuthAlert('Please enter your email address to request an OTP.');
+        return;
+    }
+
+    currentOtpEmail = email;
+    const btnResend = document.getElementById('btn-otp-resend');
+    const loginResendBtn = document.getElementById('btn-resend-verification');
+
+    if (btnResend) btnResend.disabled = true;
+    if (loginResendBtn) loginResendBtn.disabled = true;
+
+    try {
+        const res = await fetch('/api/auth/resend-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success && data.delivered) {
+            if (data.devMode && data.devOtp) {
+                showToast('🔑 [DEV MODE] OTP Code: ' + data.devOtp, 'info');
+                showAuthAlert('🔑 Development Mode: Your 6-digit verification code is ' + data.devOtp + '. Enter it below to activate your account.', 'info');
+            } else {
+                showToast('📧 Fresh 6-digit OTP sent to ' + email, 'success');
+                showAuthAlert('A fresh 6-digit verification code has been sent. Please check your inbox.', 'success');
+            }
+            startOtpCooldown(data.cooldownSeconds || 60);
+            openOtpScreen(email);
+        } else if (res.status === 429) {
+            showAuthAlert(data.error || 'Please wait before requesting another OTP.');
+            startOtpCooldown(data.remainingSeconds || 60);
+        } else {
+            showAuthAlert(data.error || 'Failed to resend OTP.');
+            // If OTP screen is currently visible and email was not delivered, switch back to login tab
+            const otpView = document.getElementById('auth-view-otp');
+            if (otpView && otpView.style.display === 'block') {
+                switchAuthMode('login');
+            }
+            if (btnResend) btnResend.disabled = false;
+            if (loginResendBtn) loginResendBtn.disabled = false;
+        }
+    } catch (err) {
+        showAuthAlert(getNetworkErrorMessage('Unable to reach server to resend OTP.'));
+        if (btnResend) btnResend.disabled = false;
+        if (loginResendBtn) loginResendBtn.disabled = false;
+    }
+}
+
+// 60-Second Cooldown Timer
+function startOtpCooldown(seconds) {
+    let remaining = seconds || 60;
+    const cooldownTexts = [
+        document.getElementById('otp-cooldown-text'),
+        document.getElementById('resend-cooldown-text')
+    ];
+    const buttons = [
+        document.getElementById('btn-otp-resend'),
+        document.getElementById('btn-resend-verification')
+    ];
+
+    buttons.forEach(btn => {
+        if (btn) btn.disabled = true;
+    });
+
+    cooldownTexts.forEach(el => {
+        if (el) {
+            el.style.display = 'block';
+            el.textContent = 'Resend available in ' + remaining + 's...';
+        }
+    });
+
+    if (otpCooldownInterval) clearInterval(otpCooldownInterval);
+
+    otpCooldownInterval = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+            clearInterval(otpCooldownInterval);
+            otpCooldownInterval = null;
+            cooldownTexts.forEach(el => {
+                if (el) el.style.display = 'none';
+            });
+            buttons.forEach(btn => {
+                if (btn) btn.disabled = false;
+            });
+        } else {
+            cooldownTexts.forEach(el => {
+                if (el) el.textContent = 'Resend available in ' + remaining + 's...';
+            });
+        }
+    }, 1000);
+}
+
+// Return to Sign In view
+function returnToSignIn(prefillEmail = false) {
+    const tabs = document.querySelector('.auth-tabs');
+    const otpView = document.getElementById('auth-view-otp');
+    const otpSuccessView = document.getElementById('auth-view-otp-success');
+
+    if (otpView) otpView.style.display = 'none';
+    if (otpSuccessView) otpSuccessView.style.display = 'none';
+    if (tabs) tabs.style.display = 'flex';
+
+    switchAuthMode('login');
+
+    if (prefillEmail && currentOtpEmail) {
+        const emailInp = document.getElementById('login-email');
+        if (emailInp) {
+            emailInp.value = currentOtpEmail;
+            const pwdInp = document.getElementById('login-password');
+            if (pwdInp) pwdInp.focus();
+        }
+    }
+}
+
+// Submit Email/Password Login
+async function submitLogin(e) {
+    if (e) e.preventDefault();
+    clearAuthAlert();
+
+    const emailInp = document.getElementById('login-email');
+    const pwdInp = document.getElementById('login-password');
+    const btnSubmit = document.getElementById('btn-login-submit');
+    const btnText = document.getElementById('btn-login-text');
+    const spinner = document.getElementById('login-spinner');
+    const resendContainer = document.getElementById('auth-resend-container');
+
+    if (resendContainer) resendContainer.style.display = 'none';
+
+    const email = emailInp ? emailInp.value.trim().toLowerCase() : '';
+    const password = pwdInp ? pwdInp.value : '';
+
+    if (!email || !password) {
+        showAuthAlert('Please enter both your email address and password.');
+        return;
+    }
+
+    if (btnSubmit) btnSubmit.disabled = true;
+    if (btnText) btnText.style.display = 'none';
+    if (spinner) spinner.style.display = 'inline-flex';
+
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+            onAuthSuccess(data.user, data.token, true);
+            return;
+        } else if (res.status === 403 || data.unverified) {
+            // UNVERIFIED: Display exact message required and show Enter OTP & Resend OTP buttons
+            lastUnverifiedEmail = email;
+            currentOtpEmail = email;
+            showAuthAlert(data.error || 'Your email address is not verified. Please verify your email before logging in.');
+            if (resendContainer) {
+                resendContainer.style.display = 'block';
+                resendContainer.innerHTML = `
+                    <div style="display:flex; gap:0.5rem; margin-top:0.4rem; flex-wrap:wrap;">
+                        <button type="button" class="btn-resend-auth" style="flex:1;" id="btn-resend-verification" onclick="triggerResendOtp('${email}')">
+                            <i class="fa-solid fa-paper-plane"></i> Send Verification OTP
+                        </button>
+                    </div>
+                    <div id="resend-cooldown-text" style="display:none; font-size:0.75rem; color:#93c5fd; margin-top:0.35rem; text-align:center;"></div>
+                `;
+            }
+            return;
+        } else {
+            showAuthAlert(data.error || 'Login failed. Please verify your email and password.');
+            return;
+        }
+    } catch (err) {
+        showAuthAlert(getNetworkErrorMessage('Unable to reach the server.'));
+    } finally {
+        if (btnSubmit) btnSubmit.disabled = false;
+        if (btnText) btnText.style.display = 'inline-flex';
+        if (spinner) spinner.style.display = 'none';
+    }
+}
+
+// Submit User Registration
+async function submitRegister(e) {
+    if (e) e.preventDefault();
+    clearAuthAlert();
+
+    const nameInp = document.getElementById('reg-name');
+    const emailInp = document.getElementById('reg-email');
+    const pwdInp = document.getElementById('reg-password');
+    const confirmPwdInp = document.getElementById('reg-confirm-password');
+    const btnSubmit = document.getElementById('btn-reg-submit');
+    const btnText = document.getElementById('btn-reg-text');
+    const spinner = document.getElementById('reg-spinner');
+
+    const name = nameInp ? nameInp.value.trim() : '';
+    const email = emailInp ? emailInp.value.trim().toLowerCase() : '';
+    const password = pwdInp ? pwdInp.value : '';
+    const confirmPassword = confirmPwdInp ? confirmPwdInp.value : '';
+
+    if (!name || !email || !password) {
+        showAuthAlert('Please fill out all registration fields.');
+        return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showAuthAlert('Please enter a valid email address.');
+        return;
+    }
+
+    if (password.length < 5) {
+        showAuthAlert('Password must be at least 5 characters long.');
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        showAuthAlert('Passwords do not match. Please verify your password confirmation.');
+        return;
+    }
+
+    if (btnSubmit) btnSubmit.disabled = true;
+    if (btnText) btnText.style.display = 'none';
+    if (spinner) spinner.style.display = 'inline-flex';
+
+    try {
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success && data.delivered) {
+            currentOtpEmail = email;
+            lastUnverifiedEmail = email;
+
+            // Clear inputs
+            if (nameInp) nameInp.value = '';
+            if (emailInp) emailInp.value = '';
+            if (pwdInp) pwdInp.value = '';
+            if (confirmPwdInp) confirmPwdInp.value = '';
+
+            if (data.devMode && data.devOtp) {
+                showToast('🔑 [DEV MODE] OTP Code: ' + data.devOtp, 'info');
+                showAuthAlert('🔑 Development Mode Active: Your 6-digit verification code is ' + data.devOtp + '. Enter it below to activate your account.', 'info');
+            } else {
+                showToast('📧 6-digit OTP sent to ' + email, 'success');
+            }
+            openOtpScreen(email);
+            startOtpCooldown(data.cooldownSeconds || 60);
+            return;
+        } else {
+            // Displays error (e.g. SMTP unconfigured or delivery failed)
+            showAuthAlert(data.error || 'Registration failed. Please check your details.');
+            // Strictly DO NOT open OTP screen if delivery failed!
+            return;
+        }
+    } catch (err) {
+        showAuthAlert(getNetworkErrorMessage('Unable to reach server to complete registration.'));
+    } finally {
+        if (btnSubmit) btnSubmit.disabled = false;
+        if (btnText) btnText.style.display = 'inline-flex';
+        if (spinner) spinner.style.display = 'none';
+    }
+}
+function showForgotHelp() {
+    showToast('💡 If you forgot your password, please contact your unit administrator or re-register.', 'info');
+}
+
+// Handle Logout
+async function handleLogout() {
+    try {
+        if (currentAuthToken) {
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentAuthToken}`
+                },
+                body: JSON.stringify({ token: currentAuthToken })
+            });
+        }
+    } catch (e) {}
+
+    currentAuthUser = null;
+    currentAuthToken = null;
+    localStorage.removeItem('ncc_auth_token');
+    localStorage.removeItem('ncc_auth_user');
+
+    showAuthOverlay();
+    showToast('👋 You have been logged out safely.', 'info');
+}
+
+function showForgotHelp() {
+    showToast('💡 Please contact your NCC Officer / Unit Administrator or click Create Account to register.', 'info');
+}
+
+// ============================================================
 // STATE
 // ============================================================
 let cadets = [];
@@ -1309,8 +2902,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTodayDate();
     initSettings();
     await checkServer();
-    await loadCadets();
-    await loadDeletedCadetsArchive();
+    await initAuth();
     setupListeners();
     applyZoom('1'); // default zoom to fit screen comfortably
 });
@@ -1332,8 +2924,15 @@ async function checkServer() {
         const text = document.getElementById('status-text');
         if(dot) dot.className = 'status-dot' + (online ? '' : ' offline');
         if(text) text.textContent = online ? 'Server Online' : 'Offline';
+        if (online) {
+            syncOfflineAccountsToServer();
+        }
         return online;
     } catch {
+        const dot = document.getElementById('status-dot');
+        const text = document.getElementById('status-text');
+        if(dot) dot.className = 'status-dot offline';
+        if(text) text.textContent = 'Offline';
         return false;
     }
 }
