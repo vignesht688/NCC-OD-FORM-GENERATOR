@@ -1,4 +1,15 @@
 const nodemailer = require('nodemailer');
+const path = require('path');
+const dotenv = require('dotenv');
+const rootEnvPath = path.resolve(__dirname, '..', '.env');
+
+function refreshEnv() {
+  try {
+    dotenv.config({ path: rootEnvPath, override: true });
+  } catch (err) {
+    // safely ignore file read errors
+  }
+}
 
 // In-memory reference used strictly during automated test runs
 let latestTestEmail = null;
@@ -18,6 +29,7 @@ function escapeHtml(str) {
 }
 
 function getTransporter() {
+  refreshEnv();
   const host = (process.env.SMTP_HOST || '').trim();
   const user = (process.env.SMTP_USER || '').trim();
   const pass = (process.env.SMTP_PASS || '').trim();
@@ -48,6 +60,7 @@ function getTransporter() {
  * @returns {{ configured: boolean, missing: string[] }}
  */
 function checkSmtpConfig() {
+  refreshEnv();
   const missing = [];
   if (!process.env.SMTP_HOST || !process.env.SMTP_HOST.trim()) missing.push('SMTP_HOST');
   if (!process.env.SMTP_USER || !process.env.SMTP_USER.trim()) missing.push('SMTP_USER');
@@ -88,6 +101,7 @@ async function verifySmtpConnection() {
  * @returns {Promise<{ delivered: boolean, error?: string, messageId?: string }>}
  */
 async function sendOtpEmail(userEmail, userName, otpCode) {
+  refreshEnv();
   const safeName = escapeHtml(userName || userEmail.split('@')[0]);
   let fromAddress = (process.env.SMTP_FROM || '').trim();
   if (!fromAddress || fromAddress.includes('yourgmail@gmail.com')) {
