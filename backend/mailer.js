@@ -201,13 +201,18 @@ Website: NCC OD Form Generator
     };
   }
 
-  // Development OTP Mode: allows local testing without external SMTP credentials
+  // Development OTP Mode: logs OTP directly to terminal console
   if (process.env.DEV_OTP_MODE === 'true') {
-    console.log(`[DEV OTP MODE] Verification code for ${userEmail}: ${otpCode}`);
+    console.log('\n============================================================');
+    console.log(' 🔐 [OTP DISPATCH] NCC OD PORTAL EMAIL VERIFICATION CODE');
+    console.log('============================================================');
+    console.log(` Recipient:    ${userEmail}`);
+    console.log(` 6-Digit OTP:  ${otpCode}`);
+    console.log(` Expires In:   10 minutes`);
+    console.log('============================================================\n');
     return {
       delivered: true,
       devMode: true,
-      devOtp: otpCode,
       messageId: 'dev-mode-' + Date.now()
     };
   }

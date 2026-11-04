@@ -624,11 +624,9 @@ app.post('/api/auth/register', async (req, res) => {
                 
                 email_verified: false,
                 email: cleanEmail,
-                message: mailResult.devMode 
-                    ? ('A 6-digit verification code has been sent to ' + cleanEmail + '. It will expire in 10 minutes.')
-                    : ('A 6-digit verification code has been sent to ' + cleanEmail + '. It will expire in 10 minutes.'),
-                cooldownSeconds: 60,
-                otpExpiresInMinutes: 10
+                message: 'A fresh 6-digit verification code has been generated. Check your server terminal.',
+            cooldownSeconds: 60,
+            otpExpiresInMinutes: 10
             });
         }
 
@@ -684,9 +682,7 @@ app.post('/api/auth/register', async (req, res) => {
             
             email_verified: false,
             email: cleanEmail,
-            message: mailResult.devMode 
-                ? ('A 6-digit verification code has been sent to ' + cleanEmail + '. It will expire in 10 minutes.')
-                : ('A 6-digit verification code has been sent to ' + cleanEmail + '. It will expire in 10 minutes.'),
+            message: 'A 6-digit verification code has been generated. Check your server terminal.',
             cooldownSeconds: 60,
             otpExpiresInMinutes: 10
         });
@@ -835,9 +831,7 @@ app.post('/api/auth/resend-otp', async (req, res) => {
             devMode: Boolean(mailResult.devMode),
             
             email: user.email,
-            message: mailResult.devMode 
-                ? ('[DEV MODE] Fresh Verification OTP: ' + mailResult.devOtp + ' (Expires in 10 minutes)')
-                : ('A fresh 6-digit OTP has been sent to ' + user.email + '. It will expire in 10 minutes.'),
+            message: 'A fresh 6-digit verification code has been generated. Check your server terminal.',
             cooldownSeconds: 60,
             otpExpiresInMinutes: 10
         });
@@ -1920,7 +1914,7 @@ if (!process.env.VERCEL) {
         console.log(`--------------------------------------------------`);
         console.log(` [ENV] Config file: ${diag.envPath}`);
         console.log(` [ENV] File exists: ${diag.envExists ? 'YES' : 'NO'}`);
-        console.log(` [ENV] Mode: ${diag.devOtpMode ? 'DEV MODE (On-screen)' : 'LIVE EMAIL (SMTP Dispatch)'}`);
+        console.log(` [ENV] Mode: ${diag.devOtpMode ? 'DEV MODE (Terminal Console Output)' : 'LIVE EMAIL (SMTP Dispatch)'}`);
         console.log(` [SMTP] Host: ${diag.smtpHost}:${diag.smtpPort} (SSL: ${diag.smtpSecure})`);
         console.log(` [SMTP] User: ${diag.smtpUser}`);
         console.log(` [SMTP] Password: ${diag.smtpPass}`);
