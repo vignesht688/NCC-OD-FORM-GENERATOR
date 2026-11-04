@@ -621,11 +621,11 @@ app.post('/api/auth/register', async (req, res) => {
                 delivered: true,
                 smtpDelivered: true,
                 devMode: Boolean(mailResult.devMode),
-                devOtp: mailResult.devOtp || null,
+                
                 email_verified: false,
                 email: cleanEmail,
                 message: mailResult.devMode 
-                    ? ('[DEV MODE] Verification OTP: ' + mailResult.devOtp + ' (Expires in 10 minutes)')
+                    ? ('A 6-digit verification code has been sent to ' + cleanEmail + '. It will expire in 10 minutes.')
                     : ('A 6-digit verification code has been sent to ' + cleanEmail + '. It will expire in 10 minutes.'),
                 cooldownSeconds: 60,
                 otpExpiresInMinutes: 10
@@ -681,11 +681,11 @@ app.post('/api/auth/register', async (req, res) => {
             delivered: true,
             smtpDelivered: true,
             devMode: Boolean(mailResult.devMode),
-            devOtp: mailResult.devOtp || null,
+            
             email_verified: false,
             email: cleanEmail,
             message: mailResult.devMode 
-                ? ('[DEV MODE] Verification OTP: ' + mailResult.devOtp + ' (Expires in 10 minutes)')
+                ? ('A 6-digit verification code has been sent to ' + cleanEmail + '. It will expire in 10 minutes.')
                 : ('A 6-digit verification code has been sent to ' + cleanEmail + '. It will expire in 10 minutes.'),
             cooldownSeconds: 60,
             otpExpiresInMinutes: 10
@@ -833,7 +833,7 @@ app.post('/api/auth/resend-otp', async (req, res) => {
             delivered: true,
             smtpDelivered: true,
             devMode: Boolean(mailResult.devMode),
-            devOtp: mailResult.devOtp || null,
+            
             email: user.email,
             message: mailResult.devMode 
                 ? ('[DEV MODE] Fresh Verification OTP: ' + mailResult.devOtp + ' (Expires in 10 minutes)')

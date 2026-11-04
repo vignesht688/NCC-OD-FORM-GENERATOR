@@ -2380,7 +2380,7 @@ let lastUnverifiedEmail = '';
 let otpCooldownInterval = null;
 
 // Open OTP Verification Screen
-function openOtpScreen(email, devOtp = null) {
+function openOtpScreen(email) {
     const targetEmail = (email || currentOtpEmail || lastUnverifiedEmail).trim().toLowerCase();
     if (!targetEmail) return;
 
