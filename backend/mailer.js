@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 const rootEnvPath = path.resolve(__dirname, '..', '.env');
@@ -245,9 +246,40 @@ Website: NCC OD Form Generator
   }
 }
 
+/**
+ * Returns safe environment & SMTP diagnostic details without printing passwords
+ * @returns {object}
+ */
+function getSafeSmtpDiagnostics() {
+  refreshEnv();
+  const fileExists = fs.existsSync(rootEnvPath);
+  const host = (process.env.SMTP_HOST || '').trim();
+  const port = process.env.SMTP_PORT || '465';
+  const secure = process.env.SMTP_SECURE || 'true';
+  const user = (process.env.SMTP_USER || '').trim();
+  const pass = (process.env.SMTP_PASS || '').trim();
+  const from = (process.env.SMTP_FROM || '').trim();
+  const devMode = process.env.DEV_OTP_MODE === 'true';
+
+  return {
+    envPath: rootEnvPath,
+    envExists: fileExists,
+    devOtpMode: devMode,
+    smtpHost: host || '[EMPTY]',
+    smtpPort: port,
+    smtpSecure: secure,
+    smtpUser: user ? user : '[EMPTY - Missing in .env]',
+    smtpPass: pass ? `[CONFIGURED (${pass.length} chars)]` : '[EMPTY - Missing in .env]',
+    smtpFrom: from || '[EMPTY]',
+    isConfigured: Boolean(host && user && pass),
+    isReady: Boolean(host && user && pass && !devMode)
+  };
+}
+
 module.exports = {
   sendOtpEmail,
   checkSmtpConfig,
   verifySmtpConnection,
-  getLatestTestEmail
+  getLatestTestEmail,
+  getSafeSmtpDiagnostics
 };

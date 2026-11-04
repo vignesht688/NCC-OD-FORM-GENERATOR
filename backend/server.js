@@ -7,7 +7,7 @@ require('dotenv').config({ path: rootEnvPath, override: true });
 const express = require('express');
 const fs = require('fs');
 const crypto = require('crypto');
-const { sendOtpEmail, checkSmtpConfig, verifySmtpConnection, getLatestTestEmail } = require('./mailer');
+const { sendOtpEmail, checkSmtpConfig, verifySmtpConnection, getLatestTestEmail, getSafeSmtpDiagnostics } = require('./mailer');
 const { exec } = require('child_process');
 const docxLib = require('docx');
 const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, AlignmentType, WidthType, VerticalAlign, BorderStyle, XmlComponent } = docxLib;
@@ -1903,28 +1903,41 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
 });
 
+// Safe SMTP Diagnostics API Endpoint
+app.get('/api/auth/smtp-status', (req, res) => {
+    const diag = getSafeSmtpDiagnostics();
+    res.json(diag);
+});
+
 // Start the server (only if not running on serverless Vercel environment)
 if (!process.env.VERCEL) {
     app.listen(PORT, () => {
         const url = `http://localhost:${PORT}`;
+        const diag = getSafeSmtpDiagnostics();
+
         console.log(`==================================================`);
         console.log(` NCC OD Form Automator server running at: ${url}`);
+        console.log(`--------------------------------------------------`);
+        console.log(` [ENV] Config file: ${diag.envPath}`);
+        console.log(` [ENV] File exists: ${diag.envExists ? 'YES' : 'NO'}`);
+        console.log(` [ENV] Mode: ${diag.devOtpMode ? 'DEV MODE (On-screen)' : 'LIVE EMAIL (SMTP Dispatch)'}`);
+        console.log(` [SMTP] Host: ${diag.smtpHost}:${diag.smtpPort} (SSL: ${diag.smtpSecure})`);
+        console.log(` [SMTP] User: ${diag.smtpUser}`);
+        console.log(` [SMTP] Password: ${diag.smtpPass}`);
         console.log(`==================================================`);
 
-        const smtpStatus = checkSmtpConfig();
-        if (smtpStatus.configured) {
-            console.log(`[SMTP] Service configured with host: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT || 587}`);
+        if (diag.isConfigured) {
             verifySmtpConnection().then(res => {
                 if (res.ok) {
-                    console.log('[SMTP] Mail server connection verified successfully.');
+                    console.log(' [SMTP] Mail server connection verified successfully.');
                 } else {
-                    console.warn(`[SMTP WARNING] Mail server connection test failed: ${res.error}`);
+                    console.warn(` [SMTP WARNING] Mail server connection test failed: ${res.error}`);
                 }
             }).catch(err => {
-                console.warn(`[SMTP WARNING] Mail server connection test failed: ${err.message}`);
+                console.warn(` [SMTP WARNING] Mail server connection test failed: ${err.message}`);
             });
         } else {
-            console.log(`[SMTP] Email service unconfigured. Missing in .env: ${smtpStatus.missing.join(', ')}`);
+            console.log(` [SMTP] Live email delivery is awaiting SMTP_USER & SMTP_PASS in .env.`);
         }
     });
 }
