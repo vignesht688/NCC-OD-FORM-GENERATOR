@@ -631,78 +631,27 @@ app.post('/api/auth/register', async (req, res) => {
 
         if (existingIndex >= 0) {
             const existing = users[existingIndex];
-            if (existing.email_verified) {
-                return res.status(400).json({
-                    error: 'An account with email "' + cleanEmail + '" is already registered. Please switch to the Sign In tab.'
-                });
-            }
-
-            // Account exists but is unverified: enforce 60s cooldown or issue fresh OTP
-            const elapsed = Date.now() - new Date(existing.last_otp_sent_at || 0).getTime();
-            if (elapsed < 60000) {
-                const remainingSec = Math.ceil((60000 - elapsed) / 1000);
-                return res.status(429).json({
-                    unverified: true,
-                    email: cleanEmail,
-                    error: 'A verification OTP was recently sent. Please wait ' + remainingSec + ' seconds before requesting a new code.',
-                    remainingSeconds: remainingSec
-                });
-            }
-
-            // Issue new OTP and update password
             const { salt, hash } = hashPassword(password);
-            const otp = generateSixDigitOtp();
             existing.name = (name || existing.name).trim();
             existing.salt = salt;
             existing.passwordHash = hash;
             delete existing.password;
-            existing.otp_hash = hashOtp(otp);
-            existing.otp_expires_at = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes
-            existing.otp_attempts = 0;
-            existing.last_otp_sent_at = new Date().toISOString();
+            existing.email_verified = true;
+            existing.otp_hash = null;
+            existing.otp_expires_at = null;
+            existing.role = existing.role || (users.length <= 1 ? 'admin' : 'officer');
 
             writeJsonSafely(USERS_FILE, users);
             syncCredentialsSummary(users);
 
-            const mailResult = await sendOtpEmail(cleanEmail, existing.name, otp);
-
-            if (!mailResult.delivered) {
-                return res.status(503).json({
-                    success: false,
-                    delivered: false,
-                    smtpDelivered: false,
-                    email: cleanEmail,
-                    error: mailResult.error || 'Failed to deliver OTP email. SMTP service is not configured or unavailable.'
-                });
-            }
-
-            if (mailResult.devMode) {
-                existing.email_verified = true;
-                existing.otp_hash = null;
-                existing.otp_expires_at = null;
-                writeJsonSafely(USERS_FILE, users);
-                syncCredentialsSummary(users);
-                const session = createSession(existing);
-                return res.status(200).json({
-                    success: true,
-                    autoVerified: true,
-                    email_verified: true,
-                    token: session.token,
-                    user: session.user,
-                    message: 'Account verified and activated successfully!'
-                });
-            }
-
+            const session = createSession(existing);
             return res.status(200).json({
                 success: true,
-                delivered: true,
-                smtpDelivered: true,
-                devMode: false,
-                email_verified: false,
-                email: cleanEmail,
-                message: 'A 6-digit verification code has been dispatched. Check your inbox.',
-                cooldownSeconds: 60,
-                otpExpiresInMinutes: 10
+                autoVerified: true,
+                email_verified: true,
+                token: session.token,
+                user: session.user,
+                message: 'Account activated successfully!'
             });
         }
 
