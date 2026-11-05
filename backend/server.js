@@ -673,6 +673,7 @@ app.post('/api/auth/register', async (req, res) => {
                 delivered: true,
                 smtpDelivered: !mailResult.devMode,
                 devMode: Boolean(mailResult.devMode),
+                devOtp: mailResult.devMode ? mailResult.devOtp : undefined,
                 email_verified: false,
                 email: cleanEmail,
                 message: 'A 6-digit verification code has been dispatched. Enter it below to activate your account.',
@@ -727,6 +728,7 @@ app.post('/api/auth/register', async (req, res) => {
             delivered: true,
             smtpDelivered: !mailResult.devMode,
             devMode: Boolean(mailResult.devMode),
+            devOtp: mailResult.devMode ? mailResult.devOtp : undefined,
             email_verified: false,
             email: cleanEmail,
             message: 'A 6-digit verification code has been dispatched. Enter it below to activate your account.',
@@ -874,8 +876,9 @@ app.post('/api/auth/resend-otp', async (req, res) => {
         res.json({
             success: true,
             delivered: true,
-            smtpDelivered: true,
+            smtpDelivered: !mailResult.devMode,
             devMode: Boolean(mailResult.devMode),
+            devOtp: mailResult.devMode ? mailResult.devOtp : undefined,
             
             email: user.email,
             message: 'A fresh 6-digit verification code has been generated. Check your server terminal.',

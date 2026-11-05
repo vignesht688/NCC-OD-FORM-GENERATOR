@@ -213,6 +213,7 @@ Website: NCC OD Form Generator
     return {
       delivered: true,
       devMode: true,
+      devOtp: otpCode,
       messageId: 'dev-mode-' + Date.now()
     };
   }
@@ -232,6 +233,7 @@ Website: NCC OD Form Generator
     return {
       delivered: true,
       devMode: true,
+      devOtp: otpCode,
       messageId: 'server-log-' + Date.now()
     };
   }
