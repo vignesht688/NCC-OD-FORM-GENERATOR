@@ -580,22 +580,13 @@ app.post('/api/auth/login', (req, res) => {
         writeJsonSafely(USERS_FILE, users);
     }
 
-    // LOGIN RESTRICTION: Check whether email verification is completed
+    // LOGIN RESTRICTION: Strictly check whether email verification is completed
     if (!user.email_verified) {
-        const { configured } = checkSmtpConfig();
-        if (!configured || process.env.DEV_OTP_MODE === 'true') {
-            user.email_verified = true;
-            user.otp_hash = null;
-            user.otp_expires_at = null;
-            writeJsonSafely(USERS_FILE, users);
-            syncCredentialsSummary(users);
-        } else {
-            return res.status(403).json({
-                unverified: true,
-                email: user.email,
-                error: 'Your email address is not verified. Please verify your email before logging in.'
-            });
-        }
+        return res.status(403).json({
+            unverified: true,
+            email: user.email,
+            error: 'Your email address is not verified. Please verify your email before logging in.'
+        });
     }
 
     user.lastLoginAt = new Date().toISOString();
@@ -631,27 +622,62 @@ app.post('/api/auth/register', async (req, res) => {
 
         if (existingIndex >= 0) {
             const existing = users[existingIndex];
+            if (existing.email_verified) {
+                return res.status(400).json({
+                    error: 'An account with email "' + cleanEmail + '" is already registered. Please switch to the Sign In tab.'
+                });
+            }
+
+            // Enforce cooldown if OTP was requested less than 60 seconds ago
+            const elapsed = Date.now() - new Date(existing.last_otp_sent_at || 0).getTime();
+            if (elapsed < 60000) {
+                const remainingSec = Math.ceil((60000 - elapsed) / 1000);
+                return res.status(429).json({
+                    unverified: true,
+                    email: cleanEmail,
+                    error: 'A verification OTP was recently sent. Please wait ' + remainingSec + ' seconds before requesting a new code.',
+                    remainingSeconds: remainingSec
+                });
+            }
+
+            // Issue fresh 6-digit cryptographic OTP and update password
             const { salt, hash } = hashPassword(password);
+            const otp = generateSixDigitOtp();
             existing.name = (name || existing.name).trim();
             existing.salt = salt;
             existing.passwordHash = hash;
             delete existing.password;
-            existing.email_verified = true;
-            existing.otp_hash = null;
-            existing.otp_expires_at = null;
-            existing.role = existing.role || (users.length <= 1 ? 'admin' : 'officer');
+            existing.email_verified = false;
+            existing.otp_hash = hashOtp(otp);
+            existing.otp_expires_at = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+            existing.otp_attempts = 0;
+            existing.last_otp_sent_at = new Date().toISOString();
 
             writeJsonSafely(USERS_FILE, users);
             syncCredentialsSummary(users);
 
-            const session = createSession(existing);
+            const mailResult = await sendOtpEmail(cleanEmail, existing.name, otp);
+
+            if (!mailResult.delivered) {
+                return res.status(503).json({
+                    success: false,
+                    delivered: false,
+                    smtpDelivered: false,
+                    email: cleanEmail,
+                    error: mailResult.error || 'Failed to deliver verification email. Please check your SMTP settings.'
+                });
+            }
+
             return res.status(200).json({
                 success: true,
-                autoVerified: true,
-                email_verified: true,
-                token: session.token,
-                user: session.user,
-                message: 'Account activated successfully!'
+                delivered: true,
+                smtpDelivered: !mailResult.devMode,
+                devMode: Boolean(mailResult.devMode),
+                email_verified: false,
+                email: cleanEmail,
+                message: 'A 6-digit verification code has been dispatched. Enter it below to activate your account.',
+                cooldownSeconds: 60,
+                otpExpiresInMinutes: 10
             });
         }
 
@@ -659,7 +685,7 @@ app.post('/api/auth/register', async (req, res) => {
         const { salt, hash } = hashPassword(password);
         const otp = generateSixDigitOtp();
         const otpHash = hashOtp(otp);
-        const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
         const newUser = {
             id: 'usr-' + Date.now().toString(36) + '-' + crypto.randomBytes(3).toString('hex'),
@@ -680,51 +706,30 @@ app.post('/api/auth/register', async (req, res) => {
             last_otp_sent_at: new Date().toISOString()
         };
 
-        // 1. Dispatch OTP email FIRST
         const mailResult = await sendOtpEmail(cleanEmail, newUser.name, otp);
 
-        // 2. If email delivery fails, DO NOT add user to database - report error immediately
         if (!mailResult.delivered) {
             return res.status(503).json({
                 success: false,
                 delivered: false,
                 smtpDelivered: false,
                 email: cleanEmail,
-                error: mailResult.error || 'Failed to deliver verification email. Please check your SMTP configuration in .env.'
+                error: mailResult.error || 'Failed to deliver verification email. Please check your SMTP settings.'
             });
-        }
-
-        // 3. Email delivered successfully: Commit user to credentials database
-        if (mailResult.devMode) {
-            newUser.email_verified = true;
-            newUser.otp_hash = null;
-            newUser.otp_expires_at = null;
         }
 
         users.push(newUser);
         writeJsonSafely(USERS_FILE, users);
         syncCredentialsSummary(users);
 
-        if (mailResult.devMode) {
-            const session = createSession(newUser);
-            return res.status(201).json({
-                success: true,
-                autoVerified: true,
-                email_verified: true,
-                token: session.token,
-                user: session.user,
-                message: 'Account created and verified successfully!'
-            });
-        }
-
         res.status(201).json({
             success: true,
             delivered: true,
-            smtpDelivered: true,
-            devMode: false,
+            smtpDelivered: !mailResult.devMode,
+            devMode: Boolean(mailResult.devMode),
             email_verified: false,
             email: cleanEmail,
-            message: 'A 6-digit verification code has been dispatched. Check your inbox.',
+            message: 'A 6-digit verification code has been dispatched. Enter it below to activate your account.',
             cooldownSeconds: 60,
             otpExpiresInMinutes: 10
         });

@@ -2748,12 +2748,6 @@ async function submitRegister(e) {
         const data = await res.json();
 
         if (res.ok && data.success) {
-            if (data.autoVerified && data.token) {
-                onAuthSuccess(data.user, data.token, true);
-                showToast('🎉 Account activated successfully! Welcome to NCC OD Portal.', 'success');
-                return;
-            }
-
             currentOtpEmail = email;
             lastUnverifiedEmail = email;
 
