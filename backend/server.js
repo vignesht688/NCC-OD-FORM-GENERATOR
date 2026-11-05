@@ -582,11 +582,20 @@ app.post('/api/auth/login', (req, res) => {
 
     // LOGIN RESTRICTION: Check whether email verification is completed
     if (!user.email_verified) {
-        return res.status(403).json({
-            unverified: true,
-            email: user.email,
-            error: 'Your email address is not verified. Please verify your email before logging in.'
-        });
+        const { configured } = checkSmtpConfig();
+        if (!configured || process.env.DEV_OTP_MODE === 'true') {
+            user.email_verified = true;
+            user.otp_hash = null;
+            user.otp_expires_at = null;
+            writeJsonSafely(USERS_FILE, users);
+            syncCredentialsSummary(users);
+        } else {
+            return res.status(403).json({
+                unverified: true,
+                email: user.email,
+                error: 'Your email address is not verified. Please verify your email before logging in.'
+            });
+        }
     }
 
     user.lastLoginAt = new Date().toISOString();
@@ -667,17 +676,33 @@ app.post('/api/auth/register', async (req, res) => {
                 });
             }
 
+            if (mailResult.devMode) {
+                existing.email_verified = true;
+                existing.otp_hash = null;
+                existing.otp_expires_at = null;
+                writeJsonSafely(USERS_FILE, users);
+                syncCredentialsSummary(users);
+                const session = createSession(existing);
+                return res.status(200).json({
+                    success: true,
+                    autoVerified: true,
+                    email_verified: true,
+                    token: session.token,
+                    user: session.user,
+                    message: 'Account verified and activated successfully!'
+                });
+            }
+
             return res.status(200).json({
                 success: true,
                 delivered: true,
                 smtpDelivered: true,
-                devMode: Boolean(mailResult.devMode),
-                
+                devMode: false,
                 email_verified: false,
                 email: cleanEmail,
-                message: 'A fresh 6-digit verification code has been generated. Check your server terminal.',
-            cooldownSeconds: 60,
-            otpExpiresInMinutes: 10
+                message: 'A 6-digit verification code has been dispatched. Check your inbox.',
+                cooldownSeconds: 60,
+                otpExpiresInMinutes: 10
             });
         }
 
@@ -721,19 +746,36 @@ app.post('/api/auth/register', async (req, res) => {
         }
 
         // 3. Email delivered successfully: Commit user to credentials database
+        if (mailResult.devMode) {
+            newUser.email_verified = true;
+            newUser.otp_hash = null;
+            newUser.otp_expires_at = null;
+        }
+
         users.push(newUser);
         writeJsonSafely(USERS_FILE, users);
         syncCredentialsSummary(users);
+
+        if (mailResult.devMode) {
+            const session = createSession(newUser);
+            return res.status(201).json({
+                success: true,
+                autoVerified: true,
+                email_verified: true,
+                token: session.token,
+                user: session.user,
+                message: 'Account created and verified successfully!'
+            });
+        }
 
         res.status(201).json({
             success: true,
             delivered: true,
             smtpDelivered: true,
-            devMode: Boolean(mailResult.devMode),
-            
+            devMode: false,
             email_verified: false,
             email: cleanEmail,
-            message: 'A 6-digit verification code has been generated. Check your server terminal.',
+            message: 'A 6-digit verification code has been dispatched. Check your inbox.',
             cooldownSeconds: 60,
             otpExpiresInMinutes: 10
         });
