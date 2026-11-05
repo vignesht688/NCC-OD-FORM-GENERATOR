@@ -1,3 +1,24 @@
+// Backend API Base Configuration for Vercel -> Render cross-origin deployment
+const BACKEND_API_BASE = (function() {
+    if (typeof window === 'undefined') return '';
+    if (window.BACKEND_API_URL) return window.BACKEND_API_URL;
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return window.location.port === '5173' ? 'http://localhost:3000' : '';
+    }
+    return 'https://ncc-od-form-generator-1.onrender.com';
+})();
+
+if (typeof window !== 'undefined' && BACKEND_API_BASE && !window._fetchIntercepted) {
+    window._fetchIntercepted = true;
+    const _origFetch = window.fetch;
+    window.fetch = function(resource, init) {
+        if (typeof resource === 'string' && resource.startsWith('/api/')) {
+            resource = BACKEND_API_BASE + resource;
+        }
+        return _origFetch.call(this, resource, init);
+    };
+}
+
 // Application Controller for NCC Attendance & OD Management System
 
 // Destructure docx components from global docx object (provided by UMD build)

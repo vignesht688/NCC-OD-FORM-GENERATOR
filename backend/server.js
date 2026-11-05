@@ -5,6 +5,7 @@ require('dotenv').config({ path: rootEnvPath, override: true });
 
 // 2. Import dependencies after environment variables are loaded
 const express = require('express');
+const cors = require('cors');
 const fs = require('fs');
 const crypto = require('crypto');
 const { sendOtpEmail, checkSmtpConfig, verifySmtpConnection, getLatestTestEmail, getSafeSmtpDiagnostics } = require('./mailer');
@@ -430,6 +431,56 @@ function migrateCredentialsSchema() {
     syncCredentialsSummary(users);
 }
 migrateCredentialsSchema();
+
+// ============================================================
+// CORS CONFIGURATION
+// Configured for Vercel frontend, local development, and Render
+// ============================================================
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://ncc-od-form-generator-frontend.vercel.app'
+];
+
+if (process.env.ALLOWED_ORIGINS) {
+    process.env.ALLOWED_ORIGINS.split(',').forEach(origin => {
+        const trimmed = origin.trim();
+        if (trimmed && !allowedOrigins.includes(trimmed)) {
+            allowedOrigins.push(trimmed);
+        }
+    });
+}
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (e.g. mobile apps, curl, same-origin)
+        if (!origin) return callback(null, true);
+
+        // Whitelisted origins
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        // Allow all Vercel deployment URLs (*.vercel.app)
+        if (/^https:\/\/.*\.vercel\.app$/.test(origin)) {
+            return callback(null, true);
+        }
+
+        // Allow local development on any port (localhost / 127.0.0.1)
+        if (/^http:\/\/localhost(:\d+)?$/.test(origin) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    exposedHeaders: ['Content-Disposition'],
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 
 // Middleware to parse JSON and URL-encoded bodies
 app.use(express.json({ limit: '10mb' }));
@@ -877,6 +928,74 @@ app.post('/api/auth/logout', (req, res) => {
     }
     if (token) {
         activeSessions.delete(token);
+    }
+    res.json({ success: true });
+});
+
+// Auth Set Password (for first-time login or password updates)
+app.post('/api/auth/set-password', (req, res) => {
+    try {
+        const { tempToken, newPassword } = req.body;
+        if (!newPassword || newPassword.length < 5) {
+            return res.status(400).json({ error: 'Password must be at least 5 characters long.' });
+        }
+
+        const authHeader = req.headers.authorization;
+        let token = null;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            token = authHeader.replace(/^Bearer\s+/i, '').trim();
+        } else if (tempToken) {
+            token = tempToken;
+        }
+
+        let user = getSessionUser(token);
+        const users = readJsonSafely(USERS_FILE, []);
+
+        if (!user && tempToken && pendingPasswordChanges.has(tempToken)) {
+            const pending = pendingPasswordChanges.get(tempToken);
+            if (pending && pending.expiresAt > Date.now()) {
+                user = users.find(u => u.id === pending.userId || u.email === pending.email);
+            }
+            pendingPasswordChanges.delete(tempToken);
+        }
+
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid or expired password reset session.' });
+        }
+
+        const userRecord = users.find(u => u.id === user.id || u.email === user.email);
+        if (!userRecord) {
+            return res.status(404).json({ error: 'User record not found.' });
+        }
+
+        const { salt, hash } = hashPassword(newPassword);
+        userRecord.salt = salt;
+        userRecord.passwordHash = hash;
+        delete userRecord.password;
+        userRecord.mustChangePassword = false;
+
+        writeJsonSafely(USERS_FILE, users);
+        syncCredentialsSummary(users);
+
+        const newSession = createSession(userRecord);
+        res.json({
+            success: true,
+            delivered: true,
+            message: 'Password updated successfully.',
+            token: newSession.token,
+            user: newSession.user
+        });
+    } catch (err) {
+        console.error('Error setting password:', err);
+        res.status(500).json({ error: 'Failed to update password.' });
+    }
+});
+
+// Audit logging endpoint for client actions
+app.post('/api/log-action', (req, res) => {
+    const { action, details } = req.body || {};
+    if (action) {
+        console.log(`[CLIENT ACTION] ${action}:`, details || '');
     }
     res.json({ success: true });
 });
@@ -1905,7 +2024,7 @@ app.get('/api/auth/smtp-status', (req, res) => {
 
 // Start the server (only if not running on serverless Vercel environment)
 if (!process.env.VERCEL) {
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
         const url = `http://localhost:${PORT}`;
         const diag = getSafeSmtpDiagnostics();
 

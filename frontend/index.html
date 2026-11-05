@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="vite-api-url" content="https://ncc-od-form-generator-1.onrender.com">
     <title>NCC OD Form Generator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -2086,6 +2087,60 @@
 </div>
 
 <script>
+// ============================================================
+// BACKEND API BASE URL CONFIGURATION
+// Supports VITE_API_URL env var, meta tag, and Render backend
+// ============================================================
+const BACKEND_API_BASE = (function() {
+    // 1. Check window object (injected by Vercel / Vite / custom script)
+    const win = typeof window !== 'undefined' ? window : {};
+    const envUrl = win.VITE_API_URL || win.BACKEND_API_URL;
+    if (envUrl && typeof envUrl === 'string') return envUrl.replace(/\/+$/, '');
+
+    // 2. Check HTML <meta name="vite-api-url" content="...">
+    if (typeof document !== 'undefined') {
+        const meta = document.querySelector('meta[name="vite-api-url"]') || document.querySelector('meta[name="backend-api-url"]');
+        if (meta && meta.content && !meta.content.startsWith('%')) {
+            return meta.content.replace(/\/+$/, '');
+        }
+    }
+
+    // 3. Localhost development
+    if (win.location && (win.location.hostname === 'localhost' || win.location.hostname === '127.0.0.1')) {
+        return win.location.port === '5173' ? 'http://localhost:3000' : '';
+    }
+
+    // 4. Default to Render production backend URL
+    return 'https://ncc-od-form-generator-1.onrender.com';
+})();
+
+(function() {
+    if (!BACKEND_API_BASE) return;
+    const _nativeFetch = window.fetch;
+    window.fetch = function(resource, init) {
+        init = init || {};
+        if (init.credentials === undefined) {
+            init.credentials = 'include';
+        }
+
+        if (typeof resource === 'string') {
+            if (resource.startsWith('/api/') || resource === '/api') {
+                resource = BACKEND_API_BASE + resource;
+            }
+        } else if (resource && typeof resource.url === 'string') {
+            const url = resource.url;
+            if (url.startsWith('/api/')) {
+                resource = new Request(BACKEND_API_BASE + url, Object.assign({}, init, {
+                    method: resource.method,
+                    headers: resource.headers,
+                    credentials: 'include'
+                }));
+            }
+        }
+        return _nativeFetch.call(this, resource, init);
+    };
+})();
+
 // ============================================================
 // AUTHENTICATION STATE & LOGIC
 // ============================================================

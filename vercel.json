@@ -1,19 +1,13 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "backend/server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/server.js"
+      "source": "/api/:match*",
+      "destination": "https://ncc-od-form-generator-1.onrender.com/api/:match*"
     },
     {
-      "src": "/(.*)",
-      "dest": "backend/server.js"
+      "source": "/((?!api|frontend).*)",
+      "destination": "/frontend/$1"
     }
   ]
 }
