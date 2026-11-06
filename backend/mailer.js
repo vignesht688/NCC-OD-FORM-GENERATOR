@@ -213,7 +213,6 @@ Website: NCC OD Form Generator
     return {
       delivered: true,
       devMode: true,
-      devOtp: otpCode,
       messageId: 'dev-mode-' + Date.now()
     };
   }
@@ -223,17 +222,16 @@ Website: NCC OD Form Generator
   if (!configured) {
     console.warn(`[EMAIL SERVICE NOTICE] SMTP credentials not set (${missing.join(', ')}). Logging verification OTP to console/Render logs.`);
     console.log('\n============================================================');
-    console.log(' 🔐 [OTP DISPATCH - SERVER LOG] NCC OD PORTAL VERIFICATION CODE');
+    console.log(' 🔐 [OTP DISPATCH - RENDER LOGS] NCC OD PORTAL VERIFICATION CODE');
     console.log('============================================================');
     console.log(` Recipient:    ${userEmail}`);
     console.log(` 6-Digit OTP:  ${otpCode}`);
-    console.log(` Status:       Printed to server logs (Add SMTP_USER & SMTP_PASS in Render for live emails)`);
+    console.log(` Status:       Delivered to Render Logs`);
     console.log(` Expires In:   10 minutes`);
     console.log('============================================================\n');
     return {
       delivered: true,
       devMode: true,
-      devOtp: otpCode,
       messageId: 'server-log-' + Date.now()
     };
   }
