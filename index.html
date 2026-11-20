@@ -1,0 +1,2959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCC OD Form Generator</title>
+    <meta name="description" content="NCC On Duty Form Generator — Sri Ramakrishna College of Arts & Science">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d2e;
+            --surface2: #22263a;
+            --border: #2e3250;
+            --accent: #4f7cff;
+            --accent-hover: #6b92ff;
+            --green: #22c55e;
+            --green-bg: rgba(34,197,94,0.12);
+            --red: #ef4444;
+            --red-bg: rgba(239,68,68,0.1);
+            --blue: #3b82f6;
+            --blue-bg: rgba(59,130,246,0.12);
+            --text: #e2e8f0;
+            --text2: #94a3b8;
+            --text3: #64748b;
+            --gold: #f59e0b;
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, #1e2340 0%, #151829 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-shrink: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        .header-brand { display: flex; align-items: center; gap: 1rem; }
+        .ncc-badge {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1rem; color: white;
+            box-shadow: 0 4px 12px rgba(79,124,255,0.4);
+        }
+        header h1 { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+        header p { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+
+        .header-status {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.78rem; color: var(--text2);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.35rem 0.9rem;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+        .status-dot.offline { background: var(--red); }
+
+        /* MAIN LAYOUT */
+        main {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* EVENT BAR */
+        .event-bar {
+            display: flex;
+            gap: 1.25rem;
+            background: linear-gradient(135deg, #151829 0%, #1a1d2e 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 0.5rem 2rem;
+            align-items: flex-end;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            z-index: 99;
+        }
+        .event-bar .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        /* LEFT PANEL */
+        .left-panel {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-section {
+            padding: 0.85rem 1.1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .panel-section:last-child { border-bottom: none; }
+
+        .section-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        label { font-size: 0.75rem; color: var(--text2); display: block; margin-bottom: 0.25rem; }
+
+        input[type="date"], input[type="text"], textarea, select {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 0.45rem 0.65rem;
+            font-size: 0.82rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        input[type="date"]:focus, input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(79,124,255,0.15);
+        }
+        textarea { resize: vertical; min-height: 48px; line-height: 1.3; }
+
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+        /* CADET LIST */
+        .cadet-list-wrap {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .cadet-list-header {
+            padding: 0.75rem 1.1rem 0.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: var(--surface);
+        }
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+        .search-box i {
+            position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+            color: var(--text3); font-size: 0.8rem; pointer-events: none;
+        }
+        .search-box input {
+            padding-left: 2rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .bulk-btns { display: flex; gap: 0.3rem; }
+        .btn-bulk {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.3rem 0.5rem;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text2);
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+        }
+        .btn-bulk:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        .btn-bulk.select-all:hover { background: var(--blue); border-color: var(--blue); color: white; }
+        .btn-bulk.deselect:hover { background: var(--surface2); border-color: var(--red); color: var(--red); }
+
+        .cadet-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.4rem 0;
+        }
+        .cadet-list::-webkit-scrollbar { width: 5px; }
+        .cadet-list::-webkit-scrollbar-track { background: transparent; }
+        .cadet-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .cadet-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1.1rem;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .cadet-row:hover { background: var(--surface2); }
+        .cadet-row.selected { 
+            background: rgba(79, 124, 255, 0.22); 
+            border-left-color: var(--accent);
+        }
+        .cadet-row.selected .cadet-name { color: #ffffff; font-weight: 600; }
+
+        .cadet-checkbox {
+            width: 16px; height: 16px;
+            border-radius: 4px;
+            border: 2px solid var(--border);
+            background: var(--surface2);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+        .cadet-row.selected .cadet-checkbox {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+        .cadet-checkbox i { font-size: 0.55rem; color: white; display: none; }
+        .cadet-row.selected .cadet-checkbox i { display: block; }
+
+        .cadet-info { flex: 1; min-width: 0; }
+        .cadet-name { font-size: 0.8rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cadet-meta { font-size: 0.7rem; color: var(--text3); margin-top: 1px; }
+
+        .sno { font-size: 0.7rem; color: var(--text3); width: 18px; text-align: right; flex-shrink: 0; }
+
+        .empty-list {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text3);
+            font-size: 0.85rem;
+        }
+
+        .cadet-action-btn:hover.edit { color: var(--accent-hover) !important; }
+        .cadet-action-btn:hover.delete { color: var(--red) !important; }
+
+        /* RIGHT PANEL — PREVIEW */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            background: var(--surface);
+        }
+
+        .preview-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text2);
+        }
+
+        .od-count-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(79,124,255,0.15);
+            border: 1px solid rgba(79,124,255,0.3);
+            border-radius: 20px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.78rem;
+            color: var(--accent-hover);
+            font-weight: 600;
+        }
+
+        .btn-download {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.65rem 1.4rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(79,124,255,0.35);
+        }
+        .btn-download:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,124,255,0.45); }
+        .btn-download:active { transform: translateY(0); }
+        .btn-download:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-download.loading i { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .btn-quick-gen {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.65rem 1.4rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(34,197,94,0.35);
+        }
+        .btn-quick-gen:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(34,197,94,0.45); }
+        .btn-quick-gen:active { transform: translateY(0); }
+        .btn-quick-gen:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-quick-gen.loading i { animation: spin 1s linear infinite; }
+
+        /* PAPER PREVIEW */
+        .preview-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .preview-body::-webkit-scrollbar { width: 6px; }
+        .preview-body::-webkit-scrollbar-track { background: transparent; }
+        .preview-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        .paper {
+            background: white;
+            color: #1a1a1a;
+            width: 100%;
+            max-width: 680px;
+            min-height: auto;
+            border-radius: 6px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            padding: 1.5rem 1.5rem 1.25rem;
+            font-family: 'Cambria', Georgia, serif;
+            transform-origin: top center;
+            transition: transform 0.15s ease-out;
+        }
+
+        .paper-college {
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+        .paper-unit {
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            text-align: center;
+            margin-bottom: 2px;
+        }
+        .paper-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            text-align: center;
+            text-decoration: underline;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .paper-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
+        }
+        .paper-table th, .paper-table td {
+            border: 1px solid #333;
+            padding: 0.25rem 0.35rem;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .paper-table th {
+            background: #f0f0f0;
+            font-weight: 700;
+            font-size: 0.68rem;
+        }
+        .paper-table td.left { text-align: left; padding-left: 0.4rem; }
+        .paper-table .merged-td { vertical-align: middle; }
+
+        .paper-sigs {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4.5rem;
+            font-family: 'Georgia', serif;
+            font-size: 0.75rem;
+        }
+
+        /* EMPTY STATE */
+        .empty-paper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.25rem;
+            min-height: 380px;
+            color: var(--text3);
+            text-align: center;
+            padding: 2rem;
+        }
+        .empty-paper i {
+            font-size: 4rem;
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 12px rgba(79,124,255,0.3));
+            margin-bottom: 0.5rem;
+            opacity: 0.75;
+        }
+        .empty-paper p {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text2);
+            max-width: 280px;
+            line-height: 1.5;
+            opacity: 0.85;
+        }
+
+        /* TOAST */
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.85rem;
+            color: var(--text);
+            box-shadow: var(--shadow);
+            transform: translateY(6rem);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            min-width: 220px;
+        }
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.success { border-color: rgba(34,197,94,0.4); }
+        #toast.error { border-color: rgba(239,68,68,0.4); }
+
+        /* RESPONSIVE */
+        @media (max-width: 800px) {
+            main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: auto; }
+            .left-panel { max-height: 50vh; }
+        }
+
+        /* CUSTOM CONFIRM MODAL */
+        #confirm-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        #confirm-modal-overlay.active { display: flex; }
+        #confirm-modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 2rem 1.5rem;
+            width: min(420px, 90vw);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            animation: modalPop 0.2s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.85); opacity: 0; }
+            to   { transform: scale(1);    opacity: 1; }
+        }
+        #confirm-modal .modal-icon {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: rgba(239,68,68,0.15);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.25rem;
+            font-size: 1.4rem; color: #ef4444;
+        }
+        #confirm-modal h3 {
+            font-size: 1.05rem; font-weight: 700;
+            color: var(--text); text-align: center; margin: 0 0 0.5rem;
+        }
+        #confirm-modal p {
+            font-size: 0.85rem; color: var(--text2);
+            text-align: center; margin: 0 0 1.75rem; line-height: 1.55;
+        }
+        #confirm-modal .modal-actions {
+            display: flex; gap: 0.75rem;
+        }
+        #confirm-modal .btn-modal-cancel {
+            flex: 1; padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text2); font-size: 0.875rem;
+            cursor: pointer; font-weight: 500;
+            transition: background 0.15s;
+        }
+        #confirm-modal .btn-modal-cancel:hover { background: var(--border); }
+        #confirm-modal .btn-modal-confirm {
+            flex: 1; padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff; font-size: 0.875rem;
+            cursor: pointer; font-weight: 600;
+            transition: opacity 0.15s;
+        }
+        #confirm-modal .btn-modal-confirm:hover { opacity: 0.88; }
+
+        /* ===== AI Voice Microphone Styles ===== */
+        .btn-ai-mic {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.65rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            border: 1px solid rgba(236, 72, 153, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(168, 85, 247, 0.3);
+            white-space: nowrap;
+            user-select: none;
+        }
+        .btn-ai-mic:hover {
+            background: linear-gradient(135deg, #9333ea, #db2777);
+            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.45);
+            transform: translateY(-1px);
+        }
+        .btn-ai-mic.listening {
+            background: linear-gradient(135deg, #ef4444, #f43f5e) !important;
+            border-color: #f87171 !important;
+            box-shadow: 0 0 16px rgba(239, 68, 68, 0.65) !important;
+            animation: micPulseRing 1.5s infinite;
+        }
+        @keyframes micPulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .header-ai-mic-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            border: 1px solid rgba(236, 72, 153, 0.4);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);
+            user-select: none;
+        }
+        .header-ai-mic-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(236, 72, 153, 0.45);
+        }
+        .header-ai-mic-btn.listening {
+            background: linear-gradient(135deg, #ef4444, #f43f5e) !important;
+            border-color: #f87171 !important;
+            animation: micPulseRing 1.5s infinite;
+        }
+
+        /* AI Voice HUD */
+        .ai-voice-hud {
+            background: linear-gradient(135deg, rgba(22, 26, 45, 0.98), rgba(28, 33, 56, 0.98));
+            border-bottom: 1px solid rgba(168, 85, 247, 0.35);
+            padding: 0.55rem 1.1rem;
+            display: none;
+            flex-direction: column;
+            gap: 0.45rem;
+            position: relative;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            transition: all 0.2s ease;
+        }
+        .ai-voice-hud.active {
+            display: flex;
+        }
+
+        .ai-hud-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        .ai-hud-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.74rem;
+            color: var(--text2);
+            min-width: 0;
+        }
+        .ai-status-label {
+            font-weight: 600;
+            color: #f43f5e;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ai-status-label.idle {
+            color: var(--text3);
+        }
+        .ai-status-label.matched {
+            color: #22c55e;
+        }
+
+        /* Sound waves animation */
+        .ai-waves {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+        .ai-wave-bar {
+            width: 3px;
+            height: 4px;
+            background: #ec4899;
+            border-radius: 2px;
+            transition: height 0.15s;
+        }
+        .ai-waves.active .ai-wave-bar {
+            animation: waveAnim 0.7s ease-in-out infinite alternate;
+        }
+        .ai-waves.active .ai-wave-bar:nth-child(1) { animation-delay: 0.0s; background: #ec4899; }
+        .ai-waves.active .ai-wave-bar:nth-child(2) { animation-delay: 0.15s; background: #a855f7; }
+        .ai-waves.active .ai-wave-bar:nth-child(3) { animation-delay: 0.3s; background: #6366f1; }
+        .ai-waves.active .ai-wave-bar:nth-child(4) { animation-delay: 0.45s; background: #38bdf8; }
+        .ai-waves.active .ai-wave-bar:nth-child(5) { animation-delay: 0.6s; background: #22c55e; }
+        @keyframes waveAnim {
+            0% { height: 4px; }
+            100% { height: 15px; }
+        }
+
+        .ai-hud-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            flex-shrink: 0;
+        }
+        .ai-icon-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            font-size: 0.68rem;
+            font-weight: 500;
+            padding: 0.22rem 0.45rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.15s;
+        }
+        .ai-icon-btn:hover {
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .ai-icon-btn.active {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: #a855f7;
+            color: #c084fc;
+        }
+        .ai-icon-btn.close-btn:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .ai-transcript-box {
+            background: rgba(15, 17, 23, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 6px;
+            padding: 0.35rem 0.6rem;
+            font-size: 0.73rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 28px;
+        }
+        .ai-transcript-box i {
+            color: #ec4899;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+        .ai-transcript-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: monospace;
+        }
+
+        .ai-match-card {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            border-radius: 6px;
+            padding: 0.35rem 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeIn 0.2s ease;
+        }
+        .ai-match-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.25);
+            color: #22c55e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+        .ai-match-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .ai-match-name {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .ai-match-sub {
+            font-size: 0.68rem;
+            color: #86efac;
+        }
+
+        /* Voice Row Flash */
+        @keyframes rowFlashVoice {
+            0% { background: rgba(236, 72, 153, 0.6); transform: scale(1.01); }
+            50% { background: rgba(34, 197, 94, 0.5); }
+            100% { background: rgba(79, 124, 255, 0.22); transform: scale(1); }
+        }
+        .cadet-row.voice-matched {
+            animation: rowFlashVoice 1.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <div class="ncc-badge">NCC</div>
+        <div>
+            <h1>NCC OD Form Generator</h1>
+            <p>Sri Ramakrishna College of Arts &amp; Science</p>
+        </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:0.65rem;">
+        <button class="header-ai-mic-btn" id="header-ai-mic-btn" onclick="toggleAIMic()" title="AI Voice Mic: Pronounce Name or Reg No to add to OD Form">
+            <i class="fa-solid fa-microphone"></i>
+            <span>AI Voice Mic</span>
+        </button>
+        <div class="header-status" id="conn-status">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="status-text">Connecting...</span>
+        </div>
+    </div>
+</header>
+
+<div class="event-bar">
+    <div style="flex: 1;">
+        <label for="od-date">Date</label>
+        <input type="date" id="od-date">
+    </div>
+    <div style="flex: 1.8;">
+        <label for="od-particulars">Particulars (Event Name)</label>
+        <input type="text" id="od-particulars" placeholder="e.g. WORK AT UNIT, PARADE…" autocomplete="off">
+    </div>
+    <div style="flex: 3;">
+        <label for="od-reason">On Duty Clause</label>
+        <textarea id="od-reason" rows="1" placeholder="Auto-filled when you enter a date…" style="min-height:36px; resize:none;"></textarea>
+    </div>
+</div>
+
+<main>
+    <!-- ===== LEFT PANEL ===== -->
+    <div class="left-panel">
+
+
+        <!-- Document Settings (Collapsible) -->
+        <div class="panel-section accordion-section" style="padding: 0.5rem 1.1rem; border-bottom: 1px solid var(--border);">
+            <div class="accordion-header" onclick="toggleAccordion('settings-acc')" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 0.4rem 0; user-select: none;">
+                <span style="font-size:0.75rem; font-weight:600; color:var(--text2);"><i class="fa-solid fa-gear" style="margin-right:0.4rem;"></i>Document Settings</span>
+                <i class="fa-solid fa-chevron-down accordion-icon" id="settings-acc-icon" style="font-size:0.7rem; color:var(--text3); transition: transform 0.2s;"></i>
+            </div>
+            <div class="accordion-content" id="settings-acc-content" style="display:none; padding: 0.5rem 0 0.25rem;">
+                <label for="config-college" style="font-size:0.7rem;">College Name</label>
+                <input type="text" id="config-college" style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;">
+                
+                <label for="config-unit" style="font-size:0.7rem;">Unit Name</label>
+                <input type="text" id="config-unit" style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;">
+                
+                <label for="config-title" style="font-size:0.7rem;">Form Title</label>
+                <input type="text" id="config-title" style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;">
+
+                <div class="input-row">
+                    <div>
+                        <label for="config-sig-left" style="font-size:0.7rem;">Left Signature</label>
+                        <input type="text" id="config-sig-left" style="font-size:0.75rem; padding: 0.35rem 0.5rem;">
+                    </div>
+                    <div>
+                        <label for="config-sig-right" style="font-size:0.7rem;">Right Signature</label>
+                        <input type="text" id="config-sig-right" style="font-size:0.75rem; padding: 0.35rem 0.5rem;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Cadets (Collapsible) -->
+        <div class="panel-section accordion-section" style="padding: 0.5rem 1.1rem; border-bottom: 1px solid var(--border);">
+            <div class="accordion-header" onclick="toggleAccordion('manage-acc')" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding: 0.4rem 0; user-select: none;">
+                <span style="font-size:0.75rem; font-weight:600; color:var(--text2);"><i class="fa-solid fa-users-gear" style="margin-right:0.4rem;"></i>Manage Cadets</span>
+                <i class="fa-solid fa-chevron-down accordion-icon" id="manage-acc-icon" style="font-size:0.7rem; color:var(--text3); transition: transform 0.2s;"></i>
+            </div>
+            <div class="accordion-content" id="manage-acc-content" style="display:none; padding: 0.5rem 0 0.25rem;">
+                <form id="cadet-form" onsubmit="handleCadetSubmit(event)">
+                    <input type="hidden" id="edit-cadet-original-reg">
+                    
+                    <label for="cadet-name" style="font-size:0.7rem;">Cadet Name *</label>
+                    <input type="text" id="cadet-name" required style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;" placeholder="e.g. AADHIN S">
+                    
+                    <label for="cadet-reg" style="font-size:0.7rem;">Register No</label>
+                    <input type="text" id="cadet-reg" style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;" placeholder="e.g. 24104070">
+                    
+                    <label for="cadet-dept" style="font-size:0.7rem;">Department</label>
+                    <input type="text" id="cadet-dept" style="font-size:0.75rem; padding: 0.35rem 0.5rem; margin-bottom: 0.5rem;" placeholder="e.g. BCOM CA">
+                    
+                    <div style="margin-bottom:0.6rem;">
+                        <label for="cadet-shift" style="font-size:0.7rem;">Shift</label>
+                        <select id="cadet-shift" style="width:100%; font-size:0.75rem; padding: 0.35rem 0.5rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius:8px;">
+                            <option value="">None</option>
+                            <option value="SHIFT-I">Shift I</option>
+                            <option value="SHIFT-II">Shift II</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display:flex; gap:0.4rem;">
+                        <button type="submit" id="btn-save-cadet" class="btn-bulk" style="flex:2; padding:0.45rem; background:var(--accent); color:white; border-color:var(--accent);">Add Cadet</button>
+                        <button type="button" id="btn-cancel-edit" onclick="cancelCadetEdit()" class="btn-bulk" style="flex:1; padding:0.45rem; display:none;">Cancel</button>
+                    </div>
+                </form>
+
+                <!-- Database Archive of Deleted Cadets -->
+                <div style="margin-top:0.8rem; border-top:1px dashed var(--border); padding-top:0.6rem;">
+                    <div onclick="toggleArchiveList()" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-size:0.72rem; color:var(--text2); padding:0.2rem 0; user-select:none;">
+                        <span style="display:flex; align-items:center; gap:0.35rem;">
+                            <i class="fa-solid fa-box-archive" style="color:#f59e0b;"></i>
+                            Database Archive (<span id="archive-count" style="font-weight:700; color:var(--accent);">0</span>)
+                        </span>
+                        <i class="fa-solid fa-chevron-down" id="archive-toggle-icon" style="font-size:0.65rem; color:var(--text3); transition:transform 0.2s;"></i>
+                    </div>
+                    <div id="archive-list-wrap" style="display:none; margin-top:0.5rem; max-height:170px; overflow-y:auto; font-size:0.7rem; border:1px solid var(--border); border-radius:6px; background:var(--surface2); padding:0.45rem;">
+                        <div id="archive-list-items" style="display:flex; flex-direction:column; gap:0.35rem;">
+                            <!-- Populated dynamically from database/deleted_cadets.json -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cadet Search + Bulk -->
+        <div class="cadet-list-wrap">
+            <div class="cadet-list-header">
+                <div style="display:flex; gap:0.4rem; width:100%; align-items:center;">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="search-input" placeholder="Search cadets…">
+                    </div>
+                    <button class="btn-ai-mic" id="btn-ai-mic" onclick="toggleAIMic()" title="AI Voice Mic: Pronounce Name or Reg No to add to OD Form">
+                        <i class="fa-solid fa-microphone" id="ai-mic-icon"></i>
+                        <span class="mic-btn-text">AI Mic</span>
+                    </button>
+                    <div class="bulk-btns">
+                        <button class="btn-bulk select-all" onclick="selectAll()">All</button>
+                        <button class="btn-bulk deselect" onclick="deselectAll()">Clear</button>
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.3rem; width:100%;">
+                    <select id="filter-shift" style="flex:1; padding: 0.25rem 0.3rem; border-radius: 6px; font-size: 0.72rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text);">
+                        <option value="">Shifts</option>
+                        <option value="SHIFT-I">Shift I</option>
+                        <option value="SHIFT-II">Shift II</option>
+                    </select>
+                    <select id="filter-year" style="flex:1; padding: 0.25rem 0.3rem; border-radius: 6px; font-size: 0.72rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text);">
+                        <option value="">Years</option>
+                        <option value="I">I Year</option>
+                        <option value="II">II Year</option>
+                        <option value="III">III Year</option>
+                    </select>
+                    <select id="filter-dept" style="flex:1.2; padding: 0.25rem 0.3rem; border-radius: 6px; font-size: 0.72rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text);">
+                        <option value="">Depts</option>
+                    </select>
+                    <button class="btn-bulk" id="sort-toggle" onclick="toggleSort()" title="Sort A-Z / Database Order" style="padding: 0.25rem 0.4rem; font-size: 0.72rem;">
+                        <i class="fa-solid fa-sort-alpha-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Voice Assistant HUD -->
+            <div class="ai-voice-hud" id="ai-voice-hud">
+                <div class="ai-hud-top">
+                    <div class="ai-hud-status">
+                        <div class="ai-waves" id="ai-waves">
+                            <span class="ai-wave-bar"></span>
+                            <span class="ai-wave-bar"></span>
+                            <span class="ai-wave-bar"></span>
+                            <span class="ai-wave-bar"></span>
+                            <span class="ai-wave-bar"></span>
+                        </div>
+                        <span class="ai-status-label" id="ai-status-label">Listening for Name or Reg No...</span>
+                    </div>
+                    <div class="ai-hud-actions">
+                        <button class="ai-icon-btn active" id="ai-btn-continuous" onclick="toggleContinuousMode()" title="Toggle Roll Call Mode">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                            <span id="ai-continuous-label">Roll Call</span>
+                        </button>
+                        <button class="ai-icon-btn active" id="ai-btn-sound" onclick="toggleSoundFeedback()" title="Toggle Audio Feedback">
+                            <i class="fa-solid fa-volume-high" id="ai-sound-icon"></i>
+                        </button>
+                        <button class="ai-icon-btn" onclick="openVoiceHelpModal()" title="Voice Commands Guide">
+                            <i class="fa-solid fa-circle-question"></i>
+                        </button>
+                        <button class="ai-icon-btn close-btn" onclick="stopAIMic()" title="Close Mic">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="ai-transcript-box" id="ai-transcript-box">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                    <span class="ai-transcript-text" id="ai-transcript-text">Say a cadet's name or reg number...</span>
+                </div>
+                <div class="ai-match-card" id="ai-match-card" style="display:none;">
+                    <div class="ai-match-icon"><i class="fa-solid fa-user-check"></i></div>
+                    <div class="ai-match-info">
+                        <div class="ai-match-name" id="ai-match-name">AKASH S</div>
+                        <div class="ai-match-sub" id="ai-match-sub">24104070 · Added to OD Form</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cadet list -->
+            <div class="cadet-list" id="cadet-list">
+                <div class="empty-list">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    <p>Loading cadets...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== RIGHT PANEL ===== -->
+    <div class="right-panel">
+
+        <div class="preview-header" style="flex-wrap: wrap; gap: 0.6rem; padding: 0.6rem 1.1rem;">
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+                <span class="preview-title" style="display:flex; align-items:center; gap:0.4rem; font-weight:600; color:var(--text2);">
+                    <i class="fa-solid fa-eye" style="opacity:0.6"></i>Live Preview
+                </span>
+                <span class="zoom-wrap" style="display:flex; align-items:center; gap:0.25rem; font-size:0.72rem; margin-left:0.4rem;">
+                    <label for="preview-zoom" style="margin-bottom:0; color:var(--text3); font-size:0.72rem;">Zoom:</label>
+                    <select id="preview-zoom" onchange="applyZoom(this.value)" style="padding:0.15rem 0.3rem; font-size:0.72rem; border-radius:4px; background:var(--surface2); border:1px solid var(--border); color:var(--text); outline:none;">
+                        <option value="5">500%</option>
+                        <option value="2.5">250%</option>
+                        <option value="2">200%</option>
+                        <option value="1.5">150%</option>
+                        <option value="1" selected>100%</option>
+                        <option value="0.9">90%</option>
+                        <option value="0.8">80%</option>
+                        <option value="0.7">70%</option>
+                        <option value="0.6">60%</option>
+                    </select>
+                </span>
+            </div>
+            
+            <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-left:auto;">
+                <span class="od-count-badge" id="od-count-badge" style="padding:0.25rem 0.6rem; font-size:0.75rem;">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span id="od-count-text">0 cadets selected</span>
+                </span>
+                
+                <button class="btn-download" id="btn-browser-download" disabled onclick="downloadODFormBrowser()" style="padding: 0.45rem 0.9rem; font-size: 0.78rem; border-radius:8px; background: linear-gradient(135deg, var(--accent), #3b82f6); box-shadow: 0 2px 8px rgba(79,124,255,0.25);">
+                    <i class="fa-solid fa-download" id="btn-browser-icon"></i>
+                    Download (.docx)
+                </button>
+                
+                <button class="btn-download" id="btn-download" disabled onclick="generateODForm()" style="padding: 0.45rem 0.9rem; font-size: 0.78rem; border-radius:8px; background: linear-gradient(135deg, #7c3aed, #9333ea); box-shadow: 0 2px 8px rgba(124,58,237,0.25);">
+                    <i class="fa-solid fa-file-word" id="btn-icon"></i>
+                    Open in Word
+                </button>
+                
+                <button class="btn-quick-gen" id="btn-quick-gen" onclick="quickGenerateAll()" style="padding: 0.45rem 0.9rem; font-size: 0.78rem; border-radius:8px; background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 2px 8px rgba(34,197,94,0.25);">
+                    <i class="fa-solid fa-bolt" id="btn-quick-icon"></i>
+                    Quick Gen
+                </button>
+            </div>
+        </div>
+
+        <div class="preview-body">
+            <div id="paper-container" style="width: 100%; display: flex; justify-content: center; overflow: hidden;">
+                <div class="paper" id="paper">
+                    <div class="empty-paper" id="preview-empty">
+                        <i class="fa-solid fa-file-word"></i>
+                        <p>Select cadets on the left to preview the OD Form</p>
+                    </div>
+                    <div id="preview-content" style="display:none;">
+                        <div class="paper-college" id="pr-college">SRI RAMAKRISHNA COLLEGE OF ARTS &amp; SCIENCE (AUTONOMOUS)</div>
+                        <div class="paper-unit" id="pr-unit">NATIONAL CADET CORPS</div>
+                        <div class="paper-title" id="pr-title">OD FORM</div>
+                        <table class="paper-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:4%">S.No</th>
+                                    <th style="width:10%">Reg No</th>
+                                    <th style="width:20%">Name</th>
+                                    <th style="width:18%">Department</th>
+                                    <th style="width:6%">Shift</th>
+                                    <th style="width:20%">Particulars</th>
+                                    <th style="width:22%">On Duty</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-tbody"></tbody>
+                        </table>
+                        <div class="paper-sigs">
+                            <span id="pr-sig-left">NCC Officer</span>
+                            <span id="pr-sig-right">Principal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Custom Confirm Modal -->
+<div id="confirm-modal-overlay">
+    <div id="confirm-modal">
+        <div class="modal-icon" style="background:rgba(245,158,11,0.15); color:#f59e0b;"><i class="fa-solid fa-box-archive"></i></div>
+        <h3 id="confirm-modal-title">Remove Cadet</h3>
+        <p id="confirm-modal-msg">Remove this cadet from active directory?</p>
+        <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.25); border-radius:8px; padding:0.6rem 0.75rem; margin:0.8rem 0; font-size:0.75rem; color:var(--text2); display:flex; gap:0.5rem; align-items:flex-start; text-align:left;">
+            <i class="fa-solid fa-shield-halved" style="color:#3b82f6; margin-top:2px; flex-shrink:0;"></i>
+            <span><strong>Database Protection:</strong> Cadets are <u>never permanently lost</u>. The cadet will be preserved in <code>database/deleted_cadets.json</code> and can be restored at any time.</span>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <button class="btn-modal-confirm" style="background:#f59e0b; border-color:#d97706; color:#fff;" onclick="confirmDeleteCadet()">Remove & Archive to DB</button>
+        </div>
+    </div>
+</div>
+
+<!-- Voice Help & Test Modal -->
+<div id="voice-help-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); z-index:1000; align-items:center; justify-content:center; padding:1rem;">
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; width:min(540px, 95vw); max-height:88vh; overflow-y:auto; padding:1.5rem; box-shadow:var(--shadow);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+                <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, #ec4899, #8b5cf6); display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 2px 10px rgba(236,72,153,0.35);">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:0.95rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+                        AI Voice Form Assistant
+                        <span style="font-size:0.62rem; padding:0.15rem 0.45rem; border-radius:10px; background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3); font-weight:600;">CadetAssist Active</span>
+                    </h3>
+                    <p style="font-size:0.72rem; color:var(--text3);">Pronounce cadet names or register numbers to auto-write OD Form · Project: <code style="color:#a78bfa;">p-3ce6a60b</code></p>
+                </div>
+            </div>
+            <button onclick="closeVoiceHelpModal()" style="background:none; border:none; color:var(--text3); font-size:1.1rem; cursor:pointer; padding:0.2rem;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:0.85rem; margin-bottom:1rem;">
+            <div style="font-size:0.72rem; font-weight:700; color:var(--text2); text-transform:uppercase; margin-bottom:0.5rem; letter-spacing:0.05em;"><i class="fa-solid fa-bullhorn" style="margin-right:0.4rem; color:#ec4899;"></i>Voice Pronunciation & Commands</div>
+            <ul style="font-size:0.76rem; color:var(--text2); line-height:1.65; padding-left:1.2rem; margin:0;">
+                <li><strong>Pronounce Name:</strong> Say <code style="color:#f472b6; background:rgba(244,114,182,0.1); padding:1px 4px; border-radius:4px;">"Aadhin"</code>, <code style="color:#f472b6; background:rgba(244,114,182,0.1); padding:1px 4px; border-radius:4px;">"Akash"</code>, <code style="color:#f472b6; background:rgba(244,114,182,0.1); padding:1px 4px; border-radius:4px;">"Balavaitheeswar"</code>, or <code style="color:#f472b6; background:rgba(244,114,182,0.1); padding:1px 4px; border-radius:4px;">"Jaishree"</code></li>
+                <li><strong>Pronounce Reg No:</strong> Say <code style="color:#38bdf8; background:rgba(56,189,248,0.1); padding:1px 4px; border-radius:4px;">"24104070"</code> or <code style="color:#38bdf8; background:rgba(56,189,248,0.1); padding:1px 4px; border-radius:4px;">"twenty four ten forty seventy"</code> or <code style="color:#38bdf8; background:rgba(56,189,248,0.1); padding:1px 4px; border-radius:4px;">"two four one zero four zero seven zero"</code></li>
+                <li><strong>Roll Call / Multi-Cadet:</strong> Say <code style="color:#a78bfa; background:rgba(167,139,250,0.1); padding:1px 4px; border-radius:4px;">"Akash, Anbuselvam, and Balavaitheeswar"</code></li>
+                <li><strong>Uncheck from Form:</strong> Say <code style="color:#f87171; background:rgba(248,113,113,0.1); padding:1px 4px; border-radius:4px;">"Uncheck Akash"</code> or <code style="color:#f87171; background:rgba(248,113,113,0.1); padding:1px 4px; border-radius:4px;">"Deselect 24104070"</code></li>
+                <li><strong>Bulk Actions:</strong> Say <code style="color:#f59e0b; background:rgba(245,158,11,0.1); padding:1px 4px; border-radius:4px;">"Select all"</code> or <code style="color:#f59e0b; background:rgba(245,158,11,0.1); padding:1px 4px; border-radius:4px;">"Clear all"</code></li>
+                <li><strong>Download Form:</strong> Say <code style="color:#34d399; background:rgba(52,211,153,0.1); padding:1px 4px; border-radius:4px;">"Download OD Form"</code></li>
+            </ul>
+            <div style="margin-top:0.6rem; padding:0.4rem 0.6rem; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); border-radius:6px; font-size:0.72rem; color:var(--text2); display:flex; gap:0.4rem; align-items:center;">
+                <i class="fa-solid fa-lock" style="color:#10b981;"></i>
+                <span><strong>Strict Directory Security:</strong> Voice mode has NO permission to add or delete cadets. It can strictly ONLY select or uncheck existing directory cadets for the OD form.</span>
+            </div>
+        </div>
+
+        <div style="background:rgba(79,124,255,0.08); border:1px solid rgba(79,124,255,0.25); border-radius:8px; padding:0.85rem; margin-bottom:1rem;">
+            <div style="font-size:0.72rem; font-weight:700; color:#93c5fd; margin-bottom:0.4rem;"><i class="fa-solid fa-keyboard" style="margin-right:0.4rem;"></i>Test Voice Command (Simulate Speech)</div>
+            <div style="display:flex; gap:0.4rem;">
+                <input type="text" id="ai-voice-test-input" placeholder="e.g. Akash or 24104070 or Remove Aadhin" style="flex:1; font-size:0.75rem; padding:0.4rem 0.6rem; border-radius:6px; background:var(--surface); border:1px solid var(--border); color:var(--text);" onkeydown="if(event.key==='Enter') executeSimulatedVoice()">
+                <button onclick="executeSimulatedVoice()" style="background:var(--accent); color:#fff; border:none; border-radius:6px; padding:0.4rem 0.8rem; font-size:0.74rem; font-weight:600; cursor:pointer;">Run Test</button>
+            </div>
+            <div id="ai-voice-test-result" style="font-size:0.72rem; color:var(--text2); margin-top:0.4rem; min-height:16px;"></div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end;">
+            <button onclick="closeVoiceHelpModal()" class="btn-bulk" style="padding:0.4rem 1.1rem; background:var(--surface2);">Close</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast">
+    <i class="fa-solid fa-circle-check" id="toast-icon"></i>
+    <span id="toast-msg">Message</span>
+</div>
+
+<script>
+// Backend API Base Configuration for Vercel -> Render cross-origin deployment
+const BACKEND_API_BASE = (function() {
+    if (typeof window === 'undefined') return '';
+    if (window.BACKEND_API_URL) return window.BACKEND_API_URL;
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return '';
+    }
+    return 'https://ncc-od-form-generator-1.onrender.com';
+})();
+
+if (typeof window !== 'undefined' && BACKEND_API_BASE && !window._fetchIntercepted) {
+    window._fetchIntercepted = true;
+    const _origFetch = window.fetch;
+    window.fetch = function(resource, init) {
+        if (typeof resource === 'string' && (resource.startsWith('/api/') || resource.startsWith('/download/'))) {
+            resource = BACKEND_API_BASE + resource;
+        }
+        return _origFetch.call(this, resource, init);
+    };
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let cadets = [];
+let selectedKeys = new Set();
+let searchQuery = '';
+let isSortedAZ = false;
+
+// Doc config (loaded from server or defaults)
+const docConfig = {
+    college: 'SRI RAMAKRISHNA COLLEGE OF ARTS & SCIENCE (AUTONOMOUS)',
+    unit: 'NATIONAL CADET CORPS',
+    formType: 'OD FORM',
+    sigLeft: 'NCC Officer',
+    sigRight: 'Principal'
+};
+
+// ============================================================
+// CUSTOM CONFIRM MODAL
+// ============================================================
+let _modalPendingIndex = null;
+
+function showDeleteModal(idx) {
+    const cadet = cadets[idx];
+    if (!cadet) { showToast('❌ Cadet not found.', 'error'); return; }
+    _modalPendingIndex = idx;
+    document.getElementById('confirm-modal-title').textContent = 'Remove Cadet';
+    document.getElementById('confirm-modal-msg').innerHTML =
+        `Remove "<strong>${cadet.name}</strong>" (${cadet.register_no || 'No Reg'}) from active directory?`;
+    document.getElementById('confirm-modal-overlay').classList.add('active');
+}
+
+function closeDeleteModal() {
+    _modalPendingIndex = null;
+    document.getElementById('confirm-modal-overlay').classList.remove('active');
+}
+
+async function confirmDeleteCadet() {
+    const index = _modalPendingIndex;
+    closeDeleteModal();
+    if (index === null || index < 0 || index >= cadets.length) return;
+
+    const cadet = cadets[index];
+    const key = getCadetKey(cadet);
+
+    // Call server to safely archive in database/deleted_cadets.json
+    try {
+        await fetch('/api/cadets/manual-delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cadet, reason: 'Manually removed via directory UI' })
+        });
+    } catch (e) {
+        console.warn('Manual delete archive call failed, relying on array sync fallback', e);
+    }
+
+    cadets.splice(index, 1);
+    selectedKeys.delete(key);
+    saveSelectedKeys();
+
+    localStorage.setItem('ncc_cadets_backup', JSON.stringify(cadets));
+    const synced = await saveCadetsToServer();
+    showToast(`📁 "${cadet.name}" safely stored in database archive!`, 'success');
+
+    populateDepartmentFilter();
+    renderList();
+    loadDeletedCadetsArchive();
+}
+
+// Load archived deleted cadets from database/deleted_cadets.json
+async function loadDeletedCadetsArchive() {
+    try {
+        const res = await fetch('/api/cadets/deleted');
+        if (!res.ok) return;
+        const deleted = await res.json();
+        const badge = document.getElementById('archive-count');
+        if (badge) badge.textContent = deleted.length;
+
+        const container = document.getElementById('archive-list-items');
+        if (!container) return;
+
+        if (deleted.length === 0) {
+            container.innerHTML = '<div style="color:var(--text3); font-style:italic; padding:0.4rem; text-align:center;">No deleted cadets in database archive</div>';
+            return;
+        }
+
+        container.innerHTML = deleted.map(item => {
+            const timeStr = item.deleted_at ? new Date(item.deleted_at).toLocaleDateString(undefined, { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Archived';
+            const safeReg = encodeURIComponent(item.register_no || '');
+            const safeName = encodeURIComponent(item.name || '');
+            return `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:0.35rem 0.5rem; gap:0.4rem;">
+                    <div style="min-width:0; flex:1;">
+                        <div style="font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:0.75rem;">${item.name}</div>
+                        <div style="font-size:0.65rem; color:var(--text3);">${item.register_no || 'NO REG'} · ${item.department || ''} · <span title="${item.deleted_at || ''}">${timeStr}</span></div>
+                    </div>
+                    <button type="button" onclick="restoreCadetFromArchive('${safeReg}', '${safeName}')" style="background:#10b981; color:white; border:none; padding:0.25rem 0.5rem; border-radius:4px; font-size:0.65rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:0.25rem; flex-shrink:0;">
+                        <i class="fa-solid fa-rotate-left"></i> Restore
+                    </button>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        console.error('Failed to load deleted archive:', e);
+    }
+}
+
+function toggleArchiveList() {
+    const wrap = document.getElementById('archive-list-wrap');
+    const icon = document.getElementById('archive-toggle-icon');
+    if (!wrap) return;
+    const isShowing = wrap.style.display === 'block';
+    wrap.style.display = isShowing ? 'none' : 'block';
+    if (icon) icon.style.transform = isShowing ? 'rotate(0deg)' : 'rotate(180deg)';
+    if (!isShowing) {
+        loadDeletedCadetsArchive();
+    }
+}
+
+async function restoreCadetFromArchive(safeReg, safeName) {
+    const reg = decodeURIComponent(safeReg);
+    const name = decodeURIComponent(safeName);
+    try {
+        const res = await fetch('/api/cadets/restore', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ register_no: reg, name: name })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            showToast(`✅ "${name}" restored from database archive!`, 'success');
+            await loadCadets();
+            loadDeletedCadetsArchive();
+        } else {
+            showToast(`❌ ${data.error || 'Restore failed'}`, 'error');
+        }
+    } catch (e) {
+        showToast('❌ Failed to restore cadet', 'error');
+    }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', async () => {
+    setTodayDate();
+    initSettings();
+    await checkServer();
+    await loadCadets();
+    await loadDeletedCadetsArchive();
+    setupListeners();
+    applyZoom('1'); // default zoom to fit screen comfortably
+});
+
+function setTodayDate() {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, '0');
+    const d = String(today.getDate()).padStart(2, '0');
+    document.getElementById('od-date').value = `${y}-${m}-${d}`;
+    autoFillODReason();
+}
+
+async function checkServer() {
+    try {
+        const res = await fetch('/api/cadets');
+        const online = res.ok;
+        const dot = document.getElementById('status-dot');
+        const text = document.getElementById('status-text');
+        if(dot) dot.className = 'status-dot' + (online ? '' : ' offline');
+        if(text) text.textContent = online ? 'Server Online' : 'Offline';
+        return online;
+    } catch {
+        return false;
+    }
+}
+
+// Helper to sort cadets by year (III first, then II, then I) and register number (attendance-wise)
+function getYearWeight(department) {
+    const dept = (department || '').trim().toUpperCase();
+    if (dept.startsWith('III')) return 3;
+    if (dept.startsWith('II')) return 2;
+    if (dept.startsWith('I')) return 1;
+    return 0;
+}
+
+function sortCadetsForOD(a, b) {
+    // 1. Sort by Year (III first, then II, then I)
+    const weightA = getYearWeight(a.department);
+    const weightB = getYearWeight(b.department);
+    if (weightB !== weightA) {
+        return weightB - weightA;
+    }
+
+    // 2. Sort by Name (alphabetically)
+    const nameA = (a.name || '').trim().toUpperCase();
+    const nameB = (b.name || '').trim().toUpperCase();
+    if (nameA !== nameB) {
+        return nameA.localeCompare(nameB);
+    }
+
+    // 3. Fallback to Register Number
+    const regA = (a.register_no || '').trim();
+    const regB = (b.register_no || '').trim();
+    return regA.localeCompare(regB);
+}
+
+// ============================================================
+// LOAD CADETS
+// ============================================================
+async function loadCadets() {
+    try {
+        const res = await fetch('/api/cadets');
+        if (res.ok) {
+            cadets = await res.json();
+        } else {
+            throw new Error('Server returned non-ok status');
+        }
+    } catch (e) {
+        console.warn('Could not load cadets from server, trying backup:', e);
+        const backup = localStorage.getItem('ncc_cadets_backup');
+        if (backup) {
+            try {
+                cadets = JSON.parse(backup);
+            } catch (err) {
+                console.error('Failed to parse backup', err);
+            }
+        }
+    }
+    if (Array.isArray(cadets)) {
+        cadets.sort(sortCadetsForOD);
+    } else {
+        cadets = [];
+    }
+    populateDepartmentFilter();
+    loadSelectedKeys();
+    renderList();
+}
+
+function getCadetKey(c) {
+    return (c.register_no || c.name || '').trim();
+}
+
+// ============================================================
+// ACCORDION TOGGLE
+// ============================================================
+function toggleAccordion(id) {
+    const content = document.getElementById(`${id}-content`);
+    const icon = document.getElementById(`${id}-icon`);
+    const isOpen = content.style.display === 'block';
+    
+    // Close other accordions
+    document.querySelectorAll('.accordion-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.accordion-icon').forEach(el => el.style.transform = 'rotate(0deg)');
+    
+    if (!isOpen) {
+        content.style.display = 'block';
+        icon.style.transform = 'rotate(180deg)';
+    }
+}
+
+// ============================================================
+// DOCUMENT CONFIG SETTINGS
+// ============================================================
+function initSettings() {
+    const savedConfig = localStorage.getItem('ncc_od_config');
+    if (savedConfig) {
+        try {
+            Object.assign(docConfig, JSON.parse(savedConfig));
+        } catch (e) {
+            console.error('Error loading config from localStorage', e);
+        }
+    }
+    
+    document.getElementById('config-college').value = docConfig.college;
+    document.getElementById('config-unit').value = docConfig.unit;
+    document.getElementById('config-title').value = docConfig.formType;
+    document.getElementById('config-sig-left').value = docConfig.sigLeft;
+    document.getElementById('config-sig-right').value = docConfig.sigRight;
+    
+    const inputs = ['config-college', 'config-unit', 'config-title', 'config-sig-left', 'config-sig-right'];
+    inputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', updateDocConfigFromInputs);
+    });
+    
+    updateDocConfigFromInputs();
+}
+
+function updateDocConfigFromInputs() {
+    docConfig.college = document.getElementById('config-college').value.trim();
+    docConfig.unit = document.getElementById('config-unit').value.trim();
+    docConfig.formType = document.getElementById('config-title').value.trim();
+    docConfig.sigLeft = document.getElementById('config-sig-left').value.trim();
+    docConfig.sigRight = document.getElementById('config-sig-right').value.trim();
+    
+    localStorage.setItem('ncc_od_config', JSON.stringify(docConfig));
+    
+    // Update live preview document texts
+    document.getElementById('pr-college').textContent = docConfig.college;
+    document.getElementById('pr-unit').textContent = docConfig.unit;
+    document.getElementById('pr-title').textContent = docConfig.formType;
+    document.getElementById('pr-sig-left').textContent = docConfig.sigLeft;
+    document.getElementById('pr-sig-right').textContent = docConfig.sigRight;
+}
+
+// ============================================================
+// CADET DATABASE SYNC
+// ============================================================
+async function saveCadetsToServer() {
+    try {
+        const res = await fetch('/api/cadets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cadets)
+        });
+        return res.ok;
+    } catch (e) {
+        console.error('Sync failed:', e);
+        return false;
+    }
+}
+
+async function handleCadetSubmit(e) {
+    e.preventDefault();
+    const nameVal = document.getElementById('cadet-name').value.trim();
+    const regVal = document.getElementById('cadet-reg').value.trim();
+    const deptVal = document.getElementById('cadet-dept').value.trim();
+    const shiftVal = document.getElementById('cadet-shift').value;
+    const originalReg = document.getElementById('edit-cadet-original-reg').value;
+
+    if (!nameVal) {
+        showToast('Name is required.', 'error');
+        return;
+    }
+
+    if (originalReg !== '') {
+        // Edit Mode — originalReg is now the numeric index
+        const idx = parseInt(originalReg, 10);
+        if (!isNaN(idx) && idx >= 0 && idx < cadets.length) {
+            cadets[idx] = { name: nameVal, register_no: regVal, department: deptVal, shift: shiftVal };
+            showToast('Cadet updated');
+        }
+    } else {
+        // Add Mode
+        const newKey = (regVal || nameVal).trim();
+        if (cadets.some(c => getCadetKey(c) === newKey)) {
+            showToast('A cadet with this Reg No or Name already exists!', 'error');
+            return;
+        }
+        cadets.push({ name: nameVal, register_no: regVal, department: deptVal, shift: shiftVal });
+        showToast('Cadet added');
+    }
+
+    cadets.sort(sortCadetsForOD);
+
+    localStorage.setItem('ncc_cadets_backup', JSON.stringify(cadets));
+    const synced = await saveCadetsToServer();
+    if (synced) {
+        showToast('✅ Saved & Synced to server database!', 'success');
+    } else {
+        showToast('⚠️ Saved locally. Offline mode.', 'error');
+    }
+
+    populateDepartmentFilter();
+    renderList();
+    cancelCadetEdit();
+}
+
+function startEditCadet(idx) {
+    const index = parseInt(idx, 10);
+    if (isNaN(index) || index < 0 || index >= cadets.length) return;
+    const cadet = cadets[index];
+
+    // Open manage accordion if closed
+    const content = document.getElementById('manage-acc-content');
+    if (content.style.display !== 'block') {
+        toggleAccordion('manage-acc');
+    }
+
+    document.getElementById('cadet-name').value = cadet.name;
+    document.getElementById('cadet-reg').value = cadet.register_no || '';
+    document.getElementById('cadet-dept').value = cadet.department || '';
+    document.getElementById('cadet-shift').value = cadet.shift || '';
+    document.getElementById('edit-cadet-original-reg').value = String(index);
+
+    const saveBtn = document.getElementById('btn-save-cadet');
+    saveBtn.textContent = 'Save Changes';
+    saveBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+    saveBtn.style.borderColor = '#d97706';
+    document.getElementById('btn-cancel-edit').style.display = 'block';
+}
+
+function cancelCadetEdit() {
+    document.getElementById('cadet-form').reset();
+    document.getElementById('edit-cadet-original-reg').value = '';
+    
+    const saveBtn = document.getElementById('btn-save-cadet');
+    saveBtn.textContent = 'Add Cadet';
+    saveBtn.style.background = 'var(--accent)';
+    saveBtn.style.borderColor = 'var(--border)';
+    document.getElementById('btn-cancel-edit').style.display = 'none';
+}
+
+async function deleteCadet(idx) {
+    showDeleteModal(idx);
+}
+
+
+// ============================================================
+// DYNAMIC FILTERS & DROPDOWNS
+// ============================================================
+function populateDepartmentFilter() {
+    const deptSelect = document.getElementById('filter-dept');
+    if (!deptSelect) return;
+    const currentVal = deptSelect.value;
+    
+    const depts = [...new Set(cadets.map(c => (c.department || '').trim()).filter(Boolean))];
+    depts.sort();
+
+    deptSelect.innerHTML = '<option value="">All Departments</option>' +
+        depts.map(d => `<option value="${d}">${d}</option>`).join('');
+
+    if (depts.includes(currentVal)) {
+        deptSelect.value = currentVal;
+    } else {
+        deptSelect.value = '';
+    }
+}
+
+function toggleSort() {
+    isSortedAZ = !isSortedAZ;
+    const sortBtn = document.getElementById('sort-toggle');
+    if (isSortedAZ) {
+        sortBtn.classList.add('active');
+        sortBtn.style.color = 'var(--accent-hover)';
+        sortBtn.style.borderColor = 'var(--accent)';
+    } else {
+        sortBtn.classList.remove('active');
+        sortBtn.style.color = 'var(--text2)';
+        sortBtn.style.borderColor = 'var(--border)';
+    }
+    renderList();
+}
+
+// ============================================================
+// STATE YEAR DETECTOR HELPER
+// ============================================================
+function getCadetYear(c) {
+    const dept = (c.department || '').trim().toUpperCase();
+    if (dept.startsWith('III ') || dept.startsWith('3RD ') || dept.includes(' III ') || dept.includes(' 3RD ')) {
+        return 'III';
+    }
+    if (dept.startsWith('II ') || dept.startsWith('2ND ') || dept.includes(' II ') || dept.includes(' 2ND ')) {
+        return 'II';
+    }
+    return 'I';
+}
+
+// ============================================================
+// RENDER CADET LIST
+// ============================================================
+function renderList() {
+    const container = document.getElementById('cadet-list');
+    const q = searchQuery.toLowerCase();
+    const shiftVal = document.getElementById('filter-shift').value;
+    const yearVal = document.getElementById('filter-year').value;
+    const deptVal = document.getElementById('filter-dept').value;
+
+    // Build indexed list first to preserve original cadets[] positions
+    let indexed = cadets.map((c, idx) => ({ c, idx })).filter(({ c }) => {
+        const matchesSearch = !q ||
+            c.name.toLowerCase().includes(q) ||
+            (c.register_no || '').toLowerCase().includes(q) ||
+            (c.department || '').toLowerCase().includes(q);
+        const matchesShift = !shiftVal || c.shift === shiftVal;
+        const matchesYear = !yearVal || getCadetYear(c) === yearVal;
+        const matchesDept = !deptVal || c.department === deptVal;
+        return matchesSearch && matchesShift && matchesYear && matchesDept;
+    });
+
+    if (isSortedAZ) {
+        indexed.sort((a, b) => a.c.name.localeCompare(b.c.name));
+    }
+
+    if (indexed.length === 0) {
+        container.innerHTML = `<div class="empty-list"><i class="fa-solid fa-magnifying-glass"></i><p>No cadets found</p></div>`;
+        updatePreview();
+        return;
+    }
+
+    container.innerHTML = indexed.map(({ c, idx }, listPos) => {
+        const key = getCadetKey(c);
+        const sel = selectedKeys.has(key);
+        const encKey = encodeURIComponent(key);
+        return `
+            <div class="cadet-row${sel ? ' selected' : ''}" data-key="${encKey}" onclick="toggleCadet(decodeURIComponent('${encKey}'))" style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 1.1rem; gap:0.5rem; cursor:pointer;">
+                <div style="display:flex; align-items:center; gap:0.5rem; flex:1; min-width:0;">
+                    <span class="sno" style="font-size:0.7rem; color:var(--text3); width:18px; text-align:right; flex-shrink:0;">${listPos + 1}</span>
+                    <div class="cadet-checkbox"><i class="fa-solid fa-check"></i></div>
+                    <div class="cadet-info" style="flex:1; min-width:0;">
+                        <div class="cadet-name" style="font-size:0.8rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.name}</div>
+                        <div class="cadet-meta" style="font-size:0.7rem; color:var(--text3); margin-top:1px;">${c.register_no || 'NO REG'} · ${c.department || ''} · ${c.shift || 'NO SHIFT'}</div>
+                    </div>
+                </div>
+                <div class="cadet-actions-row" style="display:flex; gap:0.35rem; flex-shrink:0;" onclick="event.stopPropagation()">
+                    <span class="cadet-action-btn" title="Edit Cadet" onclick="startEditCadet(${idx})" style="font-size:0.75rem; padding:0.3rem 0.4rem; color:var(--text3); cursor:pointer; transition:color 0.15s; display:inline-flex; align-items:center; border-radius:4px;"><i class="fa-solid fa-pen"></i></span>
+                    <span class="cadet-action-btn" title="Delete Cadet" onclick="deleteCadet(${idx})" style="font-size:0.75rem; padding:0.3rem 0.4rem; color:#ef4444; cursor:pointer; transition:opacity 0.15s; display:inline-flex; align-items:center; border-radius:4px;"><i class="fa-solid fa-trash"></i></span>
+                </div>
+            </div>`;
+    }).join('');
+
+    updatePreview();
+}
+
+// ============================================================
+// SELECTION PERSISTENCE
+// ============================================================
+function saveSelectedKeys() {
+    const dateVal = document.getElementById('od-date') ? document.getElementById('od-date').value : '';
+    const arrayKeys = Array.from(selectedKeys);
+    if (dateVal) {
+        localStorage.setItem(`ncc_selected_keys_${dateVal}`, JSON.stringify(arrayKeys));
+    }
+    localStorage.setItem('ncc_selected_keys_current', JSON.stringify(arrayKeys));
+
+    const particularsVal = document.getElementById('od-particulars') ? document.getElementById('od-particulars').value : '';
+    if (dateVal && particularsVal) {
+        localStorage.setItem(`ncc_particulars_${dateVal}`, particularsVal);
+    }
+    const odReasonVal = document.getElementById('od-reason') ? document.getElementById('od-reason').value : '';
+    if (dateVal && odReasonVal) {
+        localStorage.setItem(`ncc_od_reason_${dateVal}`, odReasonVal);
+    }
+}
+
+function loadSelectedKeys() {
+    const dateVal = document.getElementById('od-date') ? document.getElementById('od-date').value : '';
+    let saved = null;
+    if (dateVal) {
+        saved = localStorage.getItem(`ncc_selected_keys_${dateVal}`);
+    }
+    if (!saved) {
+        saved = localStorage.getItem('ncc_selected_keys_current');
+    }
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+                const validKeys = new Set(cadets.map(getCadetKey));
+                selectedKeys = new Set(parsed.filter(k => validKeys.has(k)));
+            }
+        } catch (e) {
+            console.error('Error parsing saved selection', e);
+        }
+    }
+    if (dateVal) {
+        const savedPart = localStorage.getItem(`ncc_particulars_${dateVal}`);
+        if (savedPart !== null && document.getElementById('od-particulars')) {
+            document.getElementById('od-particulars').value = savedPart;
+        }
+        const savedReason = localStorage.getItem(`ncc_od_reason_${dateVal}`);
+        if (savedReason !== null && document.getElementById('od-reason')) {
+            document.getElementById('od-reason').value = savedReason;
+        }
+    }
+}
+
+// ============================================================
+// SELECTION
+// ============================================================
+function toggleCadet(key) {
+    if (selectedKeys.has(key)) selectedKeys.delete(key);
+    else selectedKeys.add(key);
+    saveSelectedKeys();
+    renderList();
+}
+
+function selectAll() {
+    const q = searchQuery.toLowerCase();
+    const shiftVal = document.getElementById('filter-shift').value;
+    const yearVal = document.getElementById('filter-year').value;
+    const deptVal = document.getElementById('filter-dept').value;
+
+    const filtered = cadets.filter(c => {
+        const matchesSearch = !q ||
+            c.name.toLowerCase().includes(q) ||
+            (c.register_no || '').toLowerCase().includes(q);
+        const matchesShift = !shiftVal || c.shift === shiftVal;
+        const matchesYear = !yearVal || getCadetYear(c) === yearVal;
+        const matchesDept = !deptVal || c.department === deptVal;
+        return matchesSearch && matchesShift && matchesYear && matchesDept;
+    });
+
+    filtered.forEach(c => selectedKeys.add(getCadetKey(c)));
+    saveSelectedKeys();
+    renderList();
+}
+
+function deselectAll() {
+    selectedKeys.clear();
+    saveSelectedKeys();
+    renderList();
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+function setupListeners() {
+    document.getElementById('search-input').addEventListener('input', e => {
+        searchQuery = e.target.value;
+        renderList();
+    });
+
+    document.getElementById('od-date').addEventListener('change', () => {
+        autoFillODReason();
+        loadSelectedKeys();
+        renderList();
+    });
+    document.getElementById('od-particulars').addEventListener('input', () => {
+        saveSelectedKeys();
+        updatePreview();
+    });
+    document.getElementById('od-reason').addEventListener('input', () => {
+        saveSelectedKeys();
+        updatePreview();
+    });
+    
+    document.getElementById('filter-shift').addEventListener('change', () => {
+        renderList();
+        if (typeof isAIMicActive !== 'undefined' && isAIMicActive) showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
+    });
+    document.getElementById('filter-year').addEventListener('change', () => {
+        renderList();
+        if (typeof isAIMicActive !== 'undefined' && isAIMicActive) showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
+    });
+    document.getElementById('filter-dept').addEventListener('change', () => {
+        renderList();
+        if (typeof isAIMicActive !== 'undefined' && isAIMicActive) showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
+    });
+
+    // Note: click handlers are now inline on each element for reliability
+}
+
+// ============================================================
+// AUTO-FILL OD REASON
+// ============================================================
+function autoFillODReason() {
+    const dateVal = document.getElementById('od-date').value;
+    if (!dateVal) return;
+    const d = new Date(dateVal);
+    const months = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+    const day = d.getDate();
+    const suffix = day === 1 ? 'ST' : day === 2 ? 'ND' : day === 3 ? 'RD' : 'TH';
+    const dateStr = `${day}${suffix} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    document.getElementById('od-reason').value =
+        `EXEMPTION FROM ALL ACADEMIC WORKS AND REGULAR CLASSES ON ${dateStr}`;
+    updatePreview();
+}
+
+// ============================================================
+// LIVE PREVIEW & ZOOM
+// ============================================================
+function getSelectedCadets() {
+    return cadets.filter(c => selectedKeys.has(getCadetKey(c)));
+}
+
+function applyZoom(val) {
+    const paper = document.getElementById('paper');
+    if (!paper) return;
+    paper.style.transform = `scale(${val})`;
+    
+    const container = document.getElementById('paper-container');
+    const scaleVal = parseFloat(val);
+    const baseHeight = paper.scrollHeight;
+    const baseWidth = paper.offsetWidth || 680;
+    container.style.height = `${baseHeight * scaleVal}px`;
+    container.style.width = `${baseWidth * scaleVal}px`;
+}
+
+function updatePreview() {
+    const selected = getSelectedCadets();
+    const count = selected.length;
+    const particulars = document.getElementById('od-particulars').value.trim();
+    const odReason = document.getElementById('od-reason').value.trim();
+
+    // Update badge
+    document.getElementById('od-count-text').textContent =
+        count === 0 ? '0 cadets selected' : `${count} cadet${count > 1 ? 's' : ''} selected`;
+
+    // Enable / disable download buttons
+    document.getElementById('btn-download').disabled = count === 0;
+    document.getElementById('btn-browser-download').disabled = count === 0;
+
+    if (count === 0) {
+        document.getElementById('preview-empty').style.display = 'flex';
+        document.getElementById('preview-content').style.display = 'none';
+        applyZoom(document.getElementById('preview-zoom').value);
+        return;
+    }
+
+    document.getElementById('preview-empty').style.display = 'none';
+    document.getElementById('preview-content').style.display = 'block';
+
+    // Build preview table
+    const tbody = document.getElementById('preview-tbody');
+    const N = count;
+    let P = 1;
+    if (N > 27) {
+        P = Math.ceil((N - 27) / 32) + 1;
+    }
+    const midPage = Math.ceil(P / 2);
+    const startRow = midPage === 1 ? 0 : 27 + (midPage - 2) * 32;
+
+    tbody.innerHTML = selected.map((c, i) => {
+        let partCell = "";
+        let odCell = "";
+        
+        if (startRow > 0) {
+            if (i === 0) {
+                const rowspan1 = startRow;
+                partCell = `<td class="merged-td left" rowspan="${rowspan1}">—</td>`;
+                odCell = `<td class="merged-td" rowspan="${rowspan1}" style="font-size:0.68rem; line-height:1.25;">—</td>`;
+            } else if (i === startRow) {
+                const rowspan2 = N - startRow;
+                partCell = `<td class="merged-td left" rowspan="${rowspan2}">${particulars || '—'}</td>`;
+                odCell = `<td class="merged-td" rowspan="${rowspan2}" style="font-size:0.68rem; line-height:1.25;">${odReason || '—'}</td>`;
+            }
+        } else {
+            if (i === 0) {
+                partCell = `<td class="merged-td left" rowspan="${N}">${particulars || '—'}</td>`;
+                odCell = `<td class="merged-td" rowspan="${N}" style="font-size:0.68rem; line-height:1.25;">${odReason || '—'}</td>`;
+            }
+        }
+
+        return `<tr>
+            <td>${i + 1}</td>
+            <td>${c.register_no || ''}</td>
+            <td class="left">${c.name}</td>
+            <td class="left">${c.department || ''}</td>
+            <td>${c.shift || ''}</td>
+            ${partCell}${odCell}
+        </tr>`;
+    }).join('');
+
+    // Apply scaling heights
+    setTimeout(() => {
+        applyZoom(document.getElementById('preview-zoom').value);
+    }, 10);
+}
+
+// ============================================================
+// QUICK GENERATE — ALL CADETS FOR CURRENT DATE
+// ============================================================
+async function quickGenerateAll() {
+    const dateVal = document.getElementById('od-date').value;
+    const particularsVal = document.getElementById('od-particulars').value.trim();
+    const odReasonVal = document.getElementById('od-reason').value.trim();
+
+    if (!dateVal) {
+        showToast('Please select a date first.', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-quick-gen');
+    const icon = document.getElementById('btn-quick-icon');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    icon.className = 'fa-solid fa-circle-notch';
+
+    try {
+        const res = await fetch('/api/generate-for-date', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                date: dateVal,
+                particulars: particularsVal || undefined,
+                odReason: odReasonVal || undefined
+            })
+        });
+
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || 'Server error');
+        }
+
+        const result = await res.json();
+        showToast(`✅ OD Form generated for ${result.cadetCount} cadets — saved to Desktop`, 'success');
+    } catch (err) {
+        console.error(err);
+        showToast('Error: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        icon.className = 'fa-solid fa-bolt';
+    }
+}
+
+// ============================================================
+// GENERATE & OPEN IN MS WORD
+// ============================================================
+async function generateODForm() {
+    const selected = getSelectedCadets();
+    if (selected.length === 0) {
+        showToast('Please select at least one cadet.', 'error');
+        return;
+    }
+
+    const dateVal = document.getElementById('od-date').value;
+    const particularsVal = document.getElementById('od-particulars').value.trim() || 'NCC ACTIVITY';
+    const odReasonVal = document.getElementById('od-reason').value.trim();
+
+    if (!dateVal) {
+        showToast('Please select a date first.', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-download');
+    const icon = document.getElementById('btn-icon');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    icon.className = 'fa-solid fa-circle-notch';
+    const originalText = btn.childNodes[2].textContent;
+    btn.childNodes[2].textContent = ' Opening…';
+
+    try {
+        const res = await fetch('/api/generate-and-open', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                selectedCadets: selected,
+                particularsVal,
+                odReasonVal,
+                selectedDate: dateVal,
+                docConfig
+            })
+        });
+
+        if (!res.ok) {
+            const txt = await res.text();
+            throw new Error(txt || 'Server error');
+        }
+
+        await res.json();
+        showToast(`✅ Opened in MS Word — ${selected.length} cadet${selected.length > 1 ? 's' : ''}`, 'success');
+
+    } catch (err) {
+        console.error(err);
+        showToast('Error: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        icon.className = 'fa-solid fa-file-word';
+        btn.childNodes[2].textContent = originalText;
+    }
+}
+
+// ============================================================
+// BROWSER DOWNLOAD DIRECTLY
+// ============================================================
+async function downloadODFormBrowser() {
+    const selected = getSelectedCadets();
+    if (selected.length === 0) {
+        showToast('Please select at least one cadet.', 'error');
+        return;
+    }
+
+    const dateVal = document.getElementById('od-date').value;
+    const particularsVal = document.getElementById('od-particulars').value.trim() || 'NCC ACTIVITY';
+    const odReasonVal = document.getElementById('od-reason').value.trim();
+
+    if (!dateVal) {
+        showToast('Please select a date first.', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-browser-download');
+    const icon = document.getElementById('btn-browser-icon');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    icon.className = 'fa-solid fa-circle-notch';
+    const originalText = btn.childNodes[2].textContent;
+    btn.childNodes[2].textContent = ' Downloading…';
+
+    try {
+        const response = await fetch('/api/generate-docx', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                selectedCadets: selected,
+                particularsVal,
+                odReasonVal,
+                selectedDate: dateVal,
+                docConfig
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to generate document');
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        const monthsShort = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+        const d = new Date(dateVal);
+        const formattedDate = `${String(d.getDate()).padStart(2,'0')}-${monthsShort[d.getMonth()]}-${d.getFullYear()}`.toLowerCase();
+        
+        a.download = `od-form-${formattedDate}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        showToast('✅ OD Form downloaded successfully', 'success');
+    } catch (err) {
+        console.error(err);
+        showToast('Error: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        icon.className = 'fa-solid fa-download';
+        btn.childNodes[2].textContent = originalText;
+    }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    const icon = document.getElementById('toast-icon');
+    document.getElementById('toast-msg').textContent = msg;
+    el.className = `show ${type}`;
+    icon.className = type === 'success'
+        ? 'fa-solid fa-circle-check'
+        : 'fa-solid fa-circle-exclamation';
+    icon.style.color = type === 'success' ? '#22c55e' : '#ef4444';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ============================================================
+// AI VOICE MICROPHONE CONTROLLER & BULLETPROOF ENGINE
+// ============================================================
+let aiSpeechRecognition = null;
+let isAIMicActive = false;
+let isRecognitionRunning = false;
+let aiContinuousMode = true; // Roll call continuous listening mode
+let aiSoundFeedback = true;
+let aiRecognitionRestartTimer = null;
+let aiWatchdogTimer = null;
+let aiLastEventTimestamp = 0;
+let aiIsSpeakingVoice = false;
+let aiLastSpokenText = '';
+
+// Dual-tone Web Audio Chime (Offline, 0 latency, 0 mic conflicts)
+function playChime(success = true) {
+    if (!aiSoundFeedback) return;
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (success) {
+            osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+            osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.08); // G5
+            gain.gain.setValueAtTime(0.12, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.32);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.32);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(220, ctx.currentTime);
+            osc.frequency.setValueAtTime(160, ctx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.08, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.25);
+        }
+    } catch(e) {}
+}
+
+// Non-interfering voice feedback (pure audio chime is primary; TTS is kept non-blocking)
+function speakFeedback(text) {
+    if (!aiSoundFeedback || !('speechSynthesis' in window)) return;
+    try {
+        if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+        }
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.rate = 1.25; // Fast and snappy to release audio focus immediately
+        utter.pitch = 1.0;
+        utter.volume = 0.6;
+        const voices = window.speechSynthesis.getVoices();
+        const engVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha')));
+        if (engVoice) utter.voice = engVoice;
+
+        // Prevent Chrome GC bug on SpeechSynthesisUtterance
+        window._activeUtterance = utter;
+        utter.onend = () => {
+            window._activeUtterance = null;
+            aiLastEventTimestamp = Date.now();
+        };
+        utter.onerror = () => {
+            window._activeUtterance = null;
+        };
+
+        if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+        }
+        window.speechSynthesis.speak(utter);
+    } catch(e) {
+        window._activeUtterance = null;
+    }
+}
+
+// Convert spoken number words to digits
+function wordsToDigits(text) {
+    if (!text) return '';
+    const wordMap = {
+        'zero': '0', 'oh': '0', 'o': '0',
+        'one': '1', 'won': '1',
+        'two': '2', 'to': '2', 'too': '2',
+        'three': '3',
+        'four': '4', 'for': '4', 'fore': '4',
+        'five': '5',
+        'six': '6',
+        'seven': '7',
+        'eight': '8', 'ate': '8',
+        'nine': '9',
+        'ten': '10', 'eleven': '11', 'twelve': '12', 'thirteen': '13',
+        'fourteen': '14', 'fifteen': '15', 'sixteen': '16', 'seventeen': '17',
+        'eighteen': '18', 'nineteen': '19', 'twenty': '20', 'thirty': '30',
+        'forty': '40', 'fifty': '50', 'sixty': '60', 'seventy': '70',
+        'eighty': '80', 'ninety': '90'
+    };
+
+    let s = text.toLowerCase()
+        .replace(/\bdouble\s+([a-z0-9]+)/g, '$1 $1')
+        .replace(/\btriple\s+([a-z0-9]+)/g, '$1 $1 $1');
+
+    const tokens = s.split(/[\s\-]+/);
+    let out = '';
+    for (let i = 0; i < tokens.length; i++) {
+        const tok = tokens[i];
+        if (/^\d+$/.test(tok)) {
+            out += tok;
+        } else if (wordMap[tok] !== undefined) {
+            out += wordMap[tok];
+        } else {
+            out += ' ' + tok + ' ';
+        }
+    }
+    return out;
+}
+
+// Extract digit sequences from speech
+function extractDigitSequences(text) {
+    const norm = wordsToDigits(text);
+    const matches = norm.match(/\d+/g) || [];
+    const results = [];
+    const joined = matches.join('');
+    if (joined.length >= 4) results.push(joined);
+    matches.forEach(m => {
+        if (m.length >= 4 && !results.includes(m)) results.push(m);
+    });
+    return results;
+}
+
+// Levenshtein distance for fuzzy name comparison
+function levenshtein(a, b) {
+    if (!a || !b) return (a || '').length + (b || '').length;
+    const m = a.length, n = b.length;
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            dp[i][j] = Math.min(
+                dp[i - 1][j] + 1,
+                dp[i][j - 1] + 1,
+                dp[i - 1][j - 1] + cost
+            );
+        }
+    }
+    return dp[m][n];
+}
+
+function nameSimilarity(a, b) {
+    if (!a || !b) return 0;
+    const maxLen = Math.max(a.length, b.length);
+    if (maxLen === 0) return 1;
+    const dist = levenshtein(a, b);
+    return 1 - (dist / maxLen);
+}
+
+function cleanNameStr(s) {
+    return (s || '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+// Get currently active cadet pool based on dropdown filters (Year, Shift, Dept)
+function getActiveCadetPool() {
+    const shiftVal = document.getElementById('filter-shift') ? document.getElementById('filter-shift').value : '';
+    const yearVal = document.getElementById('filter-year') ? document.getElementById('filter-year').value : '';
+    const deptVal = document.getElementById('filter-dept') ? document.getElementById('filter-dept').value : '';
+
+    if (!shiftVal && !yearVal && !deptVal) {
+        return cadets;
+    }
+
+    return cadets.filter(c => {
+        const matchesShift = !shiftVal || c.shift === shiftVal;
+        const matchesYear = !yearVal || getCadetYear(c) === yearVal;
+        const matchesDept = !deptVal || c.department === deptVal;
+        return matchesShift && matchesYear && matchesDept;
+    });
+}
+
+function getVoiceStatusDescription() {
+    const yearVal = document.getElementById('filter-year') ? document.getElementById('filter-year').value : '';
+    const shiftVal = document.getElementById('filter-shift') ? document.getElementById('filter-shift').value : '';
+    const deptVal = document.getElementById('filter-dept') ? document.getElementById('filter-dept').value : '';
+    const filters = [];
+    if (yearVal) filters.push(`${yearVal} Year`);
+    if (shiftVal) filters.push(shiftVal);
+    if (deptVal) filters.push(deptVal);
+    if (filters.length > 0) {
+        return `Listening (${filters.join(' · ')} only)...`;
+    }
+    return 'Listening for Cadet Name or Reg No...';
+}
+
+// Phonetic normalization for Indian cadet names
+function normPhonetic(str) {
+    if (!str) return '';
+    return str.toUpperCase()
+        .replace(/\b[A-Z](\s*\.\s*[A-Z])*\b$/g, '')
+        .replace(/[^A-Z]/g, '')
+        .replace(/AA/g, 'A')
+        .replace(/EE/g, 'I')
+        .replace(/OO/g, 'U')
+        .replace(/SH/g, 'S')
+        .replace(/TH/g, 'T')
+        .replace(/BH/g, 'B')
+        .replace(/DH/g, 'D')
+        .replace(/KH/g, 'K')
+        .replace(/GH/g, 'G')
+        .replace(/PH/g, 'F')
+        .replace(/CK/g, 'K')
+        .replace(/C(?=[EIY])/g, 'S')
+        .replace(/C/g, 'K')
+        .replace(/([B-DF-HJ-NP-TV-Z])\1+/g, '$1');
+}
+
+// Match cadet by voice utterance (Name or Register Number) scoped to active filter
+function findCadetByVoice(utterance) {
+    const raw = utterance.trim();
+    if (!raw) return null;
+
+    const pool = getActiveCadetPool();
+
+    // 1. Check Register Number match first inside active filter pool
+    const digitSeqs = extractDigitSequences(raw);
+    for (const seq of digitSeqs) {
+        // Direct exact match in pool
+        const exactReg = pool.find(c => (c.register_no || '').trim() === seq);
+        if (exactReg) return { cadet: exactReg, matchType: 'register_no (exact)', confidence: 1.0 };
+
+        // EndsWith partial match in pool (e.g. user speaks "4070" or "04070")
+        if (seq.length >= 4) {
+            const endsWith = pool.filter(c => (c.register_no || '').trim().endsWith(seq));
+            if (endsWith.length === 1) {
+                return { cadet: endsWith[0], matchType: 'register_no (partial)', confidence: 0.95 };
+            }
+        }
+    }
+
+    // 2. Clean query for name matching
+    let query = cleanNameStr(raw);
+    // Strip common speech command & filler words
+    query = query
+        .replace(/\b(CADET|PLEASE|ADD|WRITE|MARK|PUT|STUDENT|NAME|NUMBER|REG|REGISTER|PRONOUNCE|PRONOUNCING|THE|ALSO|PRESENT|HERE|FOR)\b/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    // Normalize misheard English filler endings that are actually initials (e.g. "Akash is" -> "AKASH S")
+    query = query
+        .replace(/\b(IS|YES|AS)\b$/g, 'S')
+        .replace(/\b(BE|BEE)\b$/g, 'B')
+        .replace(/\b(PEA|PAY)\b$/g, 'P')
+        .replace(/\b(AND|IN)\b$/g, 'N')
+        .replace(/\b(AM|THEM)\b$/g, 'M')
+        .replace(/\b(ARE|OUR)\b$/g, 'R');
+
+    if (!query) return null;
+
+    const qNoSpace = query.replace(/\s+/g, '');
+    const qNorm = normPhonetic(query);
+    const qPrimary = query.replace(/\s+[A-Z](\s*\.\s*[A-Z])*\s*$/, '').trim();
+    const queryTokens = query.split(' ').filter(t => t.length > 0);
+    const queryMainTokens = queryTokens.filter(t => t.length > 1);
+
+    let bestCadet = null;
+    let bestScore = 0;
+    let bestType = '';
+
+    for (const c of pool) {
+        const cClean = cleanNameStr(c.name);
+        const cNoSpace = cClean.replace(/\s+/g, '');
+        const cPrimary = cClean.replace(/\s+[A-Z](\s*\.\s*[A-Z])*\s*$/, '').trim();
+        const cNorm = normPhonetic(c.name);
+        const cTokens = cClean.split(' ').filter(t => t.length > 0);
+        const cMainTokens = cTokens.filter(t => t.length > 1);
+
+        // A. Exact clean match or space-insensitive match (e.g. "Bala Vaitheeswar" == "BALAVAITHEESWAR")
+        if (cClean === query || cNoSpace === qNoSpace) {
+            return { cadet: c, matchType: 'name (exact)', confidence: 1.0 };
+        }
+
+        // B. Primary name match without initial (e.g. "Akash" matches "AKASH S")
+        if (cPrimary && (cPrimary === qPrimary || cPrimary === query || cClean.startsWith(query + ' '))) {
+            return { cadet: c, matchType: 'name (primary)', confidence: 0.99 };
+        }
+
+        // C. Phonetic match (e.g. "Aakash" matches "AKASH", "Jai Shree" matches "JAISHREE", "Saran" matches "SHARAN")
+        if (cNorm && qNorm) {
+            if (cNorm === qNorm) {
+                return { cadet: c, matchType: 'name (phonetic exact)', confidence: 0.98 };
+            }
+            if (cNorm.length >= 4 && qNorm.length >= 4) {
+                if (cNorm.startsWith(qNorm) || qNorm.startsWith(cNorm)) {
+                    const score = 0.95;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestCadet = c;
+                        bestType = 'name (phonetic prefix)';
+                    }
+                } else if (cNorm.includes(qNorm) || qNorm.includes(cNorm)) {
+                    const score = 0.92;
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestCadet = c;
+                        bestType = 'name (phonetic match)';
+                    }
+                }
+            }
+        }
+
+        // D. Contains full query or query contains full name
+        if (cClean.includes(query) && query.length >= 3) {
+            const score = 0.94;
+            if (score > bestScore) {
+                bestScore = score;
+                bestCadet = c;
+                bestType = 'name (substring)';
+            }
+        }
+        if (query.includes(cClean) && cClean.length >= 3) {
+            const score = 0.93;
+            if (score > bestScore) {
+                bestScore = score;
+                bestCadet = c;
+                bestType = 'name (contained)';
+            }
+        }
+
+        // E. Main name token matching
+        if (queryMainTokens.length > 0 && cMainTokens.length > 0) {
+            const allQueryInCadet = queryMainTokens.every(qTok => cMainTokens.some(cTok => cTok === qTok || (cTok.startsWith(qTok) && qTok.length >= 3) || normPhonetic(cTok) === normPhonetic(qTok)));
+            if (allQueryInCadet) {
+                const score = 0.91;
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestCadet = c;
+                    bestType = 'name (token match)';
+                }
+            }
+        }
+
+        // F. Fuzzy Levenshtein
+        const simFull = nameSimilarity(cClean, query);
+        if (simFull > 0.65 && simFull > bestScore) {
+            bestScore = simFull;
+            bestCadet = c;
+            bestType = `name (fuzzy ${Math.round(simFull * 100)}%)`;
+        }
+
+        const simNorm = nameSimilarity(cNorm, qNorm);
+        if (simNorm > 0.70 && (simNorm * 0.95) > bestScore) {
+            bestScore = simNorm * 0.95;
+            bestCadet = c;
+            bestType = `name (fuzzy phonetic ${Math.round(simNorm * 100)}%)`;
+        }
+    }
+
+    if (bestCadet && bestScore >= 0.60) {
+        return { cadet: bestCadet, matchType: bestType, confidence: bestScore };
+    }
+
+    // Check if the cadet exists in another year/filter so we can inform the user clearly
+    const yearVal = document.getElementById('filter-year') ? document.getElementById('filter-year').value : '';
+    const shiftVal = document.getElementById('filter-shift') ? document.getElementById('filter-shift').value : '';
+    if (yearVal || shiftVal) {
+        const otherMatch = cadets.find(c => {
+            const cClean = cleanNameStr(c.name);
+            const cNoSpace = cClean.replace(/\s+/g, '');
+            const cNorm = normPhonetic(c.name);
+            const matchesName = cClean === query || cNoSpace === qNoSpace || (cNorm && qNorm && cNorm === qNorm) || (cClean.includes(query) && query.length >= 3);
+            const matchesReg = digitSeqs.length > 0 && digitSeqs.some(seq => (c.register_no || '').trim() === seq);
+            return matchesName || matchesReg;
+        });
+        if (otherMatch) {
+            return {
+                cadet: null,
+                outOfPoolCadet: otherMatch,
+                activeFilter: yearVal ? `${yearVal} Year` : shiftVal
+            };
+        }
+    }
+
+    return null;
+}
+
+// Process full speech transcript
+function processVoiceInput(transcript) {
+    aiLastSpokenText = transcript;
+    updateVoiceHUDTranscript(transcript);
+
+    const lower = transcript.toLowerCase().trim();
+
+    // Global voice commands
+    if (lower.includes('select all') || lower.includes('mark all') || lower.includes('all cadets')) {
+        selectAll();
+        showToast('✅ All cadets selected via voice', 'success');
+        playChime(true);
+        speakFeedback('All cadets selected');
+        showVoiceHUDMatch('ALL CADETS', 'Selected all cadets for OD form');
+        return;
+    }
+
+    if (lower.includes('clear all') || lower.includes('deselect all') || lower.includes('remove all')) {
+        deselectAll();
+        showToast('🗑️ OD form cleared via voice', 'info');
+        playChime(false);
+        speakFeedback('Cleared all cadets');
+        showVoiceHUDMatch('CLEARED ALL', 'Deselected all cadets', false);
+        return;
+    }
+
+    if (lower.includes('download') || lower.includes('generate form') || lower.includes('save word') || lower.includes('save doc')) {
+        downloadODFormBrowser();
+        showToast('📥 Downloading OD Form...', 'success');
+        playChime(true);
+        speakFeedback('Downloading OD Form');
+        showVoiceHUDMatch('DOWNLOADING', 'Generating OD Form document');
+        return;
+    }
+
+    if (lower.includes('stop listening') || lower.includes('stop mic') || lower.includes('turn off mic')) {
+        stopAIMic();
+        showToast('Mic turned off', 'info');
+        return;
+    }
+
+    // STRICT PERMISSION SAFEGUARDS:
+    // 1. Voice mode NEVER has permission to permanently delete cadets or modify directory records.
+    if (/\b(delete|destroy|purge|erase|drop)\b/i.test(lower) && /\b(cadet|cadets|directory|database|record|records|permanently|system)\b/i.test(lower)) {
+        showToast('🔒 Voice Mode has NO permission to delete cadets permanently.', 'error');
+        speakFeedback('Voice mode cannot delete cadet records. Cadets are permanently protected in the database.');
+        showVoiceHUDStatus('🔒 Permission Denied: Voice Mode cannot delete cadets', 'idle');
+        playChime(false);
+        return;
+    }
+
+    // 2. Voice mode NEVER has permission to add or create new cadets.
+    if (/\b(add|create|insert|new|register)\s+(cadet|student|record|member)\b/i.test(lower)) {
+        showToast('🔒 Voice Mode has NO permission to add new cadets. Use Manage Cadets form.', 'error');
+        speakFeedback('Voice mode cannot add new cadets.');
+        showVoiceHUDStatus('🔒 Permission Denied: Voice Mode cannot add new cadets', 'idle');
+        playChime(false);
+        return;
+    }
+
+    // Split for multi-cadet roll call: split by "and", "next", "also", or commas
+    const parts = lower.split(/,|\band\b|\bnext\b|\balso\b/).map(p => p.trim()).filter(p => p.length > 0);
+    let matchedCount = 0;
+
+    parts.forEach(part => {
+        const isRemove = part.startsWith('deselect ') || part.startsWith('uncheck ') || part.startsWith('unselect ') || part.startsWith('remove from form ') || part.startsWith('remove from attendance ') || part.startsWith('remove ') || part.startsWith('cancel ') || part.startsWith('delete from form ') || part.startsWith('delete ');
+        const cleanPart = part.replace(/^(deselect|uncheck|unselect|remove from form|remove from attendance|remove|cancel|delete from form|delete)\s+/, '');
+
+        const result = findCadetByVoice(cleanPart);
+        if (result && result.cadet) {
+            matchedCount++;
+            const cadet = result.cadet;
+            const key = getCadetKey(cadet);
+
+            if (isRemove) {
+                if (selectedKeys.has(key)) {
+                    selectedKeys.delete(key);
+                    saveSelectedKeys();
+                    renderList();
+                    updatePreview();
+                    playChime(false);
+                    showToast(`Unchecked ${cadet.name} from OD Form (Cadet preserved in database)`, 'info');
+                    showVoiceHUDMatch(cadet.name, `${cadet.register_no || 'NO REG'} · Unchecked from Form (Record Safe in DB)`, false);
+                } else {
+                    showToast(`${cadet.name} was not in OD Form`, 'info');
+                }
+            } else {
+                // Add to OD Form
+                selectedKeys.add(key);
+                saveSelectedKeys();
+                renderList();
+                updatePreview();
+                playChime(true);
+                showToast(`✅ ${cadet.name} added to OD Form`, 'success');
+                showVoiceHUDMatch(cadet.name, `${cadet.register_no || 'NO REG'} · Added to OD Form (${result.matchType})`, true);
+                flashAndScrollCadetRow(key);
+            }
+        } else if (result && result.outOfPoolCadet) {
+            // Cadet exists in another year/filter
+            const oCadet = result.outOfPoolCadet;
+            const oYear = getCadetYear(oCadet);
+            const msg = `⚠️ ${oCadet.name} is in ${oYear} Year (Active filter is ${result.activeFilter})`;
+            showToast(msg, 'error');
+            showVoiceHUDStatus(msg, 'idle');
+            playChime(false);
+            speakFeedback(`${oCadet.name} is in ${oYear} Year, not in ${result.activeFilter}`);
+            return;
+        } else {
+            // Unrecognized or unknown cadet: voice mode does NOT add new cadets!
+            const cleanNotice = cleanPart.replace(/[^A-Za-z0-9\s]/g, '').trim();
+            if (cleanNotice.length >= 2) {
+                showToast(`⚠️ "${cleanNotice}" not found in directory`, 'info');
+            }
+        }
+    });
+
+    if (matchedCount === 0) {
+        showVoiceHUDStatus(`No matching cadet for: "${transcript}"`, 'idle');
+        playChime(false);
+    }
+}
+
+// Flash cadet row in list and scroll into view
+function flashAndScrollCadetRow(key) {
+    setTimeout(() => {
+        const encKey = encodeURIComponent(key);
+        const row = document.querySelector(`.cadet-row[data-key="${encKey}"]`);
+        if (row) {
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            row.classList.add('voice-matched');
+            setTimeout(() => row.classList.remove('voice-matched'), 1500);
+        }
+    }, 50);
+}
+
+// Voice HUD UI Helpers
+function updateVoiceHUDTranscript(text) {
+    const el = document.getElementById('ai-transcript-text');
+    if (el) el.textContent = text ? `"${text}"` : 'Say a cadet\'s name or reg number...';
+}
+
+function showVoiceHUDMatch(title, sub, isAdd = true) {
+    const card = document.getElementById('ai-match-card');
+    const nameEl = document.getElementById('ai-match-name');
+    const subEl = document.getElementById('ai-match-sub');
+    const iconEl = card ? card.querySelector('.ai-match-icon i') : null;
+    if (card && nameEl && subEl) {
+        nameEl.textContent = title;
+        subEl.textContent = sub;
+        if (iconEl) {
+            iconEl.className = isAdd ? 'fa-solid fa-user-check' : 'fa-solid fa-user-minus';
+        }
+        card.style.display = 'flex';
+        card.style.borderColor = isAdd ? 'rgba(34, 197, 94, 0.35)' : 'rgba(239, 68, 68, 0.35)';
+        card.style.background = isAdd ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+        setTimeout(() => {
+            if (card) card.style.display = 'none';
+        }, 4000);
+    }
+    showVoiceHUDStatus(isAdd ? '✓ Cadet Written to OD Form' : '✓ Cadet Removed', isAdd ? 'matched' : 'idle');
+}
+
+function showVoiceHUDStatus(label, type = 'listening') {
+    const lbl = document.getElementById('ai-status-label');
+    const waves = document.getElementById('ai-waves');
+    if (lbl) {
+        lbl.textContent = label;
+        lbl.className = 'ai-status-label ' + type;
+    }
+    if (waves) {
+        if (type === 'listening') waves.classList.add('active');
+        else waves.classList.remove('active');
+    }
+}
+
+// ============================================================
+// BULLETPROOF AI VOICE ENGINE (AUTO-HEALING & ANTI-FREEZE)
+// ============================================================
+// ============================================================
+// BULLETPROOF CONTINUOUS VOICE ENGINE (NATURAL DISCRETE LOOP)
+// ============================================================
+function toggleAIMic() {
+    if (isAIMicActive) {
+        stopAIMic();
+    } else {
+        startAIMic();
+    }
+}
+
+function startAIMic() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+        showToast('⚠️ Web Speech API not supported in this browser. Use Chrome or Edge.', 'error');
+        openVoiceHelpModal();
+        return;
+    }
+
+    isAIMicActive = true;
+    updateMicUIState(true);
+    showToast('🎙️ AI Mic active: Speak cadet names or reg numbers', 'success');
+    showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
+    updateVoiceHUDTranscript('');
+    aiLastEventTimestamp = Date.now();
+
+    startVoiceWatchdog();
+    launchRecognitionSession();
+}
+
+function stopAIMic() {
+    isAIMicActive = false;
+    isRecognitionRunning = false;
+    clearTimeout(aiRecognitionRestartTimer);
+    stopVoiceWatchdog();
+
+    if (aiSpeechRecognition) {
+        try {
+            aiSpeechRecognition.onstart = null;
+            aiSpeechRecognition.onresult = null;
+            aiSpeechRecognition.onerror = null;
+            aiSpeechRecognition.onend = null;
+            aiSpeechRecognition.abort();
+        } catch (e) {}
+        aiSpeechRecognition = null;
+    }
+
+    if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+
+    updateMicUIState(false);
+    showVoiceHUDStatus('Microphone stopped', 'idle');
+    setTimeout(() => {
+        const hud = document.getElementById('ai-voice-hud');
+        if (hud && !isAIMicActive) hud.classList.remove('active');
+    }, 800);
+}
+
+// Launches a clean recognition session that automatically cycles via native onend
+function launchRecognitionSession() {
+    if (!isAIMicActive) return;
+
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) return;
+
+    // Discard any previous instance
+    if (aiSpeechRecognition) {
+        try {
+            aiSpeechRecognition.onstart = null;
+            aiSpeechRecognition.onresult = null;
+            aiSpeechRecognition.onerror = null;
+            aiSpeechRecognition.onend = null;
+            aiSpeechRecognition.abort();
+        } catch (e) {}
+        aiSpeechRecognition = null;
+    }
+
+    try {
+        const rec = new SpeechRec();
+        // continuous = false gives instant, discrete recognition with natural onend on every utterance or pause
+        rec.continuous = false;
+        rec.interimResults = true;
+        rec.lang = 'en-IN'; // Indian English pronunciation
+
+        rec.onstart = () => {
+            isRecognitionRunning = true;
+            aiLastEventTimestamp = Date.now();
+            updateMicUIState(true);
+            showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
+        };
+
+        rec.onaudiostart = () => {
+            aiLastEventTimestamp = Date.now();
+        };
+
+        rec.onspeechstart = () => {
+            aiLastEventTimestamp = Date.now();
+        };
+
+        rec.onresult = (event) => {
+            aiLastEventTimestamp = Date.now();
+            let interim = '';
+            let final = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    final += event.results[i][0].transcript;
+                } else {
+                    interim += event.results[i][0].transcript;
+                }
+            }
+
+            if (interim) {
+                updateVoiceHUDTranscript(interim + ' …');
+            }
+
+            if (final && final.trim()) {
+                updateVoiceHUDTranscript(`"${final.trim()}"`);
+                processVoiceInput(final);
+            }
+        };
+
+        rec.onerror = (event) => {
+            aiLastEventTimestamp = Date.now();
+            if (event.error === 'not-allowed') {
+                showToast('❌ Microphone permission denied in browser.', 'error');
+                stopAIMic();
+                return;
+            }
+            // All other events (no-speech, network, audio-capture) will immediately flow into onend cleanly
+        };
+
+        rec.onend = () => {
+            isRecognitionRunning = false;
+            aiSpeechRecognition = null;
+
+            // Immediately and seamlessly re-arm the next session!
+            if (isAIMicActive) {
+                clearTimeout(aiRecognitionRestartTimer);
+                aiRecognitionRestartTimer = setTimeout(() => {
+                    if (isAIMicActive) {
+                        launchRecognitionSession();
+                    }
+                }, 30);
+            } else {
+                updateMicUIState(false);
+            }
+        };
+
+        aiSpeechRecognition = rec;
+        rec.start();
+        isRecognitionRunning = true;
+        aiLastEventTimestamp = Date.now();
+
+    } catch (err) {
+        console.warn('Recognition start exception, scheduling immediate recovery:', err);
+        isRecognitionRunning = false;
+        if (isAIMicActive) {
+            clearTimeout(aiRecognitionRestartTimer);
+            aiRecognitionRestartTimer = setTimeout(() => {
+                if (isAIMicActive) launchRecognitionSession();
+            }, 80);
+        }
+    }
+}
+
+// Watchdog heartbeat: actively detects and heals any silent freezes or dropped audio streams
+function startVoiceWatchdog() {
+    stopVoiceWatchdog();
+    aiWatchdogTimer = setInterval(() => {
+        if (!isAIMicActive) {
+            stopVoiceWatchdog();
+            return;
+        }
+
+        const now = Date.now();
+        const inactiveMs = now - aiLastEventTimestamp;
+
+        // If recognition died or stayed silent for > 8 seconds without onend firing, auto-heal!
+        if (!isRecognitionRunning || inactiveMs > 8000) {
+            aiLastEventTimestamp = now;
+            showVoiceHUDStatus(getVoiceStatusDescription(), 'listening');
+            launchRecognitionSession();
+        }
+    }, 2500);
+}
+
+function stopVoiceWatchdog() {
+    if (aiWatchdogTimer) {
+        clearInterval(aiWatchdogTimer);
+        aiWatchdogTimer = null;
+    }
+}
+
+function updateMicUIState(active) {
+    const btnList = document.getElementById('btn-ai-mic');
+    const btnHeader = document.getElementById('header-ai-mic-btn');
+    const hud = document.getElementById('ai-voice-hud');
+    const waves = document.getElementById('ai-waves');
+
+    if (btnList) {
+        if (active) btnList.classList.add('listening');
+        else btnList.classList.remove('listening');
+    }
+    if (btnHeader) {
+        if (active) btnHeader.classList.add('listening');
+        else btnHeader.classList.remove('listening');
+    }
+    if (hud) {
+        if (active) hud.classList.add('active');
+    }
+    if (waves) {
+        if (active) waves.classList.add('active');
+        else waves.classList.remove('active');
+    }
+}
+
+function toggleContinuousMode() {
+    aiContinuousMode = !aiContinuousMode;
+    const btn = document.getElementById('ai-btn-continuous');
+    if (btn) {
+        if (aiContinuousMode) btn.classList.add('active');
+        else btn.classList.remove('active');
+    }
+    showToast(aiContinuousMode ? '🔄 Continuous Roll Call Mode ON' : 'Single Utterance Mode', 'info');
+}
+
+function toggleSoundFeedback() {
+    aiSoundFeedback = !aiSoundFeedback;
+    const icon = document.getElementById('ai-sound-icon');
+    const btn = document.getElementById('ai-btn-sound');
+    if (icon && btn) {
+        icon.className = aiSoundFeedback ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+        if (aiSoundFeedback) btn.classList.add('active');
+        else btn.classList.remove('active');
+    }
+    showToast(aiSoundFeedback ? '🔊 Audio feedback ON' : '🔇 Audio feedback Muted', 'info');
+}
+
+function openVoiceHelpModal() {
+    const m = document.getElementById('voice-help-modal-overlay');
+    if (m) m.style.display = 'flex';
+}
+
+function closeVoiceHelpModal() {
+    const m = document.getElementById('voice-help-modal-overlay');
+    if (m) m.style.display = 'none';
+}
+
+function executeSimulatedVoice() {
+    const input = document.getElementById('ai-voice-test-input');
+    const resEl = document.getElementById('ai-voice-test-result');
+    if (!input || !input.value.trim()) return;
+    const text = input.value.trim();
+    processVoiceInput(text);
+    if (resEl) {
+        resEl.innerHTML = `<span style="color:#22c55e;">✓ Processed voice test: "${text}"</span>`;
+    }
+}
+</script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
@@ -255,6 +256,7 @@ if (!fs.existsSync(DELETED_CADETS_FILE)) {
 }
 
 // Middleware to parse JSON and URL-encoded bodies
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
